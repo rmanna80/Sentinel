@@ -30,6 +30,7 @@ from .windows.secureboot import SecureBoot
 from .windows.startup import StartupPrograms
 from .windows.uac import UacConfiguration
 from .windows.updates import WindowsUpdates
+from .windows.wifi import WifiSecurity
 
 ALL_CHECKS: list[type[Check]] = [
     # reference checks
@@ -48,6 +49,7 @@ ALL_CHECKS: list[type[Check]] = [
     PasswordPolicy,
     SmartScreen,
     NetworkProfile,
+    WifiSecurity,
     # posture on both operating systems
     ListeningPorts,
     SuspiciousProcessLocations,

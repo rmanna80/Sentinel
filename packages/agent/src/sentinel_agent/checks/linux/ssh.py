@@ -58,6 +58,8 @@ class SshdConfig:
             return []
         try:
             names = self.ctx.list_dir(folder)
+        except FileNotFoundError:
+            return []  # sshd accepts an Include glob that matches nothing
         except (OSError, PathNotAllowed):
             self.unreadable.append(folder)
             return []
@@ -116,10 +118,18 @@ class SshServerConfig(Check):
             cfg.read(SSHD_CONFIG)
         except (OSError, PathNotAllowed) as exc:
             raise SkipCheck(f"{SSHD_CONFIG} could not be read") from exc
+        if cfg.unreadable:
+            # An included file the agent cannot read may set exactly the values judged below (cloud images ship
+            # a root-only sshd_config.d/50-cloud-init.conf), so the effective configuration is unknown.
+            raise SkipCheck("Part of the SSH server configuration could not be read ("
+                            + ", ".join(cfg.unreadable[:5]) + "). Run an elevated scan to include it.")
+        dropins: list[str] | None
         try:
             dropins = sorted(ctx.list_dir(DROPIN_DIR))
-        except (OSError, PathNotAllowed):
+        except FileNotFoundError:
             dropins = []
+        except (OSError, PathNotAllowed):
+            dropins = None  # only listed in evidence; an Include of this folder was already read above
         effective = {k: cfg.values[k][0] if k in cfg.values else DEFAULTS.get(k) for k in WATCHED}
         evidence = [ctx.evidence("file_metadata", SSHD_CONFIG, {
             "effective": effective,

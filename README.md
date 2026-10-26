@@ -22,12 +22,11 @@ A local-first security assistant for your own machines. Sentinel runs read-only 
 
 ## Install (Windows)
 
-Prerequisites: [uv](https://docs.astral.sh/uv/) and Node.js LTS.
+Prerequisites: [uv](https://docs.astral.sh/uv/). The release zip includes the built dashboard, so Node.js is only needed if you change the dashboard (you already have Node 24, which works).
 
 ```powershell
 winget install --id astral-sh.uv -e
-winget install --id OpenJS.NodeJS.LTS -e
-# open a new PowerShell window so both are on PATH
+# open a new PowerShell window so uv is on PATH
 ```
 
 Keep the repository **outside OneDrive** (for example `C:\dev\sentinel`): sync can replace files mid-build and corrupt a live database.
@@ -37,7 +36,7 @@ cd C:\dev\sentinel
 powershell -ExecutionPolicy Bypass -File scripts\install.ps1
 ```
 
-This installs Python 3.12 (managed by uv, separate from the Microsoft Store Python), the dependencies, builds the dashboard and creates the database.
+This installs Python 3.12 (managed by uv, separate from the Microsoft Store Python) and the dependencies, rebuilds the dashboard if npm is available (add `-SkipWeb` to use the included build), and creates the database.
 
 ## Start
 
@@ -61,13 +60,21 @@ To start both at sign-in (as you, not as administrator): `scripts\register-start
 
 ### Admin-only checks
 
-BitLocker/Device encryption, Secure Boot and the Security event log need administrator rights. The everyday agent runs without them and lists those checks as skipped, with the reason. To include them, queue an **elevated** scan in the dashboard, then run:
+BitLocker/Device encryption, Secure Boot and the Security event log need administrator rights. The everyday agent runs without them and lists those checks as skipped, with the reason.
+
+Elevated scans never run code from the repository or its `.venv`, because your standard account (and anything running as it) can change those. Install a protected copy of the agent into `C:\Program Files\Sentinel` once, from an **administrator** PowerShell window, right after downloading or updating Sentinel:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\install-elevated-agent.ps1
+```
+
+Then, whenever you want the admin-only checks: queue an **elevated** scan in the dashboard and run this from a normal window:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\elevated-scan.ps1
 ```
 
-Windows shows its permission prompt; the agent takes that one job and exits. Sentinel never stores admin credentials and never elevates itself.
+Windows shows its permission prompt; the protected agent takes the elevated jobs, runs them read-only and exits. Sentinel never stores admin credentials and never elevates itself. Re-run the install script after each update so the protected copy matches.
 
 ## First run on your machine
 
@@ -92,7 +99,7 @@ That file holds raw command output in the same format as the test fixtures. It c
 
 ## Integrations
 
-All are optional, configured on the **Integrations** page, and logged on the **Outbound data** page.
+Every server-side integration starts **switched off**: until you turn one on, nothing leaves this computer. Turn them on and off on the **Integrations** page; every request is logged on the **Outbound data** tab. (Pwned Passwords is on by default because it only runs when you type a password into its check yourself, and only five characters of its hash are sent. Vulnerability matching needs OSV, Microsoft and NVD switched on.)
 
 | Integration | Used for | What leaves your machine | Key |
 | --- | --- | --- | --- |

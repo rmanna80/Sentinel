@@ -12,6 +12,7 @@ from sentinel_core.models import CheckOutput, Confidence, FindingKind, Platform,
 
 from ...safe_commands import CommandCancelled, CommandFailed, CommandNotFound
 from .._util import finding
+from .scope import check_target
 
 NMAP_MISSING = "Nmap is not installed. Install it from nmap.org (Windows) or your package manager (Linux)."
 
@@ -34,9 +35,10 @@ class NmapParams(BaseModel):
         out = []
         for v in values:
             try:
-                out.append(validate_target(v))
+                target = validate_target(v)
             except CommandParamError as exc:
                 raise ValueError(f"{v!r}: {exc}") from exc
+            out.append(check_target(target))  # the agent's own limits, whatever the server sent
         return out
 
 

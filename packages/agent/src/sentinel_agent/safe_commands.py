@@ -149,19 +149,55 @@ def _kill(proc: subprocess.Popen[bytes]) -> None:
             pass
 
 
+def windows_module_path() -> str | None:
+    """PowerShell module folders only administrators can write to.
+
+    The inherited PSModulePath starts with the user's Documents\\WindowsPowerShell\\Modules, where a planted
+    module named like a built-in one (BitLocker, Defender, NetSecurity...) would be auto-loaded in place of
+    the real cmdlet, including in an elevated scan. So the agent never passes the inherited value on.
+    """
+    from .executables import FOLDERID_PROGRAM_FILES, known_folder, windows_directory
+
+    windows, program_files = windows_directory(), known_folder(FOLDERID_PROGRAM_FILES)
+    if windows is None or program_files is None:
+        return None
+    return ";".join([
+        str(windows / "System32" / "WindowsPowerShell" / "v1.0" / "Modules"),
+        str(program_files / "WindowsPowerShell" / "Modules"),
+    ])
+
+
+_KEEP_ENV = frozenset(k.upper() for k in (
+    "SystemRoot", "windir", "ComSpec", "PATHEXT", "TEMP", "TMP", "USERPROFILE", "LOCALAPPDATA", "APPDATA",
+    "ProgramData", "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432", "ALLUSERSPROFILE", "USERNAME", "USERDOMAIN",
+    "COMPUTERNAME", "HOME", "LANG", "LC_ALL", "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE", "OS",
+))
+
+
 def _minimal_env() -> dict[str, str]:
-    keep = (
-        "SystemRoot", "SYSTEMROOT", "windir", "ComSpec", "PATHEXT", "TEMP", "TMP", "USERPROFILE",
-        "LOCALAPPDATA", "APPDATA", "ProgramData", "ProgramFiles", "ProgramFiles(x86)",
-        "PSModulePath", "USERNAME", "USERDOMAIN", "COMPUTERNAME", "HOME", "LANG", "LC_ALL",
-        "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE",
-    )
-    env = {k: v for k, v in os.environ.items() if k in keep}
-    if sys.platform != "win32":
-        env["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
-        env.setdefault("LANG", "C.UTF-8")
-        env["LC_ALL"] = "C.UTF-8"  # stable, parseable tool output
-        env["SYSTEMD_PAGER"] = ""
+    """The environment for child processes: a short allowlist, with security-relevant values pinned.
+
+    Names are compared case-insensitively because Windows reports them in upper case.
+    """
+    env = {k.upper() if sys.platform == "win32" else k: v for k, v in os.environ.items() if k.upper() in _KEEP_ENV}
+    if sys.platform == "win32":
+        from .executables import windows_directory
+
+        windows = windows_directory()
+        if windows is not None:  # the real Windows folder from the OS, never a per-user override
+            env["SYSTEMROOT"] = env["WINDIR"] = str(windows)
+            system32 = windows / "System32"
+            env["COMSPEC"] = str(system32 / "cmd.exe")
+            env["PATH"] = ";".join(str(p) for p in (system32, windows, system32 / "Wbem",
+                                                     system32 / "WindowsPowerShell" / "v1.0"))
+        module_path = windows_module_path()
+        if module_path:
+            env["PSMODULEPATH"] = module_path
+        return env
+    env["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
+    env.setdefault("LANG", "C.UTF-8")
+    env["LC_ALL"] = "C.UTF-8"  # stable, parseable tool output
+    env["SYSTEMD_PAGER"] = ""
     return env
 
 

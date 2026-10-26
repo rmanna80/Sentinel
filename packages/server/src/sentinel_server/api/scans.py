@@ -17,6 +17,21 @@ from ..schemas import CheckCatalogEntry, FindingOut, Page, ScanCreate, ScanDetai
 router = APIRouter(prefix="/api", tags=["scans"])
 
 NEEDS_PARAMS = {"network", "malware"}
+# Checks that act on targets or folders. They only run through their own pages (network scope controls,
+# agent-configured malware folders), never through a generic or custom scan.
+SCOPED_CHECK_IDS = frozenset({"net.nmap_discovery", "net.tls_certificate", "net.http_headers", "malware.clamav"})
+
+
+def scoped_checks(device: Device, check_ids: list[str]) -> list[str]:
+    """Check ids that must not run from a generic scan: the fixed list plus anything the agent describes
+    as a network/malware check or as needing parameters."""
+    catalog = {c.get("id"): c for c in device.checks_catalog or []}
+    out = []
+    for cid in check_ids:
+        c = catalog.get(cid) or {}
+        if (cid in SCOPED_CHECK_IDS or set(c.get("profiles") or []) & NEEDS_PARAMS or c.get("params_schema")):
+            out.append(cid)
+    return out
 
 
 def queue_scan(db: Session, *, device: Device, scan_type: str, actor: str, user_id: int | None,
@@ -42,13 +57,19 @@ def create_scan(body: ScanCreate, auth: AuthContext = Depends(current_auth), db:
     if body.scan_type in NEEDS_PARAMS:
         raise HTTPException(422,
                             f"Start {body.scan_type} scans from their own page, which applies scope controls")
+    if body.params:
+        raise HTTPException(422, "Generic scans take no parameters; checks that need targets or folders run from "
+                                 "their own pages")
+    if body.check_ids and (blocked := scoped_checks(device, body.check_ids)):
+        raise HTTPException(422, f"{', '.join(blocked)} must be started from the Network security page (scope "
+                                 "controls) or uses the malware folders configured on the agent")
     known = {c["id"] for c in device.checks_catalog or []}
     if body.check_ids and known:
         unknown = [c for c in body.check_ids if c not in known]
         if unknown:
             raise HTTPException(422, f"Unknown checks for this device: {unknown}")
     scan = queue_scan(db, device=device, scan_type=body.scan_type, actor=auth.actor, user_id=auth.user.id,
-                      check_ids=body.check_ids, params=body.params, elevated=body.elevated)
+                      check_ids=body.check_ids, params={}, elevated=body.elevated)
     db.commit()
     return scan
 
@@ -101,6 +122,11 @@ def cancel_scan(scan_id: int, auth: AuthContext = Depends(current_auth), db: Ses
         scan.completed_at = now()
     elif scan.status == "running":
         scan.cancel_requested = True
+        if scan.lease_expires_at is None or scan.lease_expires_at < now():
+            # The agent is not heartbeating, so it cannot hear the request: end the scan here.
+            scan.status = "cancelled"
+            scan.completed_at = now()
+            scan.error = "Cancelled while the agent was not responding"
     else:
         raise HTTPException(status.HTTP_409_CONFLICT, f"Scan is already {scan.status}")
     audit.record(db, auth.actor, "scan.cancel_requested", "scan", scan.id)

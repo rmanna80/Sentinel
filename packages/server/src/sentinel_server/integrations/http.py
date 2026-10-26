@@ -101,3 +101,14 @@ def request(
     finally:
         _log(integration, method, host, path, purpose, payload_summary, status_code,
              int((time.monotonic() - start) * 1000), error)
+
+
+def record_outbound(integration: str, method: str, host: str, path: str, purpose: str, payload_summary: str,
+                    *, status_code: int | None = None, duration_ms: int = 0, error: str | None = None) -> None:
+    """Log traffic that does not go through ``request`` (for example SMTP) on the Outbound data page."""
+    _log(integration, method, host, path, purpose, payload_summary, status_code, duration_ms, error)
+
+
+def ensure_outbound_allowed() -> None:
+    if not get_settings().outbound_enabled:
+        raise OutboundDisabled("Outbound connections are disabled in settings")

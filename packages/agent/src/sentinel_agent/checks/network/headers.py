@@ -14,6 +14,7 @@ from sentinel_core.models import CheckOutput, Platform, Severity
 from ... import __version__
 from ...safe_commands import CommandCancelled
 from .._util import finding
+from .scope import check_target
 
 TIMEOUT = 10.0
 
@@ -29,8 +30,10 @@ class HeaderParams(BaseModel):
             parts = urlsplit(v.strip())
             if parts.scheme not in ("http", "https") or not parts.hostname:
                 raise ValueError(f"{v!r} is not an http(s) URL")
-            if parts.username or parts.password:
+            if "@" in parts.netloc:  # any user info, even an empty one ("http://@host/")
                 raise ValueError("URLs with credentials are not allowed")
+            _ = parts.port  # raises ValueError for an invalid port
+            check_target(parts.hostname)  # the agent's own limits, whatever the server sent
             out.append(v.strip())
         return out
 

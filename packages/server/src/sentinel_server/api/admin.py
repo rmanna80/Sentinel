@@ -41,7 +41,8 @@ def list_audit(action: str | None = None, actor: str | None = None, limit: int =
 def verify_audit(auth: AuthContext = Depends(current_auth), db: Session = Depends(get_db)) -> AuditVerify:
     intact, bad = audit.verify_chain(db)
     n = db.execute(select(func.count(AuditEntry.id))).scalar_one()
-    return AuditVerify(intact=intact, first_bad_id=bad, entries=n)
+    seq, digest = audit.head(db)
+    return AuditVerify(intact=intact, first_bad_id=bad, entries=n, latest_seq=seq, latest_hash=digest)
 
 
 @router.get("/settings")

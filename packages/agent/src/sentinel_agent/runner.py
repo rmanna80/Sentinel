@@ -66,7 +66,8 @@ class _Planned:
 
 def build_plan(registry: CheckRegistry, job: AgentJob, host: HostInfo) -> tuple[list[PlannedCheck], list[_Planned]]:
     if job.check_ids:
-        candidates = [c for cid in job.check_ids if (c := registry.get(cid)) is not None]
+        # Each check runs at most once per scan (its staged state and its result are keyed by check id).
+        candidates = [c for cid in dict.fromkeys(job.check_ids) if (c := registry.get(cid)) is not None]
         unknown = [cid for cid in job.check_ids if cid not in registry]
         if unknown:
             log.warning("ignoring unknown check ids from server: %s", unknown)
@@ -152,11 +153,15 @@ class ScanRunner:
         max_workers: int = 3,
         heartbeat_interval: float = 5.0,
         poll_interval: float = 0.2,
+        on_sent: Callable[[CheckRunResult], None] | None = None,
     ) -> None:
+        """``on_sent`` is called with each result right after ``sink.send_result`` returned without raising
+        (the server-run agent commits that check's staged state there)."""
         self.registry = registry
         self.host = host
         self.context_factory = context_factory
         self.sink = sink
+        self.on_sent = on_sent
         self.max_workers = max_workers
         self.heartbeat_interval = heartbeat_interval
         self.poll_interval = poll_interval
@@ -181,6 +186,11 @@ class ScanRunner:
             recorded.add(result.check_id)
             statuses.append(result.status)
             self.sink.send_result(result)
+            if self.on_sent is not None:
+                try:
+                    self.on_sent(result)
+                except Exception:
+                    log.exception("after-upload step failed for %s", result.check_id)
 
         # Not a context manager: a check stuck in pure Python must not block the scan from closing.
         pool = ThreadPoolExecutor(max_workers=self.max_workers, thread_name_prefix="check")

@@ -44,6 +44,15 @@ from .scoring import scan_snapshot
 log = logging.getLogger(__name__)
 
 MAX_EVIDENCE_BYTES = 256 * 1024
+# Per-result limits. The agent stays well inside them; anything larger is a protocol violation and is
+# rejected whole (truncating findings would wrongly resolve the ones cut off).
+MAX_FINDINGS_PER_RESULT = 2000
+MAX_EVIDENCE_PER_RESULT = 100
+MAX_EVENTS_PER_RESULT = 5000
+MAX_SOFTWARE_PER_RESULT = 20000
+MAX_METRICS_PER_RESULT = 200
+MAX_EVENT_DATA_BYTES = 16 * 1024
+TERMINAL_STATUSES = frozenset({ScanStatus.COMPLETED, ScanStatus.PARTIAL, ScanStatus.FAILED, ScanStatus.CANCELLED})
 
 
 class IngestError(ValueError):
@@ -132,6 +141,9 @@ def _store_events(db: Session, device: Device, scan: Scan, result: CheckRunResul
     stored: list[LogEventRecord] = []
     for ev in result.output.events:
         data, _ = redact(ev.data)
+        raw_data = json.dumps(data, default=str)
+        if len(raw_data.encode("utf-8")) > MAX_EVENT_DATA_BYTES:
+            data = {"truncated": True, "original_bytes": len(raw_data), "preview": raw_data[: MAX_EVENT_DATA_BYTES // 2]}
         message, _ = redact(ev.message)
         insert = pg_insert if db.get_bind().dialect.name == "postgresql" else sqlite_insert
         stmt = (
@@ -197,17 +209,26 @@ def _store_metrics(db: Session, device: Device, samples: list[MetricSample]) -> 
         db.add(MetricSampleRecord(device_id=device.id, ts=m.ts, metric=m.metric[:128], value=float(m.value)))
 
 
+def _check_limits(result: CheckRunResult) -> None:
+    out = result.output
+    if out is None:
+        return
+    for name, items, limit in (
+        ("findings", out.findings, MAX_FINDINGS_PER_RESULT), ("evidence items", out.evidence, MAX_EVIDENCE_PER_RESULT),
+        ("events", out.events, MAX_EVENTS_PER_RESULT), ("software items", out.software, MAX_SOFTWARE_PER_RESULT),
+        ("metrics", out.metrics, MAX_METRICS_PER_RESULT),
+    ):
+        if len(items) > limit:
+            raise IngestError(f"result for {result.check_id} has {len(items)} {name}; the limit is {limit}")
+
+
 def record_result(db: Session, scan: Scan, device: Device, result: CheckRunResult, settings: Settings) -> CheckRun:
     _require_running(scan)
+    _check_limits(result)
     run = next((r for r in scan.check_runs if r.check_id == result.check_id), None)
     if run is None:
-        # A result for a check that was not in the plan; record it rather than lose it.
-        run = CheckRun(scan_id=scan.id, check_id=result.check_id, check_version=result.check_version,
-                       title=result.check_id, category="unknown", data_collected="")
-        db.add(run)
-        scan.check_runs.append(run)
-        db.flush()
-    elif run.status not in ("planned",):
+        raise IngestError(f"check {result.check_id} was not in this scan's plan")
+    if run.status not in ("planned",):
         raise IngestError(f"check {result.check_id} already has a result in scan {scan.id}")
     run.check_version = result.check_version
     run.status = result.status.value
@@ -245,6 +266,8 @@ def record_result(db: Session, scan: Scan, device: Device, result: CheckRunResul
 
 
 def complete_scan(db: Session, scan: Scan, completion: ScanCompletion, settings: Settings) -> Scan:
+    if completion.status not in TERMINAL_STATUSES:
+        raise IngestError(f"a scan cannot be completed as {completion.status.value}")
     if scan.status != "running":
         return scan
     status = completion.status
@@ -273,8 +296,13 @@ def expire_stale_scans(db: Session) -> int:
     """Running scans whose agent stopped heartbeating become failed."""
     t = now()
     n = 0
+    stuck_before = t - timedelta(hours=6)
     for scan in db.execute(
-        select(Scan).where(Scan.status == "running", Scan.lease_expires_at.is_not(None), Scan.lease_expires_at < t)
+        select(Scan).where(
+            Scan.status == "running",
+            ((Scan.lease_expires_at.is_not(None)) & (Scan.lease_expires_at < t))
+            | ((Scan.lease_expires_at.is_(None)) & (Scan.started_at < stuck_before)),
+        )
     ).scalars():
         for r in scan.check_runs:
             if r.status == "planned":

@@ -33,7 +33,7 @@ from ..schemas import (
     TaskUpdate,
 )
 from ..services.findings import OPEN, USER_TRANSITIONS, TransitionError, apply_user_update
-from .scans import queue_scan
+from .scans import queue_scan, scoped_checks
 
 router = APIRouter(prefix="/api", tags=["findings"])
 
@@ -157,6 +157,12 @@ def verify_finding(finding_id: int, auth: AuthContext = Depends(current_auth), d
         # vulnerability findings are re-evaluated from a fresh software inventory
         scan = queue_scan(db, device=device, scan_type="inventory", actor=auth.actor, user_id=auth.user.id,
                           reason="verify")
+    elif scoped_checks(device, [f.check_id]):
+        # Re-running a network or malware check needs its targets or folders; a bare re-run would skip and
+        # prove nothing, so the person re-runs it where the scope is chosen.
+        raise HTTPException(status.HTTP_409_CONFLICT,
+                            "Re-run this check from the Network security page (or the agent's malware folders) "
+                            "with the same targets; a passing re-run there resolves it.")
     else:
         elevated = any(c.get("id") == f.check_id and c.get("requires_elevation")
                        for c in device.checks_catalog or [])

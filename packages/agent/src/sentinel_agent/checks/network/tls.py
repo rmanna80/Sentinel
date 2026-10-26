@@ -20,6 +20,7 @@ from sentinel_core.models import CheckOutput, Platform, Severity, utcnow
 
 from ...safe_commands import CommandCancelled
 from .._util import finding
+from .scope import check_target
 
 TIMEOUT = 10.0
 LEGACY_PROTOCOLS = ("TLSv1", "TLSv1.1", "SSLv3")
@@ -50,7 +51,7 @@ def split_endpoint(value: str) -> tuple[str, int]:
         host = validate_target(host)
     except CommandParamError as exc:
         raise ValueError(f"{value!r}: {exc}") from exc
-    return host, port
+    return check_target(host), port
 
 
 def endpoint_label(host: str, port: int) -> str:

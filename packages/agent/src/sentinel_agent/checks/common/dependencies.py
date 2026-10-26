@@ -85,34 +85,39 @@ class ProjectDependencies(Check):
         report: list[dict[str, Any]] = []
         for folder in folders:
             entry: dict[str, Any] = {"folder": folder}
+            # Any read error skips the whole check: reporting this project with no dependencies would mark all of
+            # its vulnerability findings as resolved.
             try:
                 names = set(ctx.list_dir(folder))
+            except FileNotFoundError as exc:
+                raise SkipCheck(f"The configured project folder {folder} does not exist. Remove it with "
+                                "sentinel-agent config, or restore the folder.") from exc
             except (PathNotAllowed, OSError) as exc:
-                entry["error"] = str(exc)[:200]
-                report.append(entry)
-                continue
+                raise SkipCheck(f"The configured project folder {folder} could not be read: {str(exc)[:200]}") from exc
             if "requirements.txt" in names:
                 path = join_path(folder, "requirements.txt")
                 try:
                     pins, unpinned = parse_requirements(ctx.read_text(path))
-                    entry["requirements.txt"] = {"pinned": len(pins), "not_pinned": unpinned}
-                    for name, ver in pins:
-                        items[("PyPI", name, ver, folder)] = SoftwareItem(
-                            name=name, version=ver, ecosystem="PyPI", source="requirements.txt", location=folder)
                 except (PathNotAllowed, OSError) as exc:
-                    entry["requirements.txt"] = {"error": str(exc)[:200]}
+                    raise SkipCheck(f"{path} could not be read: {str(exc)[:200]}") from exc
+                entry["requirements.txt"] = {"pinned": len(pins), "not_pinned": unpinned}
+                for name, ver in pins:
+                    items[("PyPI", name, ver, folder)] = SoftwareItem(
+                        name=name, version=ver, ecosystem="PyPI", source="requirements.txt", location=folder)
             if "package-lock.json" in names:
                 path = join_path(folder, "package-lock.json")
                 try:
                     pkgs, lock_version = parse_package_lock(ctx.read_text(path, max_bytes=20_000_000))
-                    entry["package-lock.json"] = {"lockfileVersion": lock_version, "packages": len(pkgs)}
-                    if lock_version not in (2, 3):
-                        entry["package-lock.json"]["note"] = "Only lockfileVersion 2 and 3 are read"
-                    for name, ver in pkgs:
-                        items[("npm", name, ver, folder)] = SoftwareItem(
-                            name=name, version=ver, ecosystem="npm", source="package-lock.json", location=folder)
-                except (PathNotAllowed, OSError, ValueError) as exc:
-                    entry["package-lock.json"] = {"error": str(exc)[:200]}
+                except (PathNotAllowed, OSError) as exc:
+                    raise SkipCheck(f"{path} could not be read: {str(exc)[:200]}") from exc
+                except ValueError as exc:
+                    raise SkipCheck(f"{path} is not valid JSON: {str(exc)[:200]}") from exc
+                entry["package-lock.json"] = {"lockfileVersion": lock_version, "packages": len(pkgs)}
+                if lock_version not in (2, 3):
+                    entry["package-lock.json"]["note"] = "Only lockfileVersion 2 and 3 are read"
+                for name, ver in pkgs:
+                    items[("npm", name, ver, folder)] = SoftwareItem(
+                        name=name, version=ver, ecosystem="npm", source="package-lock.json", location=folder)
             if "requirements.txt" not in names and "package-lock.json" not in names:
                 entry["note"] = "No requirements.txt or package-lock.json in this folder"
             report.append(entry)

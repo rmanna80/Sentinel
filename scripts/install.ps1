@@ -29,12 +29,18 @@ if ($LASTEXITCODE -ne 0) { throw "uv python install failed" }
 uv sync --locked
 if ($LASTEXITCODE -ne 0) { throw "uv sync failed" }
 
+$prebuilt = Join-Path $repo 'packages\server\src\sentinel_server\static\index.html'
 if (-not $SkipWeb) {
-    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-        throw "npm was not found. Install Node.js LTS (winget install --id OpenJS.NodeJS.LTS -e) or rerun with -SkipWeb."
+    if (Get-Command npm -ErrorAction SilentlyContinue) {
+        & (Join-Path $PSScriptRoot 'build-web.ps1')
+        if ($LASTEXITCODE -ne 0) { throw "dashboard build failed" }
+    } elseif (Test-Path $prebuilt) {
+        Write-Host "npm not found; using the dashboard build included in the release." -ForegroundColor Yellow
+    } else {
+        throw "npm was not found and no built dashboard is present. Install Node.js LTS (winget install --id OpenJS.NodeJS.LTS -e)."
     }
-    & (Join-Path $PSScriptRoot 'build-web.ps1')
-    if ($LASTEXITCODE -ne 0) { throw "dashboard build failed" }
+} elseif (-not (Test-Path $prebuilt)) {
+    Write-Warning "No built dashboard found; the server will show a placeholder page until you build it."
 }
 
 Write-Host "Preparing the database..." -ForegroundColor Cyan

@@ -37,7 +37,8 @@ LOCAL_SUFFIXES = (".local", ".lan", ".internal", ".home.arpa")
 MIN_PREFIX = {4: 16, 6: 64}
 MAX_TARGETS = 256
 LARGE_RANGE = 256
-SUMMARY_CHECKS = ("net.listening", "net.interfaces", "net.dns_config", "win.network_profile")
+SUMMARY_CHECKS = ("net.listening", "net.interfaces", "net.dns_config", "win.network_profile",
+                  "win.wifi_security")
 
 CHECK_IDS = {"discovery": "net.nmap_discovery", "tls": "net.tls_certificate", "headers": "net.http_headers"}
 # The agent's own limits per scan (its params models reject anything larger); checked here first so the

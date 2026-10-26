@@ -22,7 +22,7 @@ Generated from the agent's registry by `scripts/gen_checks_doc.py`. Every check 
 | `win.defender.status` — Microsoft Defender Antivirus is protecting this PC | Windows | No | Microsoft Defender's on/off states (service, antivirus, real-time protection, tamper protection), the age and date of its virus definitions, its running mode, and the names and state codes of antivirus products registered with Windows Security Center |
 | `win.firewall.profiles` — Windows Firewall is on for every profile | Windows | No | On/off state and default inbound action of the Domain, Private and Public firewall profiles |
 | `win.lsa_protection` — LSA protection guards stored credentials | Windows | No | The RunAsPPL, RunAsPPLBoot and LsaCfgFlags values of the LSA registry key |
-| `win.network_profile` — Connected networks are classified and secured | Windows | No | Name, adapter and Public/Private category of each connected network, and for Wi-Fi the network name (SSID), authentication and cipher of the connected access point |
+| `win.network_profile` — Connected networks are classified | Windows | No | Name, adapter, Public/Private category and connectivity of each connected network |
 | `win.os.updates` — Windows updates are being installed | Windows | No | The last 100 entries of the Windows Update history (update title, date, result and whether it was an install or uninstall) and the start type of the Windows Update service |
 | `win.password_policy` — Local accounts lock out after repeated wrong passwords | Windows | No | The local password and lockout policy shown by `net accounts` (no account names or passwords) |
 | `win.rdp` — Remote Desktop is off or requires Network Level Authentication | Windows | No | Whether Remote Desktop connections are allowed (fDenyTSConnections), whether Network Level Authentication is required (UserAuthentication) and the listening port (PortNumber) |
@@ -30,6 +30,7 @@ Generated from the agent's registry by `scripts/gen_checks_doc.py`. Every check 
 | `win.smartscreen` — SmartScreen checks downloaded apps | Windows | No | The SmartScreenEnabled value under Explorer settings and the EnableSmartScreen group policy value |
 | `win.startup` — Programs that start automatically look legitimate | Windows | No | Names and command lines of programs registered under the Run and RunOnce registry keys (machine-wide, 32- and 64-bit, and for the current user) and the file names in the two Startup folders |
 | `win.uac` — User Account Control prompts before elevation | Windows | No | EnableLUA, ConsentPromptBehaviorAdmin and PromptOnSecureDesktop registry values |
+| `win.wifi_security` — The connected Wi-Fi network is secured | Windows | No | For each Wi-Fi adapter: its name and connection state, and for a connected network its name (SSID), authentication, cipher, radio type and profile name |
 
 ## Inventory
 
@@ -63,4 +64,4 @@ Generated from the agent's registry by `scripts/gen_checks_doc.py`. Every check 
 | --- | --- | --- | --- |
 | `malware.clamav` — ClamAV scan of your chosen folders | Linux, Windows | No | For the folders you configured on the agent: the paths of files that match a ClamAV malware signature and the signature name (file contents are scanned locally and never uploaded) |
 
-Total: 36 checks.
+Total: 37 checks.

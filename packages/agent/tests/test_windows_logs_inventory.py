@@ -1,5 +1,7 @@
 """Windows event logs and inventory against hand-written fixtures shaped like real output (not recordings)."""
 
+from datetime import UTC, datetime, timedelta, timezone
+
 import pytest
 from sentinel_agent.checks.windows import eventlogs as el
 from sentinel_agent.checks.windows import inventory as inv
@@ -47,7 +49,9 @@ def test_security_log_normalizes_logons_and_saves_cursor():
     actions = [e.action for e in out.events]
     assert actions == ["logon_failed", "logon_failed", "logon_success", "special_privileges"]
     failed = out.events[0]
-    assert (failed.source, failed.record_id, failed.event_id) == ("windows:Security", "101", "4625")
+    assert (failed.source, failed.record_id, failed.event_id) == (
+        "windows:Security", "101@2026-10-24T03:12:41.000000Z", "4625")
+    assert failed.data["record_id"] == 101
     assert failed.source_ip == "203.0.113.50" and failed.outcome == "failure" and failed.severity is Severity.LOW
     assert failed.data["Status"] == "0xc000006d" and failed.data["LogonType"] == "3"
     assert out.events[1].source_ip is None  # "-" means no address
@@ -72,7 +76,7 @@ def test_security_log_account_and_tamper_events():
         row(4698, 207, {"SubjectUserName": "Ryan", "TaskName": "\\OneDrive Reporting Task"}),
     ]
     out = el.WindowsSecurityLog().run(FixtureContext(HOST, security_fixture(rows)))
-    by = {e.record_id: e for e in out.events}
+    by = {str(e.data["record_id"]): e for e in out.events}
     assert by["201"].action == "account_created" and by["201"].severity is Severity.MEDIUM
     assert by["202"].action == "group_member_added" and by["202"].severity is Severity.HIGH
     assert by["202"].data["TargetSid"] == "S-1-5-32-544" and by["202"].data["MemberSid"] == "S-1-5-21-1-2-3-1005"
@@ -101,7 +105,57 @@ def test_security_log_restarted_after_clear_reads_last_week_again():
     }}
     state = MemoryState({"cursor:windows:Security": "90000"})
     out = el.WindowsSecurityLog().run(FixtureContext(HOST, fixture, state=state))
-    assert [e.record_id for e in out.events] == ["39"] and state.get("cursor:windows:Security") == "39"
+    assert [e.data["record_id"] for e in out.events] == [39] and state.get("cursor:windows:Security") == "39"
+
+
+def _at(event_id, record_id, time, data, **kw):
+    return {"RecordId": record_id, "Id": event_id, "Time": time,
+            "Xml": win_event_xml(event_id, record_id, time, data, **kw)}
+
+
+def test_security_log_cleared_again_gets_new_record_ids():
+    """Record ids restart at 1 after every clear; the uploaded id must not collide with the earlier events."""
+    cleared = {"SubjectUserName": "Ryan", "SubjectDomainName": "RYAN-PC"}
+    clear_kw = {"provider": "Microsoft-Windows-Eventlog", "user_data": "LogFileCleared"}
+    # First collection: the log had been cleared once before, so it starts at record 1.
+    before = [_at(1102, 1, "2026-10-20T08:00:00.0000000Z", cleared, **clear_kw),
+              _at(4625, 2, "2026-10-20T08:05:00.0000000Z", {"TargetUserName": "Ryan", "LogonType": "2"}),
+              _at(4624, 3, "2026-10-20T08:06:00.0000000Z", {"TargetUserName": "Ryan", "LogonType": "2"})]
+    state = MemoryState()
+    first = el.WindowsSecurityLog().run(FixtureContext(HOST, security_fixture(before), state=state))
+    assert state.get("cursor:windows:Security") == "3"
+
+    # Cleared again: new events reuse the small numbers, with later timestamps. The newest record (2) is below
+    # the cursor (3), so the agent re-reads the last 7 days.
+    after = [_at(1102, 1, "2026-10-24T22:30:00.1234567Z", cleared, **clear_kw),
+             _at(4625, 2, "2026-10-24T22:31:00.0000000Z", {"TargetUserName": "administrator", "LogonType": "3",
+                                                            "IpAddress": "203.0.113.50"})]
+    fixture = {"commands": {
+        el.SECURITY_SINCE_CURSOR.name + "|cursor=3": ps_json({"Newest": 2, "Events": []}),
+        el.SECURITY_FIRST_RUN.name: ps_json({"Newest": 2, "Events": after}),
+    }}
+    ctx = FixtureContext(HOST, fixture, state=state)
+    second = el.WindowsSecurityLog().run(ctx)
+    assert [c[0] for c in ctx.calls] == [el.SECURITY_SINCE_CURSOR.name, el.SECURITY_FIRST_RUN.name]
+    assert "log restarted" in second.evidence[0].content["window"]
+
+    old_ids = {e.record_id for e in first.events}
+    new_ids = [e.record_id for e in second.events]
+    assert [e.action for e in second.events] == ["audit_log_cleared", "logon_failed"]
+    assert new_ids == ["1@2026-10-24T22:30:00.123456Z", "2@2026-10-24T22:31:00.000000Z"]
+    assert old_ids.isdisjoint(new_ids) and len(set(new_ids)) == 2
+    assert [e.data["record_id"] for e in second.events] == [1, 2]  # the plain number, for display
+    assert state.get("cursor:windows:Security") == "2"  # cursor stays the highest numeric RecordId
+
+    # Reading the same events again yields the same ids, so the server's dedupe still drops repeats.
+    again = el.WindowsSecurityLog().run(FixtureContext(HOST, security_fixture(after), state=MemoryState()))
+    assert [e.record_id for e in again.events] == new_ids
+
+
+def test_event_uid_normalizes_to_utc():
+    local = datetime(2026, 10, 24, 18, 30, tzinfo=timezone(timedelta(hours=-4)))
+    assert el.event_uid(7, local) == "7@2026-10-24T22:30:00.000000Z"
+    assert el.event_uid(7, local) == el.event_uid(7, local.astimezone(UTC))
 
 
 def test_security_log_access_denied_skips():

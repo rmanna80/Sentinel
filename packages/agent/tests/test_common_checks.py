@@ -222,3 +222,22 @@ def test_dependencies_old_lockfile_and_empty_folder():
     projects = out.evidence[0].content["projects"]
     assert projects[0]["package-lock.json"]["note"] == "Only lockfileVersion 2 and 3 are read"
     assert "No requirements.txt" in projects[1]["note"]
+
+
+def test_dependencies_missing_project_folder_skips_and_resolves_nothing():
+    fixture = {"files": {PROJECT + "::<listdir>": "requirements.txt", PROJECT + "/requirements.txt": "Django==4.2.7\n"}}
+    ctx = FixtureContext(linux_host(), fixture, config={"project_paths": [PROJECT, "/home/ryan/gone"]})
+    with pytest.raises(SkipCheck, match="/home/ryan/gone does not exist"):
+        dep.ProjectDependencies().run(ctx)
+
+
+def test_dependencies_unreadable_folder_or_manifest_skips():
+    unreadable_folder = {"files": {PROJECT + "::<listdir>": None}}
+    with pytest.raises(SkipCheck, match=f"project folder {PROJECT} could not be read"):
+        dep.ProjectDependencies().run(FixtureContext(linux_host(), unreadable_folder, config={"project_paths": [PROJECT]}))
+    unreadable_file = {"files": {PROJECT + "::<listdir>": "requirements.txt", PROJECT + "/requirements.txt": None}}
+    with pytest.raises(SkipCheck, match=r"requirements\.txt could not be read"):
+        dep.ProjectDependencies().run(FixtureContext(linux_host(), unreadable_file, config={"project_paths": [PROJECT]}))
+    broken_lock = {"files": {PROJECT + "::<listdir>": "package-lock.json", PROJECT + "/package-lock.json": "{\"lockf"}}
+    with pytest.raises(SkipCheck, match=r"package-lock\.json is not valid JSON"):
+        dep.ProjectDependencies().run(FixtureContext(linux_host(), broken_lock, config={"project_paths": [PROJECT]}))

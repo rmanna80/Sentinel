@@ -260,7 +260,8 @@ def _seed(device_id: int) -> dict[str, Any]:
 def test_summary_passes_through_latest_completed_evidence(browser, device_id):
     seeded = _seed(device_id)
     s = browser.get("/api/network/summary", params={"device_id": device_id}).json()
-    assert set(s["facts"]) == {"net.listening", "net.interfaces", "net.dns_config", "win.network_profile"}
+    assert set(s["facts"]) == {"net.listening", "net.interfaces", "net.dns_config", "win.network_profile",
+                                 "win.wifi_security"}
     listening = s["facts"]["net.listening"]
     assert listening["status"] == "failed"
     assert listening["evidence"][0]["content"] == [{"port": 3389, "process": "svchost"}]

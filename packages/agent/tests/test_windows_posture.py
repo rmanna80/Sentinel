@@ -9,7 +9,7 @@ from sentinel_agent.checks.windows import defender as dfd
 from sentinel_agent.checks.windows import hardening as hd
 from sentinel_agent.checks.windows import network_profile as npf
 from sentinel_agent.checks.windows import password_policy as pp
-from sentinel_agent.checks.windows import rdp
+from sentinel_agent.checks.windows import rdp, wifi
 from sentinel_agent.checks.windows import secureboot as sb
 from sentinel_agent.checks.windows import startup as st
 from sentinel_agent.checks.windows import updates as upd
@@ -17,7 +17,7 @@ from sentinel_agent.registry import CheckRegistry
 from sentinel_agent.runner import build_plan
 from sentinel_agent.testing import FixtureContext, ps_json, reg, windows_host
 from sentinel_core.checks import NotApplicable, SkipCheck
-from sentinel_core.models import AgentJob, FindingKind, PlanStatus, ScanType, Severity
+from sentinel_core.models import AgentJob, FindingKind, PlanStatus, Platform, ScanType, Severity
 
 HOME = windows_host(edition="Home", os_build="10.0.26300.7171", is_insider_build=True, hostname="RYAN-PC")
 NOW = datetime(2026, 10, 25, 12, 0, tzinfo=UTC)
@@ -276,6 +276,32 @@ def test_startup_temp_and_encoded_commands_are_heuristic(startup_env):
     assert any("AppData\\Local\\Temp" in f.title for f in out.findings)
 
 
+def test_startup_missing_folder_is_empty_but_unreadable_folder_skips(startup_env):
+    fixture = _startup({}, {startup_env["user"]: ["Spotify.lnk"]})  # no all-users Startup folder at all
+    out = st.StartupPrograms().run(FixtureContext(HOME, fixture))
+    assert out.evidence[0].content["startup_folders_missing"] == [startup_env["all"]]
+    assert "Spotify.lnk" in {e["name"] for e in out.evidence[0].content["entries"]}
+    unreadable = _startup({}, {startup_env["user"]: ["Spotify.lnk"]})
+    unreadable["files"][startup_env["all"] + "::<listdir>"] = None
+    with pytest.raises(SkipCheck, match=r"Startup folder .* could not be read"):
+        st.StartupPrograms().run(FixtureContext(HOME, unreadable))
+
+
+def test_startup_folders_come_from_known_folders_on_windows(monkeypatch):
+    from sentinel_agent import executables
+
+    monkeypatch.setattr(st.sys, "platform", "win32")
+    monkeypatch.setenv("APPDATA", "C:\\Users\\Ryan\\evil")
+    monkeypatch.setenv("ProgramData", "C:\\Users\\Ryan\\evil")
+    user_startup = "C:\\Users\\Ryan\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+    folders = {executables.FOLDERID_PROGRAM_DATA: "C:\\ProgramData", executables.FOLDERID_STARTUP: user_startup}
+    monkeypatch.setattr(executables, "_known_folder_path", lambda fid: folders[fid])
+    got = dict(st.startup_folders())
+    assert got["current_user"] == folders[executables.FOLDERID_STARTUP]
+    assert got["all_users"].startswith("C:\\ProgramData") and got["all_users"].endswith("StartUp")
+    assert not any("evil" in f for f in got.values())
+
+
 @pytest.mark.parametrize("command,flagged", [
     ("powershell -EncodedCommand AAAA", True),
     ("pwsh.exe -NoProfile -e AAAA", True),
@@ -423,6 +449,26 @@ def test_password_policy_non_english_skips():
 
 # --------------------------------------------------------------------------- win.network_profile
 
+PROFILES = [{"Name": "HomeNet", "InterfaceAlias": "Wi-Fi", "NetworkCategory": "Private", "IPv4Connectivity": "Internet"}]
+
+
+def test_network_profile_records_profiles_only():
+    fixture = {"commands": {npf.CONNECTION_PROFILES.name: ps_json(PROFILES[0])}}
+    ctx = FixtureContext(HOME, fixture)
+    out = npf.NetworkProfile().run(ctx)
+    assert out.findings == [] and out.evidence[0].content["profiles"] == PROFILES
+    assert [c[0] for c in ctx.calls] == [npf.CONNECTION_PROFILES.name]
+    assert npf.NetworkProfile.commands == (npf.CONNECTION_PROFILES,)  # Wi-Fi moved to win.wifi_security
+
+
+def test_network_profile_unreadable_skips():
+    fixture = {"commands": {npf.CONNECTION_PROFILES.name: {"error": "failed", "message": "CIM error"}}}
+    with pytest.raises(SkipCheck, match="Network profiles could not be read"):
+        npf.NetworkProfile().run(FixtureContext(HOME, fixture))
+
+
+# --------------------------------------------------------------------------- win.wifi_security
+
 WLAN = """
 There is 1 interface on the system:
 
@@ -449,34 +495,114 @@ There is 1 interface on the system:
 
     Hosted network status  : Not available
 """
-PROFILES = [{"Name": "HomeNet", "InterfaceAlias": "Wi-Fi", "NetworkCategory": "Private", "IPv4Connectivity": "Internet"}]
+DISCONNECTED = """
+There is 1 interface on the system:
+
+    Name                   : Wi-Fi
+    Description            : Intel(R) Wi-Fi 6E AX211 160MHz
+    GUID                   : 3c1b7e6a-0a52-4f43-9a0e-2a3b1e9d6f10
+    Physical address       : a4:c3:f0:11:22:33
+    Interface type         : Primary
+    State                  : disconnected
+    Radio status           : Hardware On
+                             Software On
+
+    Hosted network status  : Not available
+"""
+# German display language (shape of `netsh wlan show interfaces` on a de-DE Windows).
+GERMAN = """
+Es ist 1 Schnittstelle auf dem System vorhanden:
+
+    Name                   : WLAN
+    Beschreibung           : Intel(R) Wi-Fi 6E AX211 160MHz
+    GUID                   : 3c1b7e6a-0a52-4f43-9a0e-2a3b1e9d6f10
+    Physische Adresse      : a4:c3:f0:11:22:33
+    Status                 : Verbunden
+    SSID                   : CoffeeShop
+    Authentifizierung      : Offen
+    Verschlüsselung        : Keine
+    Profil                 : CoffeeShop
+"""
+LOCATION_OFF = (
+    "Network shell commands need location permission to access WLAN information. Turn on Location services on "
+    "the Location page in Privacy & security settings.\n\nHere is the URI for the Location page in the Settings app:\n"
+    "ms-settings:privacy-location\nTo open the Location page in the Settings app, hold down the Ctrl key and select "
+    "the link, or run the following command:\nstart ms-settings:privacy-location\n"
+)
 
 
 def _wifi(auth, cipher, ssid="HomeNet"):
-    return {"commands": {npf.CONNECTION_PROFILES.name: ps_json(PROFILES),
-                         npf.WLAN_INTERFACES.name: {"stdout": WLAN.format(ssid=ssid, auth=auth, cipher=cipher)}}}
+    return {"commands": {wifi.WLAN_INTERFACES.name: {"stdout": WLAN.format(ssid=ssid, auth=auth, cipher=cipher)}}}
 
 
-def test_network_profile_wpa2_passes():
-    out = npf.NetworkProfile().run(FixtureContext(HOME, _wifi("WPA2-Personal", "CCMP")))
+def _netsh(stdout, exit_code=0):
+    return {"commands": {wifi.WLAN_INTERFACES.name: {"exit_code": exit_code, "stdout": stdout}}}
+
+
+def test_wifi_wpa2_passes():
+    out = wifi.WifiSecurity().run(FixtureContext(HOME, _wifi("WPA2-Personal", "CCMP")))
     assert out.findings == []
-    assert out.evidence[0].content["wifi"][0]["SSID"] == "HomeNet"
+    assert out.evidence[0].content["interfaces"][0]["SSID"] == "HomeNet"
+    assert out.evidence[0].content["connected"] == 1
 
 
 @pytest.mark.parametrize("auth,cipher,severity", [("Open", "None", Severity.HIGH), ("Open", "WEP", Severity.HIGH),
                                                   ("WPA2-Personal", "TKIP", Severity.MEDIUM),
                                                   ("WPA-Personal", "CCMP", Severity.MEDIUM)])
-def test_network_profile_weak_wifi(auth, cipher, severity):
-    out = npf.NetworkProfile().run(FixtureContext(HOME, _wifi(auth, cipher, "CoffeeShop")))
-    assert rules(out) == ["win.network_profile.weak_wifi"]
+def test_wifi_weak_network(auth, cipher, severity):
+    out = wifi.WifiSecurity().run(FixtureContext(HOME, _wifi(auth, cipher, "CoffeeShop")))
+    assert rules(out) == ["win.wifi_security.weak_wifi"]
     assert out.findings[0].severity is severity
     assert out.findings[0].subject_key == "wifi:CoffeeShop"
 
 
-def test_network_profile_wlan_service_absent_means_no_wifi():
-    fixture = {"commands": {npf.CONNECTION_PROFILES.name: ps_json(PROFILES[0]),
-                            npf.WLAN_INTERFACES.name: {"exit_code": 1, "stdout": "The Wireless AutoConfig Service "
-                                                       "(wlansvc) is not running.\n"}}}
-    out = npf.NetworkProfile().run(FixtureContext(HOME, fixture))
-    assert out.findings == []
-    assert "wlansvc" in out.evidence[0].content["wifi_note"]
+def test_wifi_adapter_not_connected_passes():
+    out = wifi.WifiSecurity().run(FixtureContext(HOME, _netsh(DISCONNECTED)))
+    assert out.findings == [] and out.evidence[0].content["connected"] == 0
+    assert out.evidence[0].content["interfaces"][0]["State"] == "disconnected"
+
+
+def test_wifi_no_wireless_interface_is_not_applicable():
+    with pytest.raises(NotApplicable, match="no Wi-Fi adapter"):
+        wifi.WifiSecurity().run(FixtureContext(HOME, _netsh("\nThere is no wireless interface on the system.\n")))
+
+
+@pytest.mark.parametrize("stdout,exit_code,detail", [
+    ("The Wireless AutoConfig Service (wlansvc) is not running.\n", 1, "exited with code 1: The Wireless AutoConfig"),
+    (LOCATION_OFF, 1, "exited with code 1: Network shell commands need location permission"),
+    (LOCATION_OFF, 0, "no recognizable interface details"),
+    (GERMAN, 0, "no recognizable English field names"),
+    ("", 0, "no recognizable interface details: no output"),
+])
+def test_wifi_unknown_state_skips_never_passes(stdout, exit_code, detail):
+    with pytest.raises(SkipCheck) as exc:
+        wifi.WifiSecurity().run(FixtureContext(HOME, _netsh(stdout, exit_code)))
+    reason = str(exc.value)
+    assert detail in reason
+    for cause in ("WLAN AutoConfig service (wlansvc) is not running", "no Wi-Fi adapter", "location access",
+                  "display language other than English"):
+        assert cause in reason
+
+
+def test_wifi_connected_without_auth_or_cipher_skips():
+    text = WLAN.format(ssid="HomeNet", auth="WPA2-Personal", cipher="CCMP")
+    text = text.replace("    Cipher                 : CCMP\n", "")
+    with pytest.raises(SkipCheck, match="no authentication or cipher"):
+        wifi.WifiSecurity().run(FixtureContext(HOME, _netsh(text)))
+
+
+def test_wifi_netsh_failure_skips():
+    fixture = {"commands": {wifi.WLAN_INTERFACES.name: {"exit_code": 2, "stdout": ""}}}
+    with pytest.raises(SkipCheck, match="netsh failed"):
+        wifi.WifiSecurity().run(FixtureContext(HOME, fixture))
+    missing = {"commands": {wifi.WLAN_INTERFACES.name: {"error": "not_found", "message": "netsh is not installed"}}}
+    with pytest.raises(SkipCheck, match="netsh failed"):
+        wifi.WifiSecurity().run(FixtureContext(HOME, missing))
+
+
+def test_wifi_check_is_registered_for_windows_posture():
+    from sentinel_agent.checks import ALL_CHECKS
+
+    assert wifi.WifiSecurity in ALL_CHECKS
+    assert wifi.WifiSecurity.platforms == frozenset({Platform.WINDOWS})
+    assert wifi.WifiSecurity.profiles == frozenset({"posture"}) and wifi.WifiSecurity.category == "network"

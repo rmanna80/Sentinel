@@ -128,10 +128,10 @@ class UnattendedUpgrades(Check):
     def run(self, ctx: CheckContext) -> CheckOutput:
         try:
             names = ctx.list_dir(APT_CONF_DIR)
+        except FileNotFoundError as exc:
+            raise NotApplicable("APT is not used on this system") from exc
         except (OSError, PathNotAllowed) as exc:
             raise SkipCheck("/etc/apt/apt.conf.d could not be read") from exc
-        if not names and not ctx.path_exists(APT_CONF_DIR):
-            raise NotApplicable("APT is not used on this system")
         # APT reads the directory in alphabetical order and a later assignment overrides an earlier one.
         effective, set_in = None, None
         for name in sorted(names):
@@ -139,8 +139,9 @@ class UnattendedUpgrades(Check):
                 continue
             try:
                 text = ctx.read_text(f"{APT_CONF_DIR}/{name}")
-            except (OSError, PathNotAllowed):
-                continue
+            except (OSError, PathNotAllowed) as exc:
+                # APT still reads it, and it may override the setting; the effective value is unknown.
+                raise SkipCheck(f"{APT_CONF_DIR}/{name} could not be read") from exc
             for m in _UU.finditer(text):
                 effective, set_in = m.group("v"), name
         evidence = [ctx.evidence("file_metadata", APT_CONF_DIR, {

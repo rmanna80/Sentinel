@@ -14,13 +14,13 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 
-from . import __version__, phases
+from . import __version__, audit, phases
 from .config import Settings, get_settings
 from .db import Base, init_engine, session_scope
 from .migrate import upgrade_to_head
 from .models import User
 from .security import new_token
-from .security.middleware import HostCheckMiddleware, SecurityHeadersMiddleware
+from .security.middleware import BodySizeLimitMiddleware, HostCheckMiddleware, SecurityHeadersMiddleware
 from .services import hooks
 from .services.ingest import expire_stale_scans
 
@@ -48,6 +48,10 @@ class BackgroundLoop:
                 expire_stale_scans(db)
         except Exception:
             log.exception("lease expiry failed")
+        try:
+            audit.seal()  # anything a crash left unsealed
+        except Exception:
+            log.exception("audit sealing failed")
         for module in self.modules:
             try:
                 with session_scope() as db:
@@ -129,8 +133,10 @@ def create_app(settings: Settings | None = None, *, start_background: bool = Tru
 
     _mount_dashboard(app, settings.static_dir())
 
-    # Order matters: the host check wraps everything, including static files.
+    # Order matters: the last one added runs first. Host check, then body size, then headers.
     app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(BodySizeLimitMiddleware, default_limit=2 * 1024 * 1024,
+                       prefix_limits={"/api/agent/": 32 * 1024 * 1024})
     app.add_middleware(HostCheckMiddleware, allowed_hosts=settings.allowed_hosts)
     return app
 

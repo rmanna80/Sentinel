@@ -7,15 +7,17 @@ import json
 import logging
 import logging.handlers
 import sys
+import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
-from sentinel_core.checks import Check, CheckContext
+from sentinel_core.checks import AgentState, Check, CheckContext
 from sentinel_core.models import (
     AgentJob,
+    CheckRunResult,
     CheckStatus,
     DataMode,
     HostInfo,
@@ -30,6 +32,7 @@ from .config import (
     AgentConfig,
     FileState,
     MemoryState,
+    StagedState,
     agent_home,
     load_token,
     store_token,
@@ -62,16 +65,40 @@ def _setup_logging(verbose: bool) -> None:
 ContextFactory = Callable[[Check, BaseModel | None, Callable[[], bool]], CheckContext]
 
 
-def live_context_factory(host: HostInfo, config: AgentConfig, recorder: Recorder | None = None) -> ContextFactory:
-    state = FileState()
+class LiveContextFactory:
+    """Builds a LiveContext per check. Each check writes state (log cursors) to its own StagedState over the
+    shared FileState, kept in ``staged`` by check id; nothing is saved until ``commit_sent`` is called for a
+    result the server accepted. A local scan never commits, so it cannot consume events the server-run agent
+    still has to upload."""
 
-    def factory(check: Check, params: BaseModel | None, cancelled: Callable[[], bool]) -> CheckContext:
+    def __init__(self, host: HostInfo, config: AgentConfig, recorder: Recorder | None = None,
+                 state: AgentState | None = None) -> None:
+        self.host = host
+        self.config = config
+        self.recorder = recorder
+        self.state: AgentState = state if state is not None else FileState()
+        self.staged: dict[str, StagedState] = {}
+        self._lock = threading.Lock()
+
+    def __call__(self, check: Check, params: BaseModel | None, cancelled: Callable[[], bool]) -> CheckContext:
+        staged = StagedState(self.state)
+        with self._lock:
+            self.staged[type(check).id] = staged  # a new run of the check replaces any uncommitted state
         # Each check gets a runner that only knows its own declared commands.
         runner = SafeCommandRunner(type(check).commands, cancelled=cancelled,
-                                   recorder=recorder.command if recorder else None)
-        return LiveContext(host, runner, state, config.as_mapping(), cancelled, params, recorder)
+                                   recorder=self.recorder.command if self.recorder else None)
+        return LiveContext(self.host, runner, staged, self.config.as_mapping(), cancelled, params, self.recorder)
 
-    return factory
+    def commit_sent(self, result: CheckRunResult) -> None:
+        """ScanRunner ``on_sent`` callback: save the check's state only if it completed (passed or failed)."""
+        with self._lock:
+            staged = self.staged.pop(result.check_id, None)
+        if staged is not None and result.status in (CheckStatus.PASSED, CheckStatus.FAILED):
+            staged.commit()
+
+
+def live_context_factory(host: HostInfo, config: AgentConfig, recorder: Recorder | None = None) -> LiveContextFactory:
+    return LiveContextFactory(host, config, recorder)
 
 
 def fixture_context_factory(fixture: dict[str, Any], host: HostInfo, config: AgentConfig) -> ContextFactory:
@@ -82,6 +109,12 @@ def fixture_context_factory(fixture: dict[str, Any], host: HostInfo, config: Age
                               cancelled=cancelled)
 
     return factory
+
+
+def is_loopback_url(url: str) -> bool:
+    from urllib.parse import urlparse
+
+    return urlparse(url).hostname in ("127.0.0.1", "localhost", "::1")
 
 
 def _load_fixture(path: str) -> tuple[dict[str, Any], HostInfo]:
@@ -118,6 +151,7 @@ def cmd_scan(args: argparse.Namespace, registry: CheckRegistry) -> int:
         data_mode=DataMode.FIXTURE if args.fixtures else DataMode.LIVE,
     )
     sink = CollectingSink()
+    # No on_sent: a local scan never commits log cursors (its staged state is discarded with the factory).
     status = ScanRunner(registry, host, factory, sink, heartbeat_interval=3600).run(job)
     if recorder is not None:
         out = Path(args.record)
@@ -218,6 +252,10 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
     if args.elevated and not host.is_elevated:
         print("--elevated needs an administrator shell. Use scripts/elevated-scan.ps1.", file=sys.stderr)
         return 2
+    if args.elevated and not is_loopback_url(config.server_url):
+        # The server URL comes from a file the standard user can edit; admin-only data stays on this machine.
+        print("Elevated scans only report to a Sentinel server on this computer (127.0.0.1).", file=sys.stderr)
+        return 2
     client = ServerClient(config.server_url, token)
     try:
         client.hello(host, registry.descriptors())
@@ -266,8 +304,10 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
 def _run_job(client: Any, registry: CheckRegistry, host: HostInfo, factory: ContextFactory, job: AgentJob) -> None:
     log.info("running scan %s (%s)", job.scan_id, job.scan_type.value)
     sink = client.scan_sink(job.scan_id)
+    # Log cursors are saved only once the server has accepted the result that carried those events.
+    on_sent = factory.commit_sent if isinstance(factory, LiveContextFactory) else None
     try:
-        status = ScanRunner(registry, host, factory, sink).run(job)
+        status = ScanRunner(registry, host, factory, sink, on_sent=on_sent).run(job)
         client.complete(job.scan_id, status)
     except Exception as exc:
         log.exception("scan %s failed", job.scan_id)

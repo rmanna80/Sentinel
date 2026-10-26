@@ -94,6 +94,17 @@ def test_unattended_upgrades_missing_or_overridden_is_low():
     assert rules(up.UnattendedUpgrades().run(FixtureContext(PI, _aptconf(files)))) == ["linux.unattended_upgrades.off"]
 
 
+def test_unattended_upgrades_read_errors_never_pass():
+    with pytest.raises(NotApplicable, match="APT is not used"):
+        up.UnattendedUpgrades().run(FixtureContext(PI, {}))
+    with pytest.raises(SkipCheck, match=r"apt\.conf\.d could not be read"):
+        up.UnattendedUpgrades().run(FixtureContext(PI, {"files": {up.APT_CONF_DIR + "::<listdir>": None}}))
+    files = _aptconf({"20auto-upgrades": 'APT::Periodic::Unattended-Upgrade "1";\n', "99local": "x"})
+    files["files"][f"{up.APT_CONF_DIR}/99local"] = None  # may override the setting
+    with pytest.raises(SkipCheck, match="99local could not be read"):
+        up.UnattendedUpgrades().run(FixtureContext(PI, files))
+
+
 # --------------------------------------------------------------------------- linux.ssh_config
 
 DEBIAN_SSHD = """# This is the sshd server system-wide configuration file.
@@ -136,6 +147,24 @@ def test_ssh_root_login_and_first_value_wins_and_match_ignored():
             "Match User backup\n    PasswordAuthentication yes\n")
     out = ssh.SshServerConfig().run(FixtureContext(PI, _sshd(main)))
     assert rules(out) == ["linux.ssh_config.root_login"] and out.findings[0].severity is Severity.HIGH
+
+
+def test_ssh_missing_dropin_folder_means_no_dropins():
+    out = ssh.SshServerConfig().run(FixtureContext(PI, {"files": {ssh.SSHD_CONFIG: DEBIAN_SSHD}}))
+    assert rules(out) == ["linux.ssh_config.password_auth"]
+    assert out.evidence[0].content["dropins_present"] == [] and out.evidence[0].content["unreadable"] == []
+
+
+def test_ssh_unreadable_dropin_skips_instead_of_passing():
+    # The main file alone would pass; a root-only drop-in (like cloud-init's) may turn passwords back on.
+    main = DEBIAN_SSHD + "PasswordAuthentication no\n"
+    fixture = _sshd(main, {"50-cloud-init.conf": "x"})
+    fixture["files"][f"{ssh.DROPIN_DIR}/50-cloud-init.conf"] = None
+    with pytest.raises(SkipCheck, match=r"50-cloud-init\.conf"):
+        ssh.SshServerConfig().run(FixtureContext(PI, fixture))
+    unreadable_dir = {"files": {ssh.SSHD_CONFIG: main, ssh.DROPIN_DIR + "::<listdir>": None}}
+    with pytest.raises(SkipCheck, match="elevated scan"):
+        ssh.SshServerConfig().run(FixtureContext(PI, unreadable_dir))
 
 
 def test_ssh_not_installed_is_not_applicable():

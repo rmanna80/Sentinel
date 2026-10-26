@@ -2,13 +2,14 @@
 
 Revision ID: 0001
 Revises: 
-Create Date: 2026-10-26 08:55:30.014097
+Create Date: 2026-10-26 09:43:56.486938
 """
 from __future__ import annotations
 
-import sentinel_server.models
 import sqlalchemy as sa
 from alembic import op
+import sentinel_server.models
+
 
 revision = '0001'
 down_revision = None
@@ -26,6 +27,7 @@ def upgrade() -> None:
     )
     op.create_table('audit_log',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('seq', sa.Integer(), nullable=True),
     sa.Column('ts', sentinel_server.models.UTCDateTime(), nullable=False),
     sa.Column('actor', sa.String(length=128), nullable=False),
     sa.Column('action', sa.String(length=64), nullable=False),
@@ -34,7 +36,8 @@ def upgrade() -> None:
     sa.Column('detail', sa.JSON(), nullable=False),
     sa.Column('prev_hash', sa.String(length=64), nullable=False),
     sa.Column('hash', sa.String(length=64), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('seq')
     )
     with op.batch_alter_table('audit_log', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_audit_log_action'), ['action'], unique=False)

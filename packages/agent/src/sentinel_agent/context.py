@@ -14,6 +14,7 @@ from sentinel_core.checks import AgentState
 from sentinel_core.commands import CommandSpec
 from sentinel_core.models import Evidence, HostInfo, utcnow
 
+from . import executables
 from .probe import PsutilProbe
 from .safe_commands import CommandNotFound, CommandResult, SafeCommandRunner, parse_json_output
 
@@ -26,14 +27,28 @@ _LINUX_READ_ROOTS = ("/etc/", "/proc/", "/sys/", "/run/", "/var/run/", "/var/lib
 _DENY_SUFFIXES = ("_key", ".key", ".pem", "shadow", "gshadow", "shadow-", "gshadow-")
 
 
+def windows_startup_folders() -> list[tuple[str, str]]:
+    """The all-users and per-user Startup folders as Windows reports them (never from environment variables).
+
+    The per-user folder is FOLDERID_Startup, which follows folder redirection exactly as Explorer does.
+    """
+    out: list[tuple[str, str]] = []
+    program_data = executables.known_folder(executables.FOLDERID_PROGRAM_DATA)
+    if program_data is not None:
+        out.append(("all_users", str(program_data.joinpath("Microsoft", "Windows", "Start Menu", "Programs", "StartUp"))))
+    startup = executables.known_folder(executables.FOLDERID_STARTUP)
+    if startup is not None:
+        out.append(("current_user", str(startup)))
+    return out
+
+
 def _windows_read_roots() -> list[str]:
-    roots = [
-        os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "drivers", "etc"),
-        os.path.join(os.environ.get("ProgramData", r"C:\ProgramData"), "Microsoft", "Windows", "Start Menu",
-                     "Programs", "StartUp"),
-        os.path.join(os.environ.get("APPDATA", ""), "Microsoft", "Windows", "Start Menu", "Programs", "Startup"),
-    ]
-    return [r for r in roots if r]
+    roots: list[str] = []
+    windir = executables.windows_directory()
+    if windir is not None:
+        roots.append(str(windir.joinpath("System32", "drivers", "etc")))
+    roots.extend(folder for _, folder in windows_startup_folders())
+    return roots
 
 
 class Recorder:
@@ -43,7 +58,7 @@ class Recorder:
         self.lock = threading.Lock()
         self.commands: dict[str, dict[str, Any]] = {}
         self.registry: dict[str, Any] = {}
-        self.files: dict[str, str] = {}
+        self.files: dict[str, str | None] = {}
 
     def command(self, spec: CommandSpec, result: CommandResult) -> None:
         with self.lock:
@@ -58,7 +73,8 @@ class Recorder:
         with self.lock:
             self.registry[key] = value
 
-    def file_read(self, path: str, text: str) -> None:
+    def file_read(self, path: str, text: str | None) -> None:
+        """``None`` records a file or folder that exists but could not be read (permission denied)."""
         with self.lock:
             self.files[path] = text
 
@@ -192,8 +208,13 @@ class LiveContext:
 
     def read_text(self, path: str, max_bytes: int = 2_000_000) -> str:
         resolved = self._allowed(path)
-        with open(resolved, "rb") as fh:
-            data = fh.read(max_bytes + 1)
+        try:
+            with open(resolved, "rb") as fh:
+                data = fh.read(max_bytes + 1)
+        except PermissionError:
+            if self._recorder:
+                self._recorder.file_read(path, None)
+            raise
         if len(data) > max_bytes:
             data = data[:max_bytes]
         text = data.decode("utf-8", errors="replace")
@@ -208,11 +229,15 @@ class LiveContext:
             return False
 
     def list_dir(self, path: str) -> list[str]:
+        """Names in an allowlisted folder. A missing folder raises FileNotFoundError and an unreadable one
+        PermissionError (or another OSError): an empty list always means the folder really is empty."""
         resolved = self._allowed(path)
         try:
             names = sorted(os.listdir(resolved))
-        except OSError:
-            names = []
+        except PermissionError:
+            if self._recorder:
+                self._recorder.file_read(path + "::<listdir>", None)
+            raise
         if self._recorder:
             self._recorder.file_read(path + "::<listdir>", "\n".join(names))
         return names

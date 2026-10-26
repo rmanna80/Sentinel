@@ -91,7 +91,9 @@ def cmd_verify_audit(args: argparse.Namespace) -> int:
     init_engine(settings.db_url)
     with session_scope() as db:
         intact, bad = audit.verify_chain(db)
+        seq, digest = audit.head(db)
     print("Audit chain intact." if intact else f"Audit chain broken at entry {bad}.")
+    print(f"Latest entry: #{seq}  {digest}  (note this down to detect later truncation)")
     return 0 if intact else 1
 
 

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from typing import Any
 
-from sentinel_core.checks import Check, CheckContext
+from sentinel_core.checks import Check, CheckContext, SkipCheck
 from sentinel_core.models import CheckOutput, Confidence, FindingKind, Platform, Severity
 
-from ...context import PathNotAllowed
+from ...context import PathNotAllowed, windows_startup_folders
 from .._util import finding, join_path, windows_temp_like
 
 RUN_KEYS = (r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", r"SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce")
@@ -48,7 +49,13 @@ def suspicious_reason(command: str) -> str | None:
 
 
 def startup_folders() -> list[tuple[str, str]]:
-    """The all-users and per-user Startup folders, taken from the environment at run time."""
+    """The all-users and per-user Startup folders.
+
+    On Windows they come from the OS (known folders), the same source as the agent's read allowlist, because a
+    user can point APPDATA or ProgramData anywhere. Elsewhere (tests and fixture demos) the environment is used.
+    """
+    if sys.platform == "win32":
+        return windows_startup_folders()
     out = []
     program_data = os.environ.get("ProgramData")
     app_data = os.environ.get("APPDATA")
@@ -80,13 +87,16 @@ class StartupPrograms(Check):
                         continue
                     where = f"{hive}{view or ''}\\{key.rsplit(chr(92), 1)[-1]}"
                     entries.append({"location": where, "name": name or "(Default)", "command": str(command)})
-        folder_errors: dict[str, str] = {}
+        missing_folders: list[str] = []
         for scope, folder in startup_folders():
             try:
                 names = ctx.list_dir(folder)
-            except (PathNotAllowed, OSError) as exc:
-                folder_errors[folder] = str(exc)[:200]
+            except FileNotFoundError:
+                missing_folders.append(folder)  # no Startup folder means nothing starts from it
                 continue
+            except (PathNotAllowed, OSError) as exc:
+                # An unreadable folder could hold the entry an earlier scan flagged; do not report it as gone.
+                raise SkipCheck(f"The Startup folder {folder} could not be read: {str(exc)[:200]}") from exc
             for name in names:
                 if name.lower() == "desktop.ini":
                     continue
@@ -95,7 +105,7 @@ class StartupPrograms(Check):
 
         evidence = [ctx.evidence("registry_value", "Run/RunOnce keys and Startup folders", {
             "entries": entries,
-            "startup_folder_errors": folder_errors,
+            "startup_folders_missing": missing_folders,
             "note": "A shortcut (.lnk) in a Startup folder is listed by name; its target is not read.",
         })]
         findings = []

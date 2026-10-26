@@ -270,8 +270,11 @@ class MetricSampleRecord(Base):
 
 
 class AuditEntry(Base):
+    """Rows are written unsealed (seq NULL, empty hashes) and sealed in commit order right after commit."""
+
     __tablename__ = "audit_log"
     id: Mapped[int] = mapped_column(primary_key=True)
+    seq: Mapped[int | None] = mapped_column(Integer, unique=True)
     ts: Mapped[datetime] = mapped_column(UTCDateTime, default=now, index=True)
     actor: Mapped[str] = mapped_column(String(128))
     action: Mapped[str] = mapped_column(String(64), index=True)

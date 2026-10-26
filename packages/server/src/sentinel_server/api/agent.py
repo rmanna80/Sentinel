@@ -142,7 +142,10 @@ def heartbeat(scan_id: int, device: Device = Depends(current_device), db: Sessio
 def complete(scan_id: int, body: ScanCompletion, device: Device = Depends(current_device),
              db: Session = Depends(get_db), settings: Settings = Depends(settings_dep)) -> Response:
     scan = _own_scan(db, device, scan_id)
-    complete_scan(db, scan, body, settings)
+    try:
+        complete_scan(db, scan, body, settings)
+    except IngestError as exc:
+        raise HTTPException(422, str(exc)) from exc
     db.commit()
     return Response(status_code=204)
 

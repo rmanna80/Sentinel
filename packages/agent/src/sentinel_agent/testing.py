@@ -7,10 +7,12 @@ A fixture file is JSON shaped like this::
       "host": { ...HostInfo... },
       "commands": {"ps.firewall_profiles": {"exit_code": 0, "stdout": "[...]"}},
       "registry": {"HKLM\\\\SOFTWARE\\\\...::EnableLUA::": 1},
-      "files": {"/etc/os-release": "ID=debian\\n"}
+      "files": {"/etc/os-release": "ID=debian\\n", "/etc/ssh/sshd_config.d::<listdir>": "10-local.conf"}
     }
 
 Command entries may instead be {"error": "not_found" | "timeout" | "failed", "message": "..."}.
+A ``files`` value of ``null`` is a file (or ``::<listdir>`` folder) that exists but cannot be read: reading it
+raises PermissionError. A path with no entry does not exist: reading or listing it raises FileNotFoundError.
 Fixture data is never treated as live data: scans run from fixtures are tagged ``fixture``.
 """
 
@@ -67,7 +69,7 @@ class FixtureContext:
         self.state = state or MemoryState()
         self._commands: dict[str, Any] = dict(fixture.get("commands", {}))
         self._registry: dict[str, Any] = dict(fixture.get("registry", {}))
-        self._files: dict[str, str] = dict(fixture.get("files", {}))
+        self._files: dict[str, str | None] = dict(fixture.get("files", {}))
         self._cancelled = cancelled
         self.calls: list[tuple[str, dict[str, object]]] = []
         system = dict(fixture.get("system", {}))
@@ -129,14 +131,23 @@ class FixtureContext:
     def read_text(self, path: str, max_bytes: int = 2_000_000) -> str:
         if path not in self._files:
             raise FileNotFoundError(path)
-        return self._files[path][:max_bytes]
+        text = self._files[path]
+        if text is None:
+            raise PermissionError(13, "Permission denied", path)
+        return text[:max_bytes]
 
     def path_exists(self, path: str) -> bool:
         return path in self._files or (path + "::<listdir>") in self._files
 
     def list_dir(self, path: str) -> list[str]:
-        raw = self._files.get(path + "::<listdir>", "")
-        return [n for n in raw.split("\n") if n]
+        """Like the live context, a folder the fixture has no listing for does not exist."""
+        key = path + "::<listdir>"
+        if key not in self._files:
+            raise FileNotFoundError(path)
+        listing = self._files[key]
+        if listing is None:
+            raise PermissionError(13, "Permission denied", path)
+        return [n for n in listing.split("\n") if n]
 
     def evidence(self, kind: str, source: str, content: Any) -> Evidence:
         return Evidence(kind=kind, source=source, content=content, collected_at=utcnow())

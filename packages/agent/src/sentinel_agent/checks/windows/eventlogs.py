@@ -2,13 +2,18 @@
 
 Each check reads only the event ids it normalizes, oldest first, starting after the last record id it
 saw (kept in agent state). The first run reads the last 7 days. Raw event XML is parsed with defusedxml.
+
+Record ids restart at 1 when a log is cleared, and the server dedupes events on (device, source, record_id),
+so the uploaded ``record_id`` is ``"<RecordId>@<TimeCreated, ISO 8601 UTC>"``: stable when the same event is
+read again, distinct for a new event that reuses a number after a clear. The plain number stays in
+``data["record_id"]`` for display, and the cursor is still the highest numeric RecordId.
 """
 
 from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 from defusedxml import ElementTree
@@ -94,6 +99,12 @@ def parse_event_xml(xml: str) -> tuple[dict[str, Any], dict[str, str]]:
     return system, data
 
 
+def event_uid(record_id: int, when: datetime) -> str:
+    """Upload identity of an event: unique across log clears, identical when the same event is read again."""
+    stamp = when.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    return f"{record_id}@{stamp}"
+
+
 def clean(value: str | None) -> str | None:
     if value is None:
         return None
@@ -167,9 +178,9 @@ class WindowsLogCheck(Check):
             if when is None:
                 unparsed += 1
                 continue
-            event = self.normalize(event_id, when, str(record), system, fields)
+            event = self.normalize(event_id, when, event_uid(record, when), system, fields)
             if event is not None:
-                events.append(event)
+                events.append(event.model_copy(update={"data": {**event.data, "record_id": record}}))
                 kept[event.action] += 1
         evidence = [ctx.evidence("metric", f"Get-WinEvent -LogName '{self.log_name}'", {
             "window": window,
@@ -211,7 +222,7 @@ def _ip_suffix(ip: str | None) -> str:
 
 class WindowsSecurityLog(WindowsLogCheck):
     id = "win.logs.security"
-    version = "1"
+    version = "2"
     title = "Windows Security log: sign-ins and account changes"
     requires_elevation = True
     data_collected = (
@@ -319,7 +330,7 @@ WATCHED_DISPLAY_NAMES = {"microsoft defender antivirus service", "windows defend
 
 class WindowsSystemLog(WindowsLogCheck):
     id = "win.logs.system"
-    version = "1"
+    version = "2"
     title = "Windows System log: new services, log clearing and crashes"
     data_collected = (
         "System log events for new services (name, program path, start type, account), log clearing, unexpected "
@@ -372,7 +383,7 @@ DEFENDER_SINCE_CURSOR, DEFENDER_FIRST_RUN = log_specs("defender", DEFENDER_LOG, 
 
 class WindowsDefenderLog(WindowsLogCheck):
     id = "win.logs.defender"
-    version = "1"
+    version = "2"
     title = "Microsoft Defender log: detections and protection changes"
     data_collected = (
         "Microsoft Defender events for malware detections (threat name, file path, severity), actions taken, "

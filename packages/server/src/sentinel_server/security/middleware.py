@@ -79,3 +79,71 @@ class SecurityHeadersMiddleware:
             await send(message)
 
         await self.app(scope, receive, send_wrapper)
+
+
+class BodyTooLarge(Exception):
+    pass
+
+
+class BodySizeLimitMiddleware:
+    """Refuse request bodies over a limit, whether or not Content-Length is sent (chunked uploads are counted).
+
+    Agent uploads get a larger allowance than dashboard requests.
+    """
+
+    def __init__(self, app: ASGIApp, default_limit: int = 2 * 1024 * 1024,
+                 prefix_limits: dict[str, int] | None = None) -> None:
+        self.app = app
+        self.default_limit = default_limit
+        self.prefix_limits = sorted((prefix_limits or {}).items(), key=lambda kv: -len(kv[0]))
+
+    def _limit(self, path: str) -> int:
+        for prefix, limit in self.prefix_limits:
+            if path.startswith(prefix):
+                return limit
+        return self.default_limit
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        limit = self._limit(scope.get("path", ""))
+        for k, v in scope.get("headers", []):
+            if k == b"content-length":
+                try:
+                    if int(v) > limit:
+                        await _reject_413(send, limit)
+                        return
+                except ValueError:
+                    await _reject_413(send, limit)
+                    return
+        received = 0
+        started = False
+
+        async def limited_receive() -> Message:
+            nonlocal received
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > limit:
+                    raise BodyTooLarge
+            return message
+
+        async def tracking_send(message: Message) -> None:
+            nonlocal started
+            if message["type"] == "http.response.start":
+                started = True
+            await send(message)
+
+        try:
+            await self.app(scope, limited_receive, tracking_send)
+        except BodyTooLarge:
+            if not started:
+                await _reject_413(send, limit)
+
+
+async def _reject_413(send: Send, limit: int) -> None:
+    body = f'{{"detail":"Request body larger than {limit // (1024 * 1024)} MB"}}'.encode()
+    await send({"type": "http.response.start", "status": 413,
+                "headers": [(b"content-type", b"application/json"), (b"content-length", str(len(body)).encode())]})
+    await send({"type": "http.response.body", "body": body})

@@ -17,6 +17,7 @@ import smtplib
 import ssl
 from datetime import datetime, time, timedelta
 from email.message import EmailMessage
+from time import monotonic
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -134,7 +135,33 @@ def _recipients(value: str) -> list[str]:
     return [a.strip() for a in value.replace(";", ",").split(",") if a.strip()]
 
 
-def _send(cfg: dict[str, Any], subject: str, body: str) -> None:
+def _mask(address: str) -> str:
+    local, _, domain = address.partition("@")
+    return f"{local[:1]}***@{domain}" if domain else "***"
+
+
+def _send(cfg: dict[str, Any], subject: str, body: str, item_count: int = 1) -> None:
+    """Send one email. Obeys the global outbound switch and is listed on the Outbound data page."""
+    from ..integrations import http as outbound
+
+    outbound.ensure_outbound_allowed()
+    host = cfg["smtp_host"].strip()
+    summary = (f"{item_count} notification title(s), times and dashboard paths, to "
+               + ", ".join(_mask(a) for a in _recipients(cfg["email_to"])))
+    started = monotonic()
+    error: str | None = None
+    try:
+        _deliver(cfg, subject, body)
+    except Exception as exc:
+        error = f"{type(exc).__name__}: {exc}"[:500]
+        raise
+    finally:
+        outbound.record_outbound("email", "SMTP", host, f":{int(cfg.get('smtp_port') or 587)}",
+                                 "Notification email", summary, duration_ms=int((monotonic() - started) * 1000),
+                                 error=error)
+
+
+def _deliver(cfg: dict[str, Any], subject: str, body: str) -> None:
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = cfg["smtp_from"].strip()
@@ -188,7 +215,7 @@ def send_digest(db: Session, t: datetime | None = None) -> int:
     subject = (f"[Sentinel] {items[0].title}" if len(items) == 1
                else f"[Sentinel] {len(items)} notifications (highest: {worst.severity})")
     try:
-        _send(cfg, subject[:200], _digest_body(items, t, _tz(cfg.get("timezone"))))
+        _send(cfg, subject[:200], _digest_body(items, t, _tz(cfg.get("timezone"))), item_count=len(items))
     except Exception as exc:  # network, TLS, auth: log and retry next tick
         log.warning("notification email failed; will retry next tick: %s", f"{type(exc).__name__}: {exc}"[:300])
         return 0

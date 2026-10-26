@@ -24,6 +24,7 @@ const FACT_TITLES: Record<string, string> = {
   "net.interfaces": "Network interfaces",
   "net.dns_config": "DNS configuration",
   "win.network_profile": "Windows network profile",
+  "win.wifi_security": "Wi-Fi security",
 };
 
 export function NetworkPage() {

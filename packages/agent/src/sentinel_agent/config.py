@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+from sentinel_core.checks import AgentState
+
 log = logging.getLogger(__name__)
 
 KEYRING_SERVICE = "sentinel-agent"
@@ -145,3 +147,42 @@ class MemoryState:
 
     def set(self, key: str, value: str) -> None:
         self._data[key] = value
+
+
+class StagedState:
+    """Buffers one check's state writes (e.g. log cursors) over a shared base state until ``commit()``.
+
+    Reads see the buffered value first, then the base. Nothing reaches the base until the caller commits,
+    which the server-run agent does only after the server accepted that check's result: a cursor saved before
+    a failed upload would lose those events for good. Dropping the object discards the writes.
+    """
+
+    def __init__(self, base: AgentState) -> None:
+        self._base = base
+        self._lock = threading.Lock()
+        self._staged: dict[str, str] = {}
+
+    def get(self, key: str, default: str | None = None) -> str | None:
+        with self._lock:
+            if key in self._staged:
+                return self._staged[key]
+        return self._base.get(key, default)
+
+    def set(self, key: str, value: str) -> None:
+        with self._lock:
+            self._staged[key] = value
+
+    @property
+    def pending(self) -> dict[str, str]:
+        with self._lock:
+            return dict(self._staged)
+
+    def commit(self) -> None:
+        with self._lock:
+            staged, self._staged = self._staged, {}
+        for key, value in staged.items():
+            self._base.set(key, value)
+
+    def discard(self) -> None:
+        with self._lock:
+            self._staged.clear()

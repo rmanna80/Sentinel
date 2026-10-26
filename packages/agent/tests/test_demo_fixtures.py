@@ -64,6 +64,11 @@ def test_windows_demo_tells_the_intended_story():
     assert res["win.bitlocker"].status is CheckStatus.PASSED  # manage-bde fallback: Device encryption on
     assert res["win.accounts"].output.evidence[0].content["enabled_local_administrators"] == ["Ryan"]
     assert any(f.rule_id == "win.os.updates.insider_build" for f in res["win.os.updates"].output.findings)
+    # Network profile and Wi-Fi security are separate checks, each with its own command output in the fixture.
+    assert res["win.network_profile"].status is CheckStatus.PASSED
+    assert res["win.network_profile"].output.evidence[0].content["profiles"][0]["NetworkCategory"] == "Private"
+    assert res["win.wifi_security"].status is CheckStatus.PASSED
+    assert res["win.wifi_security"].output.evidence[0].content["interfaces"][0]["SSID"] == "HomeNet-5G"
 
 
 def test_linux_demo_tells_the_intended_story():
