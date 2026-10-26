@@ -1,0 +1,59 @@
+[project]
+name = "sentinel"
+version = "0.1.0"
+description = "Sentinel: local-first security posture, detection and diagnostics platform"
+requires-python = ">=3.12"
+dependencies = ["sentinel-core", "sentinel-agent", "sentinel-server"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/core", "packages/agent", "packages/server"]
+
+[tool.uv.sources]
+sentinel-core = { workspace = true }
+sentinel-agent = { workspace = true }
+sentinel-server = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "respx>=0.21",
+    "types-defusedxml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["packages/core/tests", "packages/agent/tests", "packages/server/tests"]
+addopts = "-q --import-mode=importlib"
+filterwarnings = ["ignore::DeprecationWarning:passlib.*", "ignore:Using `httpx` with `starlette.testclient`"]
+
+[tool.ruff]
+line-length = 125
+target-version = "py312"
+extend-exclude = ["web", "packages/server/migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+ignore = [
+    "S101",   # assert is fine in tests
+    "S603",   # subprocess without shell: every call goes through the registered-command runner
+    "RUF012", # ClassVar annotations on check metadata are intentional
+    "B008",   # FastAPI Depends() in defaults is the framework idiom
+    "SIM112", # Windows environment variable names are case-insensitive; we use their documented spelling
+    "SIM105", # explicit try/except/pass reads clearer in cleanup paths
+    "UP046",  # Generic[T] keeps pydantic generic models compatible
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S105", "S106", "S108", "S311"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+warn_unused_ignores = true
+ignore_missing_imports = true
+check_untyped_defs = true
+plugins = ["pydantic.mypy"]
