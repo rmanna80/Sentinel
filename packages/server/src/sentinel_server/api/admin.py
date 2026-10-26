@@ -59,10 +59,29 @@ def put_setting(key: str, body: dict[str, Any], auth: AuthContext = Depends(curr
     if unknown:
         raise HTTPException(422, f"Unknown settings: {sorted(unknown)}")
     merged = {**get_setting(db, key), **body}
+    if key == "integrations":
+        _validate_integrations(merged)
     value = set_setting(db, key, merged)
     audit.record(db, auth.actor, "settings.updated", "settings", key, {"fields": sorted(body)})
     db.commit()
     return value
+
+
+def _validate_integrations(value: dict[str, Any]) -> None:
+    """The assistant's model server must be on this machine: prompts contain your security data."""
+    from urllib.parse import urlparse
+
+    for name, cfg in value.items():
+        if not isinstance(cfg, dict) or not isinstance(cfg.get("enabled", False), bool):
+            raise HTTPException(422, f"Invalid settings for {name}")
+    ollama = value.get("ollama", {})
+    url = str(ollama.get("url", ""))
+    parsed = urlparse(url)
+    if parsed.scheme != "http" or parsed.hostname not in ("127.0.0.1", "localhost", "::1") or parsed.path not in ("", "/"):
+        raise HTTPException(422, "The assistant URL must be a local address such as http://127.0.0.1:11434")
+    model = str(ollama.get("model", ""))
+    if not model or len(model) > 128 or any(c.isspace() for c in model):
+        raise HTTPException(422, "Model name looks wrong (example: llama3.1:8b)")
 
 
 class SecretIn(BaseModel):

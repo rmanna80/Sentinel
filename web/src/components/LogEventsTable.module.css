@@ -1,0 +1,24 @@
+.wrap {
+  overflow-x: auto;
+}
+.action {
+  font-weight: 550;
+}
+.msg,
+.msgBtn {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: var(--mantine-font-size-sm);
+  max-width: 70ch;
+}
+.msgBtn {
+  color: var(--sn-accent);
+  text-align: left;
+  border-radius: 2px;
+}
+.msgBtn:hover {
+  text-decoration: underline;
+}

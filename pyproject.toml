@@ -33,7 +33,7 @@ filterwarnings = ["ignore::DeprecationWarning:passlib.*", "ignore:Using `httpx` 
 [tool.ruff]
 line-length = 125
 target-version = "py312"
-extend-exclude = ["web", "packages/server/migrations/versions"]
+extend-exclude = ["web", "packages/server/src/sentinel_server/migrations/versions"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]

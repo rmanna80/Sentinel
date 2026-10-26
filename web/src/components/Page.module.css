@@ -1,0 +1,73 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.headText {
+  min-width: 0;
+  max-width: 72ch;
+}
+.title {
+  font-size: 1.375rem;
+  letter-spacing: -0.01em;
+}
+.description {
+  margin-top: 4px;
+  color: var(--sn-text-2);
+  font-size: var(--mantine-font-size-sm);
+  max-width: 72ch;
+}
+.meta {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+}
+.actions {
+  flex: none;
+}
+
+.panel {
+  background: var(--sn-surface);
+  border: 1px solid var(--sn-line);
+  border-radius: var(--sn-radius-panel);
+  min-width: 0;
+}
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 0;
+}
+.panelHead > :last-child:not(:first-child) {
+  flex: none;
+  white-space: nowrap;
+}
+.panelTitle {
+  font-size: var(--mantine-font-size-md);
+  font-weight: 650;
+}
+.panelDesc {
+  margin-top: 2px;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+  max-width: 70ch;
+}
+.panelBody {
+  padding: 12px 16px 16px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 28px 20px;
+}

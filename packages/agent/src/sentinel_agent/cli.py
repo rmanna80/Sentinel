@@ -227,7 +227,8 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
     idle_deadline = time.monotonic() + args.idle_exit if args.idle_exit else None
     while True:
         try:
-            if not args.fixtures and not args.elevated and time.monotonic() - last_metrics >= config.metrics_interval_seconds:
+            metrics_due = time.monotonic() - last_metrics >= config.metrics_interval_seconds
+            if not args.fixtures and not args.elevated and metrics_due:
                 last_metrics = time.monotonic()
                 client.send_metrics(_metrics())
             job = client.next_job(elevated=args.elevated)

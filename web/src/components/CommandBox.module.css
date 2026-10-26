@@ -1,0 +1,24 @@
+.box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 12px;
+  border-radius: var(--sn-radius-control);
+  background: var(--sn-bg);
+  border: 1px solid var(--sn-line-strong);
+}
+.prompt {
+  color: var(--sn-text-3);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  flex: none;
+}
+.code {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 13px;
+  color: var(--sn-text);
+  overflow-wrap: anywhere;
+  user-select: all;
+}

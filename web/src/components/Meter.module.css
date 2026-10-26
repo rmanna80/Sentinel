@@ -1,0 +1,37 @@
+.row {
+  display: grid;
+  grid-template-columns: 58px 1fr 52px;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--mantine-font-size-xs);
+}
+.label {
+  color: var(--sn-text-3);
+}
+.track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--sn-surface-3);
+  overflow: hidden;
+}
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--sn-progress);
+}
+.track[data-level="warn"] .fill {
+  background: var(--sn-warn);
+}
+.track[data-level="high"] .fill {
+  background: var(--sn-danger);
+}
+.value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--sn-text);
+}
+.value[data-level="none"] {
+  color: var(--sn-text-3);
+  font-weight: 500;
+}

@@ -68,8 +68,13 @@ def request(
     json: Any = None,
     timeout: float = 20.0,
     ok_statuses: tuple[int, ...] = (200,),
+    log_path: str | None = None,
 ) -> httpx.Response:
-    """Send one request. ``payload_summary`` says in plain words what leaves the machine."""
+    """Send one request. ``payload_summary`` says in plain words what leaves the machine.
+
+    ``log_path`` replaces the recorded path when the real one contains personal data
+    (for example an email address in a URL); the real value is then never written to the log.
+    """
     settings = get_settings()
     if not settings.outbound_enabled:
         raise OutboundDisabled("Outbound connections are disabled in settings")
@@ -78,6 +83,8 @@ def request(
     hdrs = {"User-Agent": USER_AGENT, "Accept": "application/json"}
     hdrs.update(headers or {})
     host, path = _loggable_path(url, params)
+    if log_path is not None:
+        path = log_path[:1024]
     start = time.monotonic()
     status_code: int | None = None
     error: str | None = None

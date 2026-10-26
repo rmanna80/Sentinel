@@ -1,0 +1,11 @@
+.breaches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+.breach {
+  padding: 10px 12px;
+  border: 1px solid var(--sn-line);
+  border-radius: var(--sn-radius-control);
+  background: var(--sn-surface-2);
+}

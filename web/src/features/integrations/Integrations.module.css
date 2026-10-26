@@ -1,0 +1,7 @@
+.ollama {
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--sn-line);
+}
+.intelFoot {
+  border-top: 1px solid var(--sn-line);
+}

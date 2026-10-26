@@ -1,0 +1,220 @@
+{
+  "_fixture": "Hand-written demo data shaped like Raspberry Pi OS (Debian 12 bookworm, Raspberry Pi 5) output. Not a recording of a real machine.",
+  "host": {
+    "hostname": "pi5",
+    "os_family": "linux",
+    "os_name": "Debian GNU/Linux 12 (bookworm)",
+    "os_version": "12",
+    "os_build": "6.6.74+rpt-rpi-2712",
+    "arch": "aarch64",
+    "agent_version": "0.1.0",
+    "is_elevated": false,
+    "distro_id": "debian",
+    "distro_version": "12"
+  },
+  "commands": {
+    "apt.list_upgradable": {
+      "exit_code": 0,
+      "stderr": "\nWARNING: apt does not have a stable CLI interface. Use with caution in scripts.\n\n",
+      "stdout": "Listing...\nlibssl3/stable-security 3.0.17-1~deb12u3 arm64 [upgradable from: 3.0.15-1~deb12u1]\nopenssl/stable-security 3.0.17-1~deb12u3 arm64 [upgradable from: 3.0.15-1~deb12u1]\nlibexpat1/stable-security 2.5.0-1+deb12u2 arm64 [upgradable from: 2.5.0-1+deb12u1]\nopenssh-client/stable-security 1:9.2p1-2+deb12u7 arm64 [upgradable from: 1:9.2p1-2+deb12u5]\nopenssh-server/stable-security 1:9.2p1-2+deb12u7 arm64 [upgradable from: 1:9.2p1-2+deb12u5]\nopenssh-sftp-server/stable-security 1:9.2p1-2+deb12u7 arm64 [upgradable from: 1:9.2p1-2+deb12u5]\ncurl/stable 7.88.1-10+deb12u14 arm64 [upgradable from: 7.88.1-10+deb12u12]\nlibcurl4/stable 7.88.1-10+deb12u14 arm64 [upgradable from: 7.88.1-10+deb12u12]\nraspi-firmware/stable 1:1.20250430-4~bookworm all [upgradable from: 1:1.20250305-1~bookworm]\nrpi-eeprom/stable 28.2-1 arm64 [upgradable from: 26.3-1]\nlinux-image-rpi-2712/stable 1:6.12.47-1+rpt1~bookworm arm64 [upgradable from: 1:6.6.74-1+rpt1]\n"
+    },
+    "dpkg-query.installed": {
+      "exit_code": 0,
+      "stdout": "adduser\t3.134\tii \tadduser\t3.134\napt\t2.6.1\tii \tapt\t2.6.1\navahi-daemon\t0.8-10+deb12u1\tii \tavahi\t0.8-10+deb12u1\nbase-files\t12.4+deb12u12\tii \tbase-files\t12.4+deb12u12\nbash\t5.2.15-2+b8\tii \tbash\t5.2.15-2\nbluez\t5.66-1+rpt1+deb12u2\tii \tbluez\t5.66-1+rpt1+deb12u2\nca-certificates\t20230311+deb12u1\tii \tca-certificates\t20230311+deb12u1\ncoreutils\t9.1-1\tii \tcoreutils\t9.1-1\ncron\t3.0pl1-162\tii \tcron\t3.0pl1-162\ncurl\t7.88.1-10+deb12u12\tii \tcurl\t7.88.1-10+deb12u12\ndbus\t1.14.10-1~deb12u1\tii \tdbus\t1.14.10-1~deb12u1\ndpkg\t1.21.22\tii \tdpkg\t1.21.22\ne2fsprogs\t1.47.0-2\tii \te2fsprogs\t1.47.0-2\ngit\t1:2.39.5-0+deb12u2\tii \tgit\t1:2.39.5-0+deb12u2\ngnupg\t2.2.40-1.1\tii \tgnupg2\t2.2.40-1.1\nhtop\t3.2.2-2\tii \thtop\t3.2.2-2\niproute2\t6.1.0-3\tii \tiproute2\t6.1.0-3\nlibc6\t2.36-9+rpt2+deb12u12\tii \tglibc\t2.36-9+rpt2+deb12u12\nlibcamera0.5\t0.5.1+rpt20250722-1\tii \tlibcamera\t0.5.1+rpt20250722-1\nlibcurl4\t7.88.1-10+deb12u12\tii \tcurl\t7.88.1-10+deb12u12\nlibexpat1\t2.5.0-1+deb12u1\tii \texpat\t2.5.0-1+deb12u1\nlibssl3\t3.0.15-1~deb12u1\tii \topenssl\t3.0.15-1~deb12u1\nlinux-image-rpi-2712\t1:6.6.74-1+rpt1\tii \tlinux\t1:6.6.74-1+rpt1\nnano\t7.2-1+deb12u1\tii \tnano\t7.2-1+deb12u1\nnetwork-manager\t1.42.4-1+rpt1\tii \tnetwork-manager\t1.42.4-1+rpt1\nnftables\t1.0.6-2+deb12u2\tii \tnftables\t1.0.6-2+deb12u2\nopenssh-client\t1:9.2p1-2+deb12u5\tii \topenssh\t1:9.2p1-2+deb12u5\nopenssh-server\t1:9.2p1-2+deb12u5\tii \topenssh\t1:9.2p1-2+deb12u5\nopenssh-sftp-server\t1:9.2p1-2+deb12u5\tii \topenssh\t1:9.2p1-2+deb12u5\nopenssl\t3.0.15-1~deb12u1\tii \topenssl\t3.0.15-1~deb12u1\npython3\t3.11.2-1+b1\tii \tpython3-defaults\t3.11.2-1\npython3.11\t3.11.2-6+deb12u6\tii \tpython3.11\t3.11.2-6+deb12u6\nraspberrypi-sys-mods\t20250605\tii \traspberrypi-sys-mods\t20250605\nraspi-config\t20250707\tii \traspi-config\t20250707\nraspi-firmware\t1:1.20250305-1~bookworm\tii \traspi-firmware\t1:1.20250305-1~bookworm\nrpi-eeprom\t26.3-1\tii \trpi-eeprom\t26.3-1\nsudo\t1.9.13p3-1+deb12u2\tii \tsudo\t1.9.13p3-1+deb12u2\nsystemd\t252.38-1~deb12u1\tii \tsystemd\t252.38-1~deb12u1\ntzdata\t2025b-0+deb12u2\tii \ttzdata\t2025b-0+deb12u2\nvim-tiny\t2:9.0.1378-2+deb12u2\tii \tvim\t2:9.0.1378-2+deb12u2\nwget\t1.21.3-1+deb12u1\tii \twget\t1.21.3-1+deb12u1\nlibgl1-mesa-dri\t23.2.1-1~bpo12+rpt3\trc \tmesa\t23.2.1-1~bpo12+rpt3\nlibc6\t2.36-9+rpt2+deb12u12\tii \tglibc\t2.36-9+rpt2+deb12u12\n"
+    },
+    "journalctl.auth_first_run": {
+      "exit_code": 0,
+      "stdout": "{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a11;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=5b8d80;t=65e8fce9d1800;x=9e3779b97f4a7c15\",\"__REALTIME_TIMESTAMP\":\"1792821600000000\",\"__MONOTONIC_TIMESTAMP\":\"6000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"1812\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Accepted publickey for ryan from 192.168.1.42 port 51234 ssh2: ED25519 SHA256:q4Vd0zT1sB8n3X2Yl9kQm7Wc5Pj6Rf0HhGtA1uEo2iM\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a12;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2bde780;t=65e8fd0ff7200;x=3c6ef372fe94f82a\",\"__REALTIME_TIMESTAMP\":\"1792821640000000\",\"__MONOTONIC_TIMESTAMP\":\"46000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"10\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"_PID\":\"1840\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sudo\",\"_EXE\":\"/usr/bin/sudo\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"session-4.scope\",\"MESSAGE\":\"    ryan : TTY=pts/0 ; PWD=/home/ryan ; USER=root ; COMMAND=/usr/bin/apt update\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a13;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2c0f4c0;t=65e8fd1027f40;x=daa66d2c7ddf743f\",\"__REALTIME_TIMESTAMP\":\"1792821640200000\",\"__MONOTONIC_TIMESTAMP\":\"46200000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"10\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"_PID\":\"1840\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sudo\",\"_EXE\":\"/usr/bin/sudo\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"session-4.scope\",\"MESSAGE\":\"pam_unix(sudo:session): session opened for user root(uid=0) by ryan(uid=1000)\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a14;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=284167980;t=65e9252580400;x=78dde6e5fd29f054\",\"__REALTIME_TIMESTAMP\":\"1792832400000000\",\"__MONOTONIC_TIMESTAMP\":\"10806000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22413\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user admin from 203.0.113.77 port 41000\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a15;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2843684a0;t=65e9252780f20;x=1715609f7c746c69\",\"__REALTIME_TIMESTAMP\":\"1792832402100000\",\"__MONOTONIC_TIMESTAMP\":\"10808100000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22413\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user admin from 203.0.113.77 port 41000 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a16;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2843b1880;t=65e92527ca300;x=b54cda58fbbee87e\",\"__REALTIME_TIMESTAMP\":\"1792832402400000\",\"__MONOTONIC_TIMESTAMP\":\"10808400000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22413\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user admin 203.0.113.77 port 41000 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a17;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=284a8f580;t=65e9252ea8000;x=538454127b096493\",\"__REALTIME_TIMESTAMP\":\"1792832409600000\",\"__MONOTONIC_TIMESTAMP\":\"10815600000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22416\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for root from 203.0.113.77 port 41013 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a18;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=284ad8960;t=65e9252ef13e0;x=f1bbcdcbfa53e0a8\",\"__REALTIME_TIMESTAMP\":\"1792832409900000\",\"__MONOTONIC_TIMESTAMP\":\"10815900000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22416\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by authenticating user root 203.0.113.77 port 41013 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a19;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2851b6660;t=65e92535cf0e0;x=8ff34785799e5cbd\",\"__REALTIME_TIMESTAMP\":\"1792832417100000\",\"__MONOTONIC_TIMESTAMP\":\"10823100000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22419\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for pi from 203.0.113.77 port 41026 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a1a;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2851ffa40;t=65e92536184c0;x=2e2ac13ef8e8d8d2\",\"__REALTIME_TIMESTAMP\":\"1792832417400000\",\"__MONOTONIC_TIMESTAMP\":\"10823400000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22419\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by authenticating user pi 203.0.113.77 port 41026 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a1b;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2856dcc20;t=65e9253af56a0;x=cc623af8783354e7\",\"__REALTIME_TIMESTAMP\":\"1792832422500000\",\"__MONOTONIC_TIMESTAMP\":\"10828500000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22422\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user ubuntu from 203.0.113.77 port 41039\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a1c;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2858dd740;t=65e9253cf61c0;x=6a99b4b1f77dd0fc\",\"__REALTIME_TIMESTAMP\":\"1792832424600000\",\"__MONOTONIC_TIMESTAMP\":\"10830600000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22422\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user ubuntu from 203.0.113.77 port 41039 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a1d;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=285926b20;t=65e9253d3f5a0;x=08d12e6b76c84d11\",\"__REALTIME_TIMESTAMP\":\"1792832424900000\",\"__MONOTONIC_TIMESTAMP\":\"10830900000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22422\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user ubuntu 203.0.113.77 port 41039 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a1e;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=285e03d00;t=65e925421c780;x=a708a824f612c926\",\"__REALTIME_TIMESTAMP\":\"1792832430000000\",\"__MONOTONIC_TIMESTAMP\":\"10836000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22425\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user test from 203.0.113.77 port 41052\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a1f;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=286004820;t=65e925441d2a0;x=454021de755d453b\",\"__REALTIME_TIMESTAMP\":\"1792832432100000\",\"__MONOTONIC_TIMESTAMP\":\"10838100000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22425\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user test from 203.0.113.77 port 41052 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a20;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=28604dc00;t=65e9254466680;x=e3779b97f4a7c150\",\"__REALTIME_TIMESTAMP\":\"1792832432400000\",\"__MONOTONIC_TIMESTAMP\":\"10838400000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22425\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user test 203.0.113.77 port 41052 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a21;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=28652ade0;t=65e9254943860;x=81af155173f23d65\",\"__REALTIME_TIMESTAMP\":\"1792832437500000\",\"__MONOTONIC_TIMESTAMP\":\"10843500000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22428\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user oracle from 203.0.113.77 port 41065\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a22;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=28672b900;t=65e9254b44380;x=1fe68f0af33cb97a\",\"__REALTIME_TIMESTAMP\":\"1792832439600000\",\"__MONOTONIC_TIMESTAMP\":\"10845600000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22428\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user oracle from 203.0.113.77 port 41065 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a23;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=286774ce0;t=65e9254b8d760;x=be1e08c47287358f\",\"__REALTIME_TIMESTAMP\":\"1792832439900000\",\"__MONOTONIC_TIMESTAMP\":\"10845900000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22428\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user oracle 203.0.113.77 port 41065 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a24;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=286e529e0;t=65e925526b460;x=5c55827df1d1b1a4\",\"__REALTIME_TIMESTAMP\":\"1792832447100000\",\"__MONOTONIC_TIMESTAMP\":\"10853100000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22431\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for root from 203.0.113.77 port 41078 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a25;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=286e9bdc0;t=65e92552b4840;x=fa8cfc37711c2db9\",\"__REALTIME_TIMESTAMP\":\"1792832447400000\",\"__MONOTONIC_TIMESTAMP\":\"10853400000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22431\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by authenticating user root 203.0.113.77 port 41078 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a26;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=287378fa0;t=65e9255791a20;x=98c475f0f066a9ce\",\"__REALTIME_TIMESTAMP\":\"1792832452500000\",\"__MONOTONIC_TIMESTAMP\":\"10858500000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22434\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user admin from 203.0.113.77 port 41091\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a27;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=287579ac0;t=65e9255992540;x=36fbefaa6fb125e3\",\"__REALTIME_TIMESTAMP\":\"1792832454600000\",\"__MONOTONIC_TIMESTAMP\":\"10860600000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22434\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user admin from 203.0.113.77 port 41091 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a28;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2875c2ea0;t=65e92559db920;x=d5336963eefba1f8\",\"__REALTIME_TIMESTAMP\":\"1792832454900000\",\"__MONOTONIC_TIMESTAMP\":\"10860900000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22434\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user admin 203.0.113.77 port 41091 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a29;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=287aa0080;t=65e9255eb8b00;x=736ae31d6e461e0d\",\"__REALTIME_TIMESTAMP\":\"1792832460000000\",\"__MONOTONIC_TIMESTAMP\":\"10866000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22437\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user user from 203.0.113.77 port 41104\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a2a;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=287ca0ba0;t=65e92560b9620;x=11a25cd6ed909a22\",\"__REALTIME_TIMESTAMP\":\"1792832462100000\",\"__MONOTONIC_TIMESTAMP\":\"10868100000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22437\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user user from 203.0.113.77 port 41104 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a2b;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=287ce9f80;t=65e9256102a00;x=afd9d6906cdb1637\",\"__REALTIME_TIMESTAMP\":\"1792832462400000\",\"__MONOTONIC_TIMESTAMP\":\"10868400000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22437\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user user 203.0.113.77 port 41104 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a2c;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2883c7c80;t=65e92567e0700;x=4e115049ec25924c\",\"__REALTIME_TIMESTAMP\":\"1792832469600000\",\"__MONOTONIC_TIMESTAMP\":\"10875600000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22440\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for pi from 203.0.113.77 port 41117 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a2d;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=288411060;t=65e9256829ae0;x=ec48ca036b700e61\",\"__REALTIME_TIMESTAMP\":\"1792832469900000\",\"__MONOTONIC_TIMESTAMP\":\"10875900000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22440\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by authenticating user pi 203.0.113.77 port 41117 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a2e;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=2888ee240;t=65e9256d06cc0;x=8a8043bceaba8a76\",\"__REALTIME_TIMESTAMP\":\"1792832475000000\",\"__MONOTONIC_TIMESTAMP\":\"10881000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22443\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user git from 203.0.113.77 port 41130\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a2f;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=288aeed60;t=65e9256f077e0;x=28b7bd766a05068b\",\"__REALTIME_TIMESTAMP\":\"1792832477100000\",\"__MONOTONIC_TIMESTAMP\":\"10883100000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22443\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user git from 203.0.113.77 port 41130 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a30;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=288b38140;t=65e9256f50bc0;x=c6ef372fe94f82a0\",\"__REALTIME_TIMESTAMP\":\"1792832477400000\",\"__MONOTONIC_TIMESTAMP\":\"10883400000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22443\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user git 203.0.113.77 port 41130 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a31;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=289015320;t=65e925742dda0;x=6526b0e96899feb5\",\"__REALTIME_TIMESTAMP\":\"1792832482500000\",\"__MONOTONIC_TIMESTAMP\":\"10888500000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22446\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user postgres from 203.0.113.77 port 41143\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a32;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=289215e40;t=65e925762e8c0;x=035e2aa2e7e47aca\",\"__REALTIME_TIMESTAMP\":\"1792832484600000\",\"__MONOTONIC_TIMESTAMP\":\"10890600000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22446\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user postgres from 203.0.113.77 port 41143 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a33;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=28925f220;t=65e9257677ca0;x=a195a45c672ef6df\",\"__REALTIME_TIMESTAMP\":\"1792832484900000\",\"__MONOTONIC_TIMESTAMP\":\"10890900000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22446\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user postgres 203.0.113.77 port 41143 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a34;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=28993cf20;t=65e9257d559a0;x=3fcd1e15e67972f4\",\"__REALTIME_TIMESTAMP\":\"1792832492100000\",\"__MONOTONIC_TIMESTAMP\":\"10898100000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22449\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for root from 203.0.113.77 port 41156 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a35;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=289986300;t=65e9257d9ed80;x=de0497cf65c3ef09\",\"__REALTIME_TIMESTAMP\":\"1792832492400000\",\"__MONOTONIC_TIMESTAMP\":\"10898400000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22449\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by authenticating user root 203.0.113.77 port 41156 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a36;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=289e634e0;t=65e925827bf60;x=7c3c1188e50e6b1e\",\"__REALTIME_TIMESTAMP\":\"1792832497500000\",\"__MONOTONIC_TIMESTAMP\":\"10903500000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22452\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Invalid user deploy from 203.0.113.77 port 41169\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a37;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=28a064000;t=65e925847ca80;x=1a738b426458e733\",\"__REALTIME_TIMESTAMP\":\"1792832499600000\",\"__MONOTONIC_TIMESTAMP\":\"10905600000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22452\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Failed password for invalid user deploy from 203.0.113.77 port 41169 ssh2\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a38;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=28a0ad3e0;t=65e92584c5e60;x=b8ab04fbe3a36348\",\"__REALTIME_TIMESTAMP\":\"1792832499900000\",\"__MONOTONIC_TIMESTAMP\":\"10905900000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"4\",\"SYSLOG_IDENTIFIER\":\"sshd\",\"_PID\":\"22452\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sshd\",\"_EXE\":\"/usr/sbin/sshd\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"ssh.service\",\"MESSAGE\":\"Connection closed by invalid user deploy 203.0.113.77 port 41169 [preauth]\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a39;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=507d16580;t=65e94d612f000;x=56e27eb562eddf5d\",\"__REALTIME_TIMESTAMP\":\"1792843200000000\",\"__MONOTONIC_TIMESTAMP\":\"21606000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"10\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"_PID\":\"25100\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sudo\",\"_EXE\":\"/usr/bin/sudo\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"session-4.scope\",\"MESSAGE\":\"pam_unix(sudo:auth): authentication failure; logname=ryan uid=1000 euid=0 tty=/dev/pts/1 ruser=ryan rhost=  user=ryan\"}\n{\"__CURSOR\":\"s=7f3c1a9e5b2d4c8f9e0a1b2c3d4e5f60;i=2a3a;b=c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f;m=5081db0c0;t=65e94d65f3b40;x=f519f86ee2385b72\",\"__REALTIME_TIMESTAMP\":\"1792843205000000\",\"__MONOTONIC_TIMESTAMP\":\"21611000000\",\"_BOOT_ID\":\"c4d1f0e2a3b54c6d8e9f0a1b2c3d4e5f\",\"PRIORITY\":\"6\",\"SYSLOG_FACILITY\":\"10\",\"SYSLOG_IDENTIFIER\":\"sudo\",\"_PID\":\"25100\",\"_UID\":\"0\",\"_GID\":\"0\",\"_COMM\":\"sudo\",\"_EXE\":\"/usr/bin/sudo\",\"_HOSTNAME\":\"pi5\",\"_TRANSPORT\":\"syslog\",\"_SYSTEMD_UNIT\":\"session-4.scope\",\"MESSAGE\":\"    ryan : TTY=pts/1 ; PWD=/home/ryan ; USER=root ; COMMAND=/usr/bin/systemctl status ssh\"}\n"
+    },
+    "journalctl.auth_after_cursor": {
+      "exit_code": 0,
+      "stdout": ""
+    },
+    "ufw.status": {
+      "error": "not_found",
+      "message": "ufw is not installed"
+    },
+    "nft.list_ruleset": {
+      "exit_code": 0,
+      "stdout": ""
+    }
+  },
+  "registry": {},
+  "files": {
+    "/var/run/reboot-required": "*** System restart required ***\n",
+    "/var/run/reboot-required.pkgs": "linux-image-6.6.74+rpt-rpi-2712\nlibc6\n",
+    "/etc/apt/apt.conf.d::<listdir>": "01autoremove\n20listchanges\n50raspi\n70debconf",
+    "/etc/apt/apt.conf.d/01autoremove": "APT\n{\n  NeverAutoRemove\n  {\n\t\"^firmware-linux.*\";\n  };\n};\n",
+    "/etc/apt/apt.conf.d/20listchanges": "DPkg::Pre-Install-Pkgs { \"/usr/bin/apt-listchanges --apt || test $? -lt 10\"; };\n",
+    "/etc/apt/apt.conf.d/50raspi": "# never use pdiffs. Current implementation is very slow on low-powered devices\nAcquire::PDiffs \"0\";\n",
+    "/etc/apt/apt.conf.d/70debconf": "// Pre-configure all packages with debconf before they are installed.\nDPkg::Pre-Install-Pkgs {\"/usr/sbin/dpkg-preconfigure --apt || true\";};\n",
+    "/etc/ssh/sshd_config": "\n# This is the sshd server system-wide configuration file.  See\n# sshd_config(5) for more information.\n\nInclude /etc/ssh/sshd_config.d/*.conf\n\n#Port 22\n#AddressFamily any\n#ListenAddress 0.0.0.0\n\n#PermitRootLogin prohibit-password\n#StrictModes yes\n#MaxAuthTries 6\n\n#PubkeyAuthentication yes\n\n# To disable tunneled clear text passwords, change to no here!\nPasswordAuthentication yes\n#PermitEmptyPasswords no\n\nKbdInteractiveAuthentication no\n\nUsePAM yes\n\nX11Forwarding yes\nPrintMotd no\n\nAcceptEnv LANG LC_*\n\nSubsystem\tsftp\t/usr/lib/openssh/sftp-server\n",
+    "/etc/ssh/sshd_config.d::<listdir>": "",
+    "/etc/passwd": "root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nologin\nsys:x:3:3:sys:/dev:/usr/sbin/nologin\nsync:x:4:65534:sync:/bin:/bin/sync\nman:x:6:12:man:/var/cache/man:/usr/sbin/nologin\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\nnobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\nsystemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin\nmessagebus:x:100:107::/nonexistent:/usr/sbin/nologin\nsshd:x:104:65534::/run/sshd:/usr/sbin/nologin\navahi:x:105:110:Avahi mDNS daemon,,,:/run/avahi-daemon:/usr/sbin/nologin\nryan:x:1000:1000:Ryan,,,:/home/ryan:/bin/bash\n",
+    "/etc/resolv.conf": "# Generated by NetworkManager\nsearch lan\nnameserver 192.168.1.1\n"
+  },
+  "system": {
+    "cpu_percent": 3.1,
+    "memory": {
+      "total": 8442658816,
+      "available": 6801301504,
+      "percent": 19.4
+    },
+    "disks": [
+      {
+        "mountpoint": "/",
+        "fstype": "ext4",
+        "total": 62440235008,
+        "used": 9818406912,
+        "free": 49408573440,
+        "percent": 16.6
+      },
+      {
+        "mountpoint": "/boot/firmware",
+        "fstype": "vfat",
+        "total": 535805952,
+        "used": 66240512,
+        "free": 469565440,
+        "percent": 12.4
+      }
+    ],
+    "boot_time": 1789394400.0,
+    "listening_sockets": [
+      {
+        "proto": "tcp",
+        "ip": "0.0.0.0",
+        "port": 22,
+        "pid": 701,
+        "process": null
+      },
+      {
+        "proto": "tcp",
+        "ip": "::",
+        "port": 22,
+        "pid": 701,
+        "process": null
+      },
+      {
+        "proto": "tcp",
+        "ip": "127.0.0.1",
+        "port": 631,
+        "pid": 812,
+        "process": null
+      },
+      {
+        "proto": "udp",
+        "ip": "0.0.0.0",
+        "port": 5353,
+        "pid": 455,
+        "process": null
+      },
+      {
+        "proto": "udp",
+        "ip": "0.0.0.0",
+        "port": 41641,
+        "pid": 690,
+        "process": null
+      }
+    ],
+    "connections": [
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.60",
+        "lport": 22,
+        "raddr": "192.168.1.42",
+        "rport": 51234,
+        "pid": 1812,
+        "process": null
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "lo",
+        "is_up": true,
+        "mtu": 65536,
+        "speed": 0,
+        "addresses": [
+          {
+            "family": "ipv4",
+            "address": "127.0.0.1",
+            "netmask": "255.0.0.0"
+          },
+          {
+            "family": "ipv6",
+            "address": "::1",
+            "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"
+          }
+        ]
+      },
+      {
+        "name": "eth0",
+        "is_up": false,
+        "mtu": 1500,
+        "speed": 0,
+        "addresses": []
+      },
+      {
+        "name": "wlan0",
+        "is_up": true,
+        "mtu": 1500,
+        "speed": 0,
+        "addresses": [
+          {
+            "family": "ipv4",
+            "address": "192.168.1.60",
+            "netmask": "255.255.255.0"
+          },
+          {
+            "family": "ipv6",
+            "address": "fe80::2ecf:67ff:fe12:3456%wlan0",
+            "netmask": "ffff:ffff:ffff:ffff::"
+          }
+        ]
+      }
+    ],
+    "processes": [
+      {
+        "pid": 1,
+        "name": "systemd",
+        "exe": null,
+        "username": "root",
+        "create_time": 1789394400.0
+      },
+      {
+        "pid": 455,
+        "name": "avahi-daemon",
+        "exe": null,
+        "username": "avahi",
+        "create_time": 1789394404.0
+      },
+      {
+        "pid": 701,
+        "name": "sshd",
+        "exe": null,
+        "username": "root",
+        "create_time": 1789394406.0
+      },
+      {
+        "pid": 1812,
+        "name": "sshd",
+        "exe": null,
+        "username": "root",
+        "create_time": 1792394400.0
+      },
+      {
+        "pid": 1830,
+        "name": "bash",
+        "exe": "/usr/bin/bash",
+        "username": "ryan",
+        "create_time": 1792394410.0
+      },
+      {
+        "pid": 2290,
+        "name": "python3",
+        "exe": "/usr/bin/python3.11",
+        "username": "ryan",
+        "create_time": 1792394500.0
+      }
+    ]
+  }
+}

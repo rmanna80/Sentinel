@@ -114,3 +114,12 @@ def test_secrets_are_write_only(browser):
 def test_spa_fallback_does_not_serve_files_outside_static(anon):
     r = anon.get("/../../etc/passwd")
     assert "root:" not in r.text
+
+
+def test_assistant_url_must_stay_on_this_machine(browser):
+    r = browser.put("/api/settings/integrations",
+                    json={"ollama": {"enabled": True, "url": "http://evil.example:11434", "model": "llama3.1:8b"}})
+    assert r.status_code == 422
+    ok = browser.put("/api/settings/integrations",
+                     json={"ollama": {"enabled": True, "url": "http://127.0.0.1:11434", "model": "llama3.1:8b"}})
+    assert ok.status_code == 200 and ok.json()["ollama"]["enabled"] is True

@@ -1,0 +1,27 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--sn-line);
+}
+.message {
+  padding: 10px 12px;
+  border-radius: var(--sn-radius-control);
+  background: var(--sn-surface-2);
+  border: 1px solid var(--sn-line);
+  font-size: var(--mantine-font-size-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 16px;
+}
+@media (max-width: 520px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}

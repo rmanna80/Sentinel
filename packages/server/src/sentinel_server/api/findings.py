@@ -205,7 +205,8 @@ def update_task(task_id: int, body: TaskUpdate, auth: AuthContext = Depends(curr
 
 
 @router.get("/evidence/{evidence_id}", response_model=EvidenceOut)
-def get_evidence(evidence_id: int, auth: AuthContext = Depends(current_auth), db: Session = Depends(get_db)) -> EvidenceRecord:
+def get_evidence(evidence_id: int, auth: AuthContext = Depends(current_auth),
+                 db: Session = Depends(get_db)) -> EvidenceRecord:
     ev = db.get(EvidenceRecord, evidence_id)
     if ev is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No such evidence")

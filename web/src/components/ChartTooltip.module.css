@@ -1,0 +1,48 @@
+.box {
+  min-width: 180px;
+  padding: 8px 10px;
+  border-radius: var(--sn-radius-control);
+  background: var(--sn-surface);
+  border: 1px solid var(--sn-line-strong);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text);
+}
+.title {
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 0;
+}
+.key {
+  width: 14px;
+  height: 0;
+  border-top: 2px solid;
+  flex: none;
+}
+.key[data-dashed] {
+  border-top-style: dashed;
+}
+.label {
+  color: var(--sn-text-2);
+  flex: 1;
+}
+.value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+.footer {
+  margin-top: 4px;
+  color: var(--sn-text-3);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-2);
+}

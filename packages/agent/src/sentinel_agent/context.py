@@ -15,7 +15,7 @@ from sentinel_core.commands import CommandSpec
 from sentinel_core.models import Evidence, HostInfo, utcnow
 
 from .probe import PsutilProbe
-from .safe_commands import CommandResult, SafeCommandRunner, parse_json_output
+from .safe_commands import CommandNotFound, CommandResult, SafeCommandRunner, parse_json_output
 
 
 class PathNotAllowed(Exception):
@@ -47,7 +47,12 @@ class Recorder:
 
     def command(self, spec: CommandSpec, result: CommandResult) -> None:
         with self.lock:
-            self.commands[spec.name] = {"exit_code": result.exit_code, "stdout": result.stdout}
+            self.commands[spec.name] = {"exit_code": result.exit_code, "stdout": result.stdout,
+                                        "stderr": result.stderr}
+
+    def command_missing(self, spec: CommandSpec, message: str) -> None:
+        with self.lock:
+            self.commands[spec.name] = {"error": "not_found", "message": message}
 
     def registry_read(self, key: str, value: Any) -> None:
         with self.lock:
@@ -87,7 +92,13 @@ class LiveContext:
         return self._cancelled()
 
     def run(self, spec: CommandSpec, **params: object) -> CommandResult:
-        return self._runner.run(spec, **params)
+        try:
+            return self._runner.run(spec, **params)
+        except CommandNotFound as exc:
+            # Recorded so a replayed fixture takes the same fallback path as the live run.
+            if self._recorder:
+                self._recorder.command_missing(spec, str(exc))
+            raise
 
     def run_json(self, spec: CommandSpec, **params: object) -> Any:
         return parse_json_output(spec.name, self.run(spec, **params).stdout)

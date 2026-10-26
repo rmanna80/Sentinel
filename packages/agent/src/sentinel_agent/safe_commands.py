@@ -27,6 +27,10 @@ class CommandFailed(Exception):
         self.stderr = stderr
 
 
+class CommandNotFound(CommandFailed):
+    """The program is not installed (or not in its expected, trusted location)."""
+
+
 class CommandTimedOut(CommandFailed):
     pass
 
@@ -73,7 +77,7 @@ class SafeCommandRunner:
         try:
             exe = resolve(spec.executable)
         except ExecutableNotFound as exc:
-            raise CommandFailed(str(exc)) from exc
+            raise CommandNotFound(str(exc)) from exc
         argv = [exe, *spec.render(params)]
         creationflags = 0
         if sys.platform == "win32":

@@ -95,6 +95,49 @@ def cmd_verify_audit(args: argparse.Namespace) -> int:
     return 0 if intact else 1
 
 
+def cmd_enrollment_code(args: argparse.Namespace) -> int:
+    """Create a one-time enrollment code from this machine (for scripted setups and demo mode)."""
+    from datetime import timedelta
+
+    from . import audit
+    from .db import init_engine, session_scope
+    from .migrate import upgrade_to_head
+    from .models import EnrollmentCode, now
+    from .security import hash_token, new_enrollment_code, normalize_code
+
+    settings = _settings(args)
+    settings.ensure_dirs()
+    upgrade_to_head(settings.db_url)
+    init_engine(settings.db_url)
+    code = new_enrollment_code()
+    with session_scope() as db:
+        db.add(EnrollmentCode(code_hash=hash_token(normalize_code(code)),
+                              expires_at=now() + timedelta(minutes=settings.enrollment_code_minutes)))
+        audit.record(db, "local-cli", "device.enrollment_code_created")
+    print(code)
+    return 0
+
+
+def cmd_backup(args: argparse.Namespace) -> int:
+    """Consistent online backup of the SQLite database (safe while the server runs)."""
+    import sqlite3
+    from pathlib import Path
+
+    settings = _settings(args)
+    if not settings.db_url.startswith("sqlite:///"):
+        print("backup supports the default SQLite database only; use your database's own tools", file=sys.stderr)
+        return 2
+    src = Path(settings.db_url.removeprefix("sqlite:///"))
+    out = Path(args.out).resolve()
+    if out.exists():
+        print(f"{out} already exists; choose a new file name", file=sys.stderr)
+        return 2
+    with sqlite3.connect(src) as source, sqlite3.connect(out) as target:
+        source.backup(target)
+    print(f"Backed up {src} to {out}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     p = argparse.ArgumentParser(prog="sentinel-server")
@@ -106,9 +149,15 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("reset-password", help="reset a user's password from this machine")
     r.add_argument("username")
     sub.add_parser("verify-audit", help="check the audit log hash chain")
+    e = sub.add_parser("create-enrollment-code", help="print a one-time agent enrollment code")
+    e.add_argument("--port", type=int)
+    e.add_argument("--mode", choices=[m.value for m in Mode if m is not Mode.TEST])
+    b = sub.add_parser("backup", help="write a consistent copy of the database")
+    b.add_argument("--out", required=True)
     args = p.parse_args(argv)
     return {"serve": cmd_serve, "migrate": cmd_migrate, "reset-password": cmd_reset_password,
-            "verify-audit": cmd_verify_audit}[args.cmd](args)
+            "verify-audit": cmd_verify_audit, "create-enrollment-code": cmd_enrollment_code,
+            "backup": cmd_backup}[args.cmd](args)
 
 
 if __name__ == "__main__":

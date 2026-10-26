@@ -1,0 +1,18 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--sn-radius-tag);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--sn-demo);
+  border: 1px solid color-mix(in srgb, var(--sn-demo) 55%, transparent);
+  background: repeating-linear-gradient(135deg, var(--sn-demo-hatch) 0 5px, transparent 5px 10px), var(--sn-demo-soft);
+}
+.badge[data-mode="test"] {
+  color: var(--sn-warn);
+  border-color: color-mix(in srgb, var(--sn-warn) 55%, transparent);
+  background: transparent;
+}

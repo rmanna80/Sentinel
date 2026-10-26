@@ -28,7 +28,7 @@ from sentinel_core.models import Evidence, HostInfo, Platform, utcnow
 from .config import MemoryState
 from .context import registry_key
 from .probe import FixtureProbe
-from .safe_commands import CommandFailed, CommandResult, CommandTimedOut, parse_json_output
+from .safe_commands import CommandFailed, CommandNotFound, CommandResult, CommandTimedOut, parse_json_output
 
 
 def windows_host(**overrides: Any) -> HostInfo:
@@ -97,6 +97,8 @@ class FixtureContext:
         error = entry.get("error")
         if error == "timeout":
             raise CommandTimedOut(entry.get("message", f"{spec.name} timed out"))
+        if error == "not_found":
+            raise CommandNotFound(entry.get("message", f"{spec.executable} is not installed"))
         if error:
             raise CommandFailed(entry.get("message", f"{spec.name} failed"), exit_code=entry.get("exit_code"))
         stdout = entry["stdout"] if "stdout" in entry else json.dumps(entry.get("json"))
@@ -147,3 +149,32 @@ def ps_json(value: Any) -> dict[str, Any]:
 
 def reg(hive: str, path: str, name: str, view: str | None = None) -> str:
     return registry_key(hive, path, name, view)
+
+
+def win_event_xml(event_id: int, record_id: int, time_utc: str, data: Mapping[str, str] | list[str], *,
+                  channel: str = "Security", provider: str = "Microsoft-Windows-Security-Auditing",
+                  computer: str = "TEST-PC", user_data: str | None = None) -> str:
+    """Helper for fixtures: event XML shaped like ``EventLogRecord.ToXml()``.
+
+    ``data`` is a mapping for named ``<Data Name=...>`` elements or a list for unnamed ones (System log events
+    such as 7040 use unnamed data, read back as param1, param2, ...).
+    """
+    from xml.sax.saxutils import escape, quoteattr
+
+    if user_data and isinstance(data, Mapping):
+        fields = "".join(f"<{k}>{escape(str(v))}</{k}>" for k, v in data.items())
+        body = (f"<UserData><{user_data} xmlns='http://manifests.microsoft.com/win/2004/08/windows/eventlog'>"
+                f"{fields}</{user_data}></UserData>")
+    elif isinstance(data, Mapping):
+        body = "<EventData>" + "".join(f"<Data Name={quoteattr(k)}>{escape(str(v))}</Data>" for k, v in data.items()) \
+            + "</EventData>"
+    else:
+        body = "<EventData>" + "".join(f"<Data>{escape(str(v))}</Data>" for v in data) + "</EventData>"
+    return (
+        "<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System>"
+        f"<Provider Name={quoteattr(provider)}/><EventID>{event_id}</EventID><Version>0</Version><Level>0</Level>"
+        f"<Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords>"
+        f"<TimeCreated SystemTime={quoteattr(time_utc)}/><EventRecordID>{record_id}</EventRecordID><Correlation/>"
+        f"<Execution ProcessID='812' ThreadID='1620'/><Channel>{escape(channel)}</Channel>"
+        f"<Computer>{escape(computer)}</Computer><Security/></System>{body}</Event>"
+    )

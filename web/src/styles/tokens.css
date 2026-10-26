@@ -1,0 +1,113 @@
+/*
+ * Design tokens. Dark is the default scheme; [data-mantine-color-scheme] switches them.
+ * Severity is never shown by color alone: the severity glyph (filled steps) and the word go with it.
+ */
+:root,
+:root[data-mantine-color-scheme="dark"] {
+  color-scheme: dark;
+  --sn-bg: #121615;
+  --sn-surface: #171c1b;
+  --sn-surface-2: #1d2322;
+  --sn-surface-3: #252c2b;
+  --sn-line: #2a3230;
+  --sn-line-strong: #3a4441;
+  --sn-text: #e4e9e7;
+  --sn-text-2: #b4bfbb;
+  --sn-text-3: #8e9a96;
+  --sn-accent: #8c98ff;
+  --sn-accent-strong: #a3adff;
+  --sn-accent-soft: rgba(140, 152, 255, 0.14);
+  --sn-accent-ink: #121615;
+
+  --sn-sev-critical: #f4646a;
+  --sn-sev-high: #f08e52;
+  --sn-sev-medium: #e2b84a;
+  --sn-sev-low: #54b9d0;
+  --sn-sev-info: #8f9c98;
+  --sn-sev-critical-soft: rgba(244, 100, 106, 0.13);
+  --sn-sev-high-soft: rgba(240, 142, 82, 0.13);
+  --sn-sev-medium-soft: rgba(226, 184, 74, 0.12);
+  --sn-sev-low-soft: rgba(84, 185, 208, 0.12);
+  --sn-sev-info-soft: rgba(143, 156, 152, 0.12);
+
+  --sn-good: #4cc38a;
+  --sn-good-soft: rgba(76, 195, 138, 0.12);
+  --sn-warn: #e2b84a;
+  --sn-danger: #f4646a;
+  --sn-progress: #8c98ff;
+
+  /* Provenance: demo (fixture) data wears its own hue plus a hatch, so it never passes for live data. */
+  --sn-demo: #d58be0;
+  --sn-demo-soft: rgba(213, 139, 224, 0.12);
+  --sn-demo-hatch: rgba(213, 139, 224, 0.07);
+
+  --sn-radius-panel: 8px;
+  --sn-radius-control: 5px;
+  --sn-radius-tag: 4px;
+  --sn-nav-width: 236px;
+}
+
+:root[data-mantine-color-scheme="light"] {
+  color-scheme: light;
+  --sn-bg: #eef1f0;
+  --sn-surface: #ffffff;
+  --sn-surface-2: #f5f7f6;
+  --sn-surface-3: #eaeeec;
+  --sn-line: #dce2e0;
+  --sn-line-strong: #c2cac7;
+  --sn-text: #141918;
+  --sn-text-2: #3f4947;
+  --sn-text-3: #5f6a67;
+  --sn-accent: #4b57c7;
+  --sn-accent-strong: #3d47a6;
+  --sn-accent-soft: rgba(75, 87, 199, 0.1);
+  --sn-accent-ink: #ffffff;
+
+  --sn-sev-critical: #c8323c;
+  --sn-sev-high: #b8541c;
+  --sn-sev-medium: #8f6b00;
+  --sn-sev-low: #1c7a90;
+  --sn-sev-info: #66716e;
+  --sn-sev-critical-soft: rgba(200, 50, 60, 0.09);
+  --sn-sev-high-soft: rgba(184, 84, 28, 0.09);
+  --sn-sev-medium-soft: rgba(143, 107, 0, 0.1);
+  --sn-sev-low-soft: rgba(28, 122, 144, 0.09);
+  --sn-sev-info-soft: rgba(102, 113, 110, 0.09);
+
+  --sn-good: #1e7a4c;
+  --sn-good-soft: rgba(30, 122, 76, 0.09);
+  --sn-warn: #8f6b00;
+  --sn-danger: #c8323c;
+  --sn-progress: #4b57c7;
+
+  --sn-demo: #8e3a9c;
+  --sn-demo-soft: rgba(142, 58, 156, 0.08);
+  --sn-demo-hatch: rgba(142, 58, 156, 0.05);
+}
+
+/* The light-scheme gray ramp is reused in dark mode for "gray" component variants; give those a lifted
+   wash instead of near-black. Higher specificity than Mantine's generated variables. */
+html:root[data-mantine-color-scheme="dark"] {
+  --mantine-color-gray-light: rgba(180, 191, 187, 0.08);
+  --mantine-color-gray-light-hover: rgba(180, 191, 187, 0.14);
+  --mantine-color-gray-light-color: #b4bfbb;
+  --mantine-color-gray-outline: #8e9a96;
+  --mantine-color-gray-text: #b4bfbb;
+
+  /* Translucent washes for "light" variants (alerts, badges) instead of Mantine's darkened solid fills. */
+  --mantine-color-red-light: rgba(244, 100, 106, 0.12);
+  --mantine-color-red-light-hover: rgba(244, 100, 106, 0.18);
+  --mantine-color-red-light-color: #f8a3a7;
+  --mantine-color-yellow-light: rgba(226, 184, 74, 0.11);
+  --mantine-color-yellow-light-hover: rgba(226, 184, 74, 0.17);
+  --mantine-color-yellow-light-color: #ebcb7a;
+  --mantine-color-orange-light: rgba(240, 142, 82, 0.12);
+  --mantine-color-orange-light-hover: rgba(240, 142, 82, 0.18);
+  --mantine-color-orange-light-color: #f5b48a;
+  --mantine-color-green-light: rgba(76, 195, 138, 0.11);
+  --mantine-color-green-light-hover: rgba(76, 195, 138, 0.17);
+  --mantine-color-green-light-color: #8eddb5;
+  --mantine-color-iris-light: rgba(140, 152, 255, 0.12);
+  --mantine-color-iris-light-hover: rgba(140, 152, 255, 0.18);
+  --mantine-color-iris-light-color: #bcc3ff;
+}

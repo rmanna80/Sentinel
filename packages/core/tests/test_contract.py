@@ -5,7 +5,8 @@ from sentinel_core.redaction import redact
 
 
 def test_int_params_can_be_embedded_and_are_validated():
-    spec = CommandSpec("t.events", "powershell", ("-Command", "Get-WinEvent -FilterXPath '*[System[EventRecordID>{cursor}]]'"),
+    xpath = "Get-WinEvent -FilterXPath '*[System[EventRecordID>{cursor}]]'"
+    spec = CommandSpec("t.events", "powershell", ("-Command", xpath),
                        params={"cursor": ParamKind.INT})
     assert spec.render({"cursor": 42})[1].endswith("EventRecordID>42]]'")
     for bad in (-1, "42", True, 4.2):
