@@ -39,7 +39,7 @@ export function EnrollmentInstructions({ code, now = Date.now() }: { code: Enrol
       </div>
       <div>
         <Text size="sm" fw={600} mb={6}>
-          On the device, open PowerShell (or a terminal) in the Sentinel folder and run:
+          On the device, open PowerShell (or a terminal) in the Sentinel folder (the one with README.md) and run:
         </Text>
         <CommandBox command={code.command} />
       </div>

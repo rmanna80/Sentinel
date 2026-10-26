@@ -7,7 +7,7 @@ import { EnrollmentInstructions, formatCountdown, remainingSeconds } from "./Enr
 const code: EnrollmentCode = {
   code: "K7QM-2XRP-9TDA",
   expires_at: "2026-10-26T12:15:00Z",
-  command: "sentinel-agent enroll --server http://127.0.0.1:8765 --code K7QM-2XRP-9TDA",
+  command: "uv run sentinel-agent enroll --server http://127.0.0.1:8765 --code K7QM-2XRP-9TDA",
 };
 
 describe("enrollment instructions", () => {

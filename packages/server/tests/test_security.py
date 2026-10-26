@@ -123,3 +123,9 @@ def test_assistant_url_must_stay_on_this_machine(browser):
     ok = browser.put("/api/settings/integrations",
                      json={"ollama": {"enabled": True, "url": "http://127.0.0.1:11434", "model": "llama3.1:8b"}})
     assert ok.status_code == 200 and ok.json()["ollama"]["enabled"] is True
+
+
+def test_enrollment_command_runs_through_uv(browser):
+    """The agent lives in Sentinel's own environment; a bare `sentinel-agent` is not on PATH on Windows."""
+    cmd = browser.post("/api/devices/enrollment-codes").json()["command"]
+    assert cmd.startswith("uv run sentinel-agent enroll --server http://127.0.0.1:")

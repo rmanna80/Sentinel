@@ -107,7 +107,7 @@ def create_enrollment_code(auth: AuthContext = Depends(current_auth), db: Sessio
     db.commit()
     server = f"http://127.0.0.1:{settings.port}"
     return EnrollmentCodeOut(code=code, expires_at=expires,
-                             command=f"sentinel-agent enroll --server {server} --code {code}")
+                             command=f"uv run sentinel-agent enroll --server {server} --code {code}")
 
 
 @router.get("/{device_id}/metrics", response_model=list[MetricSeries])
