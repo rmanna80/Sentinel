@@ -23,12 +23,15 @@ DEFAULTS: dict[str, Any] = {
         "smtp_from": "",
         "smtp_starttls": True,
     },
+    # Local-first: nothing the server does on its own reaches the internet until you turn it on.
+    # Pwned Passwords stays on because it only runs when you type a password into its check yourself,
+    # and only a 5-character hash prefix is sent.
     "integrations": {
-        "osv": {"enabled": True},
-        "nvd": {"enabled": True},
-        "kev": {"enabled": True},
-        "epss": {"enabled": True},
-        "msrc": {"enabled": True},
+        "osv": {"enabled": False},
+        "nvd": {"enabled": False},
+        "kev": {"enabled": False},
+        "epss": {"enabled": False},
+        "msrc": {"enabled": False},
         "hibp": {"enabled": False},
         "pwned_passwords": {"enabled": True},
         "ollama": {"enabled": False, "url": "http://127.0.0.1:11434", "model": "llama3.1:8b"},

@@ -102,10 +102,13 @@ function SummaryBody({ s }: { s: VulnSummary }) {
             {items.matched} <span className="sn-dim" style={{ fontSize: 13, fontWeight: 500 }}>of {scanned}</span>
           </div>
           <div className={classes.vulnFactNote}>
-            {items.no_source ? `${items.no_source} with no data source, ` : ""}
-            {items.pending ? `${items.pending} waiting, ` : ""}
-            {items.error ? `${items.error} errors` : ""}
-            {!items.no_source && !items.pending && !items.error ? "All present items checked" : ""}
+            {[
+              items.no_source ? `${items.no_source} not compared` : "",
+              items.pending ? `${items.pending} waiting` : "",
+              items.error ? `${items.error} errors` : "",
+            ]
+              .filter(Boolean)
+              .join(", ") || "All present items checked"}
           </div>
         </div>
       </div>

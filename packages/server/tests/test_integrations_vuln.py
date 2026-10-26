@@ -17,6 +17,15 @@ from sentinel_server.integrations import epss, http, kev, msrc, nvd, osv
 from sentinel_server.integrations.nvd import Installed, compare_generic, evaluate
 from sentinel_server.integrations.osv import compare_dpkg
 
+
+@pytest.fixture(autouse=True)
+def _vulnerability_sources_enabled(monkeypatch):
+    """Server integrations are off by default (local-first); these tests exercise them switched on."""
+    from sentinel_server.services import app_settings as _settings
+
+    for name in ("osv", "nvd", "kev", "epss", "msrc"):
+        monkeypatch.setitem(_settings.DEFAULTS["integrations"], name, {"enabled": True})
+
 # =========================================================================== helpers
 
 

@@ -1188,7 +1188,8 @@ class Tick:
             "reconciled": reconciled, "findings": len(o.findings), "stats": o.stats, "notes": notes,
             "nvd_products": o.nvd_products, "nvd_undecidable": o.nvd_undecidable,
             "not_reconciled_reason": (None if reconciled else
-                                      "Not compared: " + ", ".join(sorted(set(o.disabled))) + " unavailable"),
+                                      "Not compared: " + "; ".join(SOURCE_LABELS.get(d, d) for d in sorted(set(o.disabled)))
+                                      + " turned off. Turn it on in Integrations to compare this software."),
         }
 
     def reconcile(self, o: RunOutcome) -> None:

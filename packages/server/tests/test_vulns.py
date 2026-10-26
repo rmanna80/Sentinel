@@ -26,6 +26,15 @@ from sentinel_server.services import vuln_matcher as vm
 
 from .test_integrations_vuln import cvrf_document
 
+
+@pytest.fixture(autouse=True)
+def _vulnerability_sources_enabled(monkeypatch):
+    """Server integrations are off by default (local-first); these tests exercise them switched on."""
+    from sentinel_server.services import app_settings as _settings
+
+    for name in ("osv", "nvd", "kev", "epss", "msrc"):
+        monkeypatch.setitem(_settings.DEFAULTS["integrations"], name, {"enabled": True})
+
 INVENTORY_FILE = "/sentinel-test/inventory.json"
 
 
@@ -323,7 +332,9 @@ def test_disabled_source_does_not_resolve(make_agent, browser, intel):
     item = software(browser, agent.device_id)["openssl 3.0.15-1~deb12u1"]
     assert item["match_status"] == "no_source" and "turned off" in item["match_reason"]
     summary = browser.get("/api/vulnerabilities/summary", params={"device_id": agent.device_id}).json()
-    assert summary["not_compared_reasons"] == ["Not compared: osv unavailable"]
+    assert summary["not_compared_reasons"] == [
+        "Not compared: OSV.dev (Debian, Ubuntu, PyPI, npm packages) turned off. Turn it on in Integrations to compare "
+        "this software."]
 
     # turned back on: the skipped inventory is matched without waiting for another scan
     with session_scope() as db:
@@ -650,3 +661,21 @@ def test_queue_row_tracks_device_check(make_agent, browser, intel):
         assert len(q.data["items"]) == 1 and q.data["items"][0]["ecosystems"] == ["Debian:12"]
         assert db.query(SoftwareRecord).filter_by(is_present=True).count() == 1
         assert db.query(FindingRecord).count() == 0
+
+
+def test_nothing_leaves_the_machine_until_an_integration_is_enabled(make_agent, browser, monkeypatch):
+    """Out of the box, an inventory scan must not send package names anywhere."""
+    for name in ("osv", "nvd", "kev", "epss", "msrc"):
+        monkeypatch.setitem(app_settings.DEFAULTS["integrations"], name, {"enabled": False})
+    calls: list[str] = []
+    http.set_transport(httpx.MockTransport(lambda req: calls.append(str(req.url)) or httpx.Response(500)))
+    try:
+        agent = make_agent([inventory_check("linux.packages")], host=linux_host())
+        agent.scan(inventory(pkg("openssl", "3.0.15-1~deb12u1", "Debian:12")), scan_type="inventory")
+        tick()
+        tick()
+    finally:
+        http.set_transport(None)
+    assert calls == []
+    with session_scope() as db:
+        assert db.query(OutboundRequest).count() == 0

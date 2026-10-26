@@ -140,6 +140,8 @@ def cmd_backup(args: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    logging.getLogger("alembic").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     p = argparse.ArgumentParser(prog="sentinel-server")
     sub = p.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("serve", help="run the API and dashboard on 127.0.0.1")

@@ -55,6 +55,8 @@ def _setup_logging(verbose: bool) -> None:
     root.setLevel(logging.DEBUG if verbose else logging.INFO)
     root.addHandler(handler)
     root.addHandler(console)
+    for noisy in ("httpx", "httpcore"):  # one line per HTTP request is noise, not information
+        logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
 ContextFactory = Callable[[Check, BaseModel | None, Callable[[], bool]], CheckContext]
@@ -161,7 +163,8 @@ def cmd_enroll(args: argparse.Namespace, registry: CheckRegistry) -> int:
     from .transport import ServerClient
 
     url = validate_server_url(args.server)
-    host = current_host()
+    # Demo mode enrolls as the fixture's machine, so the dashboard shows its name rather than this one's.
+    host = _load_fixture(args.fixtures)[1] if args.fixtures else current_host()
     client = ServerClient(url)
     resp = client.enroll(args.code.strip(), host)
     where = store_token(url, resp.device_token)
@@ -200,9 +203,14 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
     if not token:
         print("No device token found. Enroll again.", file=sys.stderr)
         return 2
+    demo_elevated: tuple[HostInfo, ContextFactory] | None = None
     if args.fixtures:
         fixture, host = _load_fixture(args.fixtures)
         factory = fixture_context_factory(fixture, host, config)
+        # Demo only: answer elevated jobs from the same fixture so admin-only views can be shown.
+        # Nothing on this machine is read, and every result is tagged as fixture data.
+        demo_host = host.model_copy(update={"is_elevated": True})
+        demo_elevated = (demo_host, fixture_context_factory(fixture, demo_host, config))
         log.warning("DEMO MODE: results come from fixture %s and are tagged as fixture data", args.fixtures)
     else:
         host = current_host()
@@ -232,10 +240,15 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
                 last_metrics = time.monotonic()
                 client.send_metrics(_metrics())
             job = client.next_job(elevated=args.elevated)
+            job_host, job_factory = host, factory
+            if job is None and demo_elevated is not None and not args.elevated:
+                job = client.next_job(elevated=True)
+                if job is not None:
+                    job_host, job_factory = demo_elevated
             if job is not None:
                 if args.fixtures:
                     job = job.model_copy(update={"data_mode": DataMode.FIXTURE})
-                _run_job(client, registry, host, factory, job)
+                _run_job(client, registry, job_host, job_factory, job)
                 if args.once:
                     return 0
                 if idle_deadline:
@@ -312,6 +325,7 @@ def build_parser() -> argparse.ArgumentParser:
     e = sub.add_parser("enroll", help="enroll this machine with a Sentinel server")
     e.add_argument("--server", required=True)
     e.add_argument("--code", required=True)
+    e.add_argument("--fixtures", metavar="FILE", help="DEMO MODE: enroll as the machine described in a fixture file")
     r = sub.add_parser("run", help="poll the server for scan jobs")
     r.add_argument("--once", action="store_true")
     r.add_argument("--elevated", action="store_true", help="only take elevated scans (admin shell)")

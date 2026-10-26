@@ -26,7 +26,7 @@ $server = Start-Process -FilePath 'uv' -ArgumentList @('run', 'sentinel-server',
 Start-Sleep -Seconds 6
 
 $code = (uv run sentinel-server create-enrollment-code --port $Port --mode demo | Select-Object -Last 1).Trim()
-uv run sentinel-agent enroll --server "http://127.0.0.1:$Port" --code $code
+uv run sentinel-agent enroll --server "http://127.0.0.1:$Port" --code $code --fixtures $fixtureFile
 Write-Host ""
 Write-Host "Open http://127.0.0.1:$Port, finish setup with the token shown in the server window" -ForegroundColor Green
 Write-Host "(also in $env:SENTINEL_DATA_DIR\setup-token.txt), then queue scans. Press Ctrl+C here to stop the demo agent."
