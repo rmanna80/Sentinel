@@ -243,6 +243,10 @@ def startup_env(monkeypatch):
 def _startup(hkcu_run, folders):
     run, run_once = st.RUN_KEYS
     return {
+        "startup_folders": [
+            ["all_users", "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp"],
+            ["current_user", "C:\\Users\\Ryan\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"],
+        ],
         "registry": {
             reg("HKLM", run, "*", "64"): {"SecurityHealth": "%windir%\\system32\\SecurityHealthSystray.exe",
                                           "RtkAudUService": "\"C:\\Windows\\System32\\RtkAudUService64.exe\" -background"},
@@ -287,19 +291,36 @@ def test_startup_missing_folder_is_empty_but_unreadable_folder_skips(startup_env
         st.StartupPrograms().run(FixtureContext(HOME, unreadable))
 
 
-def test_startup_folders_come_from_known_folders_on_windows(monkeypatch):
-    from sentinel_agent import executables
+def test_startup_folders_come_from_known_folders_on_a_live_windows_scan(monkeypatch):
+    from sentinel_agent import context, executables
+    from sentinel_agent.config import MemoryState
+    from sentinel_agent.safe_commands import SafeCommandRunner
 
-    monkeypatch.setattr(st.sys, "platform", "win32")
+    monkeypatch.setattr(context.sys, "platform", "win32")
     monkeypatch.setenv("APPDATA", "C:\\Users\\Ryan\\evil")
     monkeypatch.setenv("ProgramData", "C:\\Users\\Ryan\\evil")
     user_startup = "C:\\Users\\Ryan\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
     folders = {executables.FOLDERID_PROGRAM_DATA: "C:\\ProgramData", executables.FOLDERID_STARTUP: user_startup}
     monkeypatch.setattr(executables, "_known_folder_path", lambda fid: folders[fid])
-    got = dict(st.startup_folders())
+    live = context.LiveContext(HOME, SafeCommandRunner([]), MemoryState(), {}, lambda: False)
+    got = dict(live.startup_folders())
     assert got["current_user"] == folders[executables.FOLDERID_STARTUP]
     assert got["all_users"].startswith("C:\\ProgramData") and got["all_users"].endswith("StartUp")
     assert not any("evil" in f for f in got.values())
+
+
+def test_fixture_scans_never_read_the_real_machines_startup_folders(monkeypatch):
+    """Demo mode on a real Windows PC must use the fixture's folders, not the PC's own."""
+    from sentinel_agent import context, executables
+
+    monkeypatch.setattr(context.sys, "platform", "win32")
+    monkeypatch.setattr(executables, "_known_folder_path", lambda fid: (_ for _ in ()).throw(AssertionError(fid)))
+    fixture = {"startup_folders": [["current_user", "D:\\demo\\Startup"]],
+               "files": {"D:\\demo\\Startup::<listdir>": "Spotify.lnk"}}
+    ctx = FixtureContext(HOME, fixture)
+    assert ctx.startup_folders() == [("current_user", "D:\\demo\\Startup")]
+    out = st.StartupPrograms().run(FixtureContext(HOME, {**_startup({}, {}), **fixture}))
+    assert any(e["name"] == "Spotify.lnk" for e in out.evidence[0].content["entries"])
 
 
 @pytest.mark.parametrize("command,flagged", [

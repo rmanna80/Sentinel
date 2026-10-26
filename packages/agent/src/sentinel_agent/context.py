@@ -42,6 +42,22 @@ def windows_startup_folders() -> list[tuple[str, str]]:
     return out
 
 
+STARTUP_SUBPATH = ("Microsoft", "Windows", "Start Menu", "Programs")
+
+
+def env_startup_folders() -> list[tuple[str, str]]:
+    """Startup folders from ProgramData/APPDATA. Used only where Windows cannot be asked (tests, fixtures)."""
+    from .checks._util import join_path
+
+    out: list[tuple[str, str]] = []
+    program_data, app_data = os.environ.get("ProgramData"), os.environ.get("APPDATA")
+    if program_data:
+        out.append(("all_users", join_path(program_data, *STARTUP_SUBPATH, "StartUp")))
+    if app_data:
+        out.append(("current_user", join_path(app_data, *STARTUP_SUBPATH, "Startup")))
+    return out
+
+
 def _windows_read_roots() -> list[str]:
     roots: list[str] = []
     windir = executables.windows_directory()
@@ -227,6 +243,10 @@ class LiveContext:
             return os.path.exists(self._allowed(path))
         except PathNotAllowed:
             return False
+
+    def startup_folders(self) -> list[tuple[str, str]]:
+        # Windows is asked, never the environment: a user can point APPDATA or ProgramData anywhere.
+        return windows_startup_folders() if sys.platform == "win32" else env_startup_folders()
 
     def list_dir(self, path: str) -> list[str]:
         """Names in an allowlisted folder. A missing folder raises FileNotFoundError and an unreadable one

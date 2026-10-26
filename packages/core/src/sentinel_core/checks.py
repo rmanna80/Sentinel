@@ -91,6 +91,14 @@ class CheckContext(Protocol):
 
     def list_dir(self, path: str) -> list[str]: ...
 
+    def startup_folders(self) -> list[tuple[str, str]]:
+        """Windows Startup folders as (scope, path): ("all_users", ...), ("current_user", ...).
+
+        A live scan asks Windows; a fixture (test or demo) scan uses the fixture's folders, so a demo never
+        reads the real machine's folders.
+        """
+        ...
+
     def evidence(self, kind: str, source: str, content: Any) -> Evidence: ...
 
 

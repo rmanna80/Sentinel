@@ -1,749 +1,762 @@
 {
- "_fixture": "Hand-written demo data shaped like Windows 11 Home (PowerShell 5.1, Insider build) output. Not a recording of a real machine.",
- "host": {
-  "hostname": "RYAN-PC",
-  "os_family": "windows",
-  "os_name": "Windows 11",
-  "os_version": "25H2 (build 26300.7171)",
-  "os_build": "10.0.26300.7171",
-  "edition": "Home",
-  "arch": "AMD64",
-  "agent_version": "0.1.0",
-  "is_elevated": false,
-  "is_insider_build": true
- },
- "commands": {
-  "ps.firewall_profiles": {
-   "exit_code": 0,
-   "stdout": "[{\"Name\":\"Domain\",\"Enabled\":\"True\",\"DefaultInboundAction\":\"NotConfigured\",\"DefaultOutboundAction\":\"NotConfigured\"},{\"Name\":\"Private\",\"Enabled\":\"True\",\"DefaultInboundAction\":\"NotConfigured\",\"DefaultOutboundAction\":\"NotConfigured\"},{\"Name\":\"Public\",\"Enabled\":\"True\",\"DefaultInboundAction\":\"NotConfigured\",\"DefaultOutboundAction\":\"NotConfigured\"}]"
+  "_fixture": "Hand-written demo data shaped like Windows 11 Home (PowerShell 5.1, Insider build) output. Not a recording of a real machine.",
+  "host": {
+    "hostname": "RYAN-PC",
+    "os_family": "windows",
+    "os_name": "Windows 11",
+    "os_version": "25H2 (build 26300.7171)",
+    "os_build": "10.0.26300.7171",
+    "edition": "Home",
+    "arch": "AMD64",
+    "agent_version": "0.1.0",
+    "is_elevated": false,
+    "is_insider_build": true
   },
-  "ps.windows_update_history": {
-   "exit_code": 0,
-   "stdout": "{\"CollectedAt\":\"2026-10-25T14:00:00.0000000Z\",\"TotalCount\":214,\"History\":[{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.300.0)\",\"Date\":\"2026-10-21T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.298.0)\",\"Date\":\"2026-10-19T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.296.0)\",\"Date\":\"2026-10-17T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Windows 11 Insider Preview 10.0.26300.7171 (rs_prerelease)\",\"Date\":\"2026-10-16T09:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"2026-10 .NET Framework 3.5 and 4.8.1 Cumulative Update for Windows 11 (KB5066128)\",\"Date\":\"2026-10-15T14:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.294.0)\",\"Date\":\"2026-10-15T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Intel Corporation - Extension - 31.0.101.5592\",\"Date\":\"2026-10-13T14:00:00.0000000Z\",\"ResultCode\":4,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.292.0)\",\"Date\":\"2026-10-13T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Windows Malicious Software Removal Tool x64 - v5.141 (KB890830)\",\"Date\":\"2026-10-12T14:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.290.0)\",\"Date\":\"2026-10-11T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.288.0)\",\"Date\":\"2026-10-09T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.286.0)\",\"Date\":\"2026-10-07T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.284.0)\",\"Date\":\"2026-10-05T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.282.0)\",\"Date\":\"2026-10-03T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.280.0)\",\"Date\":\"2026-10-01T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.278.0)\",\"Date\":\"2026-09-29T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Windows 11 Insider Preview 10.0.26300.7000 (rs_prerelease)\",\"Date\":\"2026-09-25T14:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1}],\"WuauservStartType\":\"Manual\",\"WuauservStatus\":\"Running\"}"
+  "commands": {
+    "ps.firewall_profiles": {
+      "exit_code": 0,
+      "stdout": "[{\"Name\":\"Domain\",\"Enabled\":\"True\",\"DefaultInboundAction\":\"NotConfigured\",\"DefaultOutboundAction\":\"NotConfigured\"},{\"Name\":\"Private\",\"Enabled\":\"True\",\"DefaultInboundAction\":\"NotConfigured\",\"DefaultOutboundAction\":\"NotConfigured\"},{\"Name\":\"Public\",\"Enabled\":\"True\",\"DefaultInboundAction\":\"NotConfigured\",\"DefaultOutboundAction\":\"NotConfigured\"}]"
+    },
+    "ps.windows_update_history": {
+      "exit_code": 0,
+      "stdout": "{\"CollectedAt\":\"2026-10-25T14:00:00.0000000Z\",\"TotalCount\":214,\"History\":[{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.300.0)\",\"Date\":\"2026-10-21T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.298.0)\",\"Date\":\"2026-10-19T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.296.0)\",\"Date\":\"2026-10-17T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Windows 11 Insider Preview 10.0.26300.7171 (rs_prerelease)\",\"Date\":\"2026-10-16T09:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"2026-10 .NET Framework 3.5 and 4.8.1 Cumulative Update for Windows 11 (KB5066128)\",\"Date\":\"2026-10-15T14:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.294.0)\",\"Date\":\"2026-10-15T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Intel Corporation - Extension - 31.0.101.5592\",\"Date\":\"2026-10-13T14:00:00.0000000Z\",\"ResultCode\":4,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.292.0)\",\"Date\":\"2026-10-13T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Windows Malicious Software Removal Tool x64 - v5.141 (KB890830)\",\"Date\":\"2026-10-12T14:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.290.0)\",\"Date\":\"2026-10-11T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.288.0)\",\"Date\":\"2026-10-09T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.286.0)\",\"Date\":\"2026-10-07T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.284.0)\",\"Date\":\"2026-10-05T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.282.0)\",\"Date\":\"2026-10-03T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.280.0)\",\"Date\":\"2026-10-01T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.439.278.0)\",\"Date\":\"2026-09-29T11:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1},{\"Title\":\"Windows 11 Insider Preview 10.0.26300.7000 (rs_prerelease)\",\"Date\":\"2026-09-25T14:00:00.0000000Z\",\"ResultCode\":2,\"Operation\":1}],\"WuauservStartType\":\"Manual\",\"WuauservStatus\":\"Running\"}"
+    },
+    "ps.defender_status": {
+      "exit_code": 0,
+      "stdout": "{\"AMServiceEnabled\":true,\"AntivirusEnabled\":true,\"RealTimeProtectionEnabled\":true,\"IsTamperProtected\":true,\"AntivirusSignatureAge\":4,\"AntivirusSignatureLastUpdated\":\"2026-10-21T11:00:00.0000000Z\",\"AMRunningMode\":\"Normal\"}"
+    },
+    "ps.securitycenter_av": {
+      "exit_code": 0,
+      "stdout": "{\"displayName\":\"Windows Defender\",\"productState\":397568}"
+    },
+    "ps.local_users": {
+      "exit_code": 0,
+      "stdout": "{\"Users\":[{\"Name\":\"Administrator\",\"Enabled\":false,\"PasswordRequired\":true,\"PasswordLastSet\":null,\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-500\",\"PrincipalSource\":\"Local\"},{\"Name\":\"DefaultAccount\",\"Enabled\":false,\"PasswordRequired\":false,\"PasswordLastSet\":null,\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-503\",\"PrincipalSource\":\"Local\"},{\"Name\":\"Guest\",\"Enabled\":false,\"PasswordRequired\":false,\"PasswordLastSet\":null,\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-501\",\"PrincipalSource\":\"Local\"},{\"Name\":\"Ryan\",\"Enabled\":true,\"PasswordRequired\":true,\"PasswordLastSet\":\"2025-03-02T18:21:44.0000000Z\",\"LastLogon\":\"2026-10-25T08:00:00.0000000Z\",\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-1001\",\"PrincipalSource\":\"MicrosoftAccount\"},{\"Name\":\"WDAGUtilityAccount\",\"Enabled\":false,\"PasswordRequired\":true,\"PasswordLastSet\":\"2025-03-01T09:10:00.0000000Z\",\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-504\",\"PrincipalSource\":\"Local\"}],\"CurrentUser\":\"RYAN-PC\\\\Ryan\",\"CurrentUserSid\":\"S-1-5-21-3623811015-3361044348-30300820-1001\"}"
+    },
+    "ps.admin_members": {
+      "exit_code": 0,
+      "stdout": "{\"Method\":\"Get-LocalGroupMember\",\"Error\":\"Failed to compare two elements in the array.\"}"
+    },
+    "ps.admin_members_fallback": {
+      "exit_code": 0,
+      "stdout": "{\"Method\":\"ADSI\",\"GroupName\":\"Administrators\",\"Members\":[{\"Name\":\"WinNT://RYAN-PC/Administrator\",\"ObjectClass\":\"User\",\"PrincipalSource\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-500\"},{\"Name\":\"WinNT://RYAN-PC/Ryan\",\"ObjectClass\":\"User\",\"PrincipalSource\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-1001\"},{\"Name\":\"WinNT://S-1-5-21-1180699209-877415012-3182924384-1004\",\"ObjectClass\":\"User\",\"PrincipalSource\":null,\"SID\":\"S-1-5-21-1180699209-877415012-3182924384-1004\"}]}"
+    },
+    "ps.bitlocker_volume": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Get-BitLockerVolume : The term 'Get-BitLockerVolume' is not recognized as the name of a cmdlet, function, script file, or operable program."
+    },
+    "manage-bde.status": {
+      "exit_code": 0,
+      "stdout": "BitLocker Drive Encryption: Configuration Tool version 10.0.26300\r\nCopyright (C) 2013 Microsoft Corporation. All rights reserved.\r\n\r\nVolume C: [Windows]\r\n[OS Volume]\r\n\r\n    Size:                 951.65 GB\r\n    BitLocker Version:    2.0\r\n    Conversion Status:    Used Space Only Encrypted\r\n    Percentage Encrypted: 100.0%\r\n    Encryption Method:    XTS-AES 128\r\n    Protection Status:    Protection On\r\n    Lock Status:          Unlocked\r\n    Identification Field: Unknown\r\n    Key Protectors:\r\n        TPM\r\n        Numerical Password\r\n"
+    },
+    "ps.secure_boot": {
+      "exit_code": 0,
+      "stdout": "{\"state\":\"on\",\"message\":null}"
+    },
+    "net.accounts": {
+      "exit_code": 0,
+      "stdout": "Force user logoff how long after time expires?:       Never\r\nMinimum password age (days):                          0\r\nMaximum password age (days):                          Unlimited\r\nMinimum password length:                              0\r\nLength of password history maintained:                None\r\nLockout threshold:                                    10\r\nLockout duration (minutes):                           10\r\nLockout observation window (minutes):                 10\r\nComputer role:                                        WORKSTATION\r\nThe command completed successfully.\r\n\r\n"
+    },
+    "ps.net_connection_profiles": {
+      "exit_code": 0,
+      "stdout": "{\"Name\":\"HomeNet-5G\",\"InterfaceAlias\":\"Wi-Fi\",\"NetworkCategory\":\"Private\",\"IPv4Connectivity\":\"Internet\",\"IPv6Connectivity\":\"NoTraffic\"}"
+    },
+    "netsh.wlan_interfaces": {
+      "exit_code": 0,
+      "stdout": "\r\nThere is 1 interface on the system: \r\n\r\n    Name                   : Wi-Fi\r\n    Description            : Intel(R) Wi-Fi 6E AX211 160MHz\r\n    GUID                   : 3c1b7e6a-0a52-4f43-9a0e-2a3b1e9d6f10\r\n    Physical address       : a4:c3:f0:11:22:33\r\n    Interface type         : Primary\r\n    State                  : connected\r\n    SSID                   : HomeNet-5G\r\n    AP BSSID               : 70:3a:cb:44:55:66\r\n    Band                   : 5 GHz\r\n    Channel                : 44\r\n    Network type           : Infrastructure\r\n    Radio type             : 802.11ax\r\n    Authentication         : WPA2-Personal\r\n    Cipher                 : CCMP\r\n    Connection mode        : Auto Connect\r\n    Receive rate (Mbps)    : 1201\r\n    Transmit rate (Mbps)   : 1201\r\n    Signal                 : 92% \r\n    Profile                : HomeNet-5G \r\n\r\n    Hosted network status  : Not available\r\n\r\n"
+    },
+    "ps.dns_client_servers": {
+      "exit_code": 0,
+      "stdout": "[{\"InterfaceAlias\":\"Wi-Fi\",\"InterfaceIndex\":14,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[\"192.168.1.1\"]},{\"InterfaceAlias\":\"Wi-Fi\",\"InterfaceIndex\":14,\"AddressFamily\":\"IPv6\",\"ServerAddresses\":[]},{\"InterfaceAlias\":\"Ethernet\",\"InterfaceIndex\":9,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[]},{\"InterfaceAlias\":\"vEthernet (WSL (Hyper-V firewall))\",\"InterfaceIndex\":41,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[]},{\"InterfaceAlias\":\"Loopback Pseudo-Interface 1\",\"InterfaceIndex\":1,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[]}]"
+    },
+    "ps.winlog_security_first_run": {
+      "exit_code": 0,
+      "stdout": "{\"Newest\":48298,\"Events\":[{\"RecordId\":48218,\"Id\":4625,\"Time\":\"2026-10-23T05:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:00.0000000Z\\\"/><EventRecordID>48218</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">RYAN-PC</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">ryan</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">2</Data><Data Name=\\\"IpAddress\\\">127.0.0.1</Data></EventData></Event>\"},{\"RecordId\":48225,\"Id\":4624,\"Time\":\"2026-10-23T05:00:09.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4624</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:09.0000000Z\\\"/><EventRecordID>48225</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">RYAN-PC</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"TargetUserName\\\">Ryan</Data><Data Name=\\\"TargetLogonId\\\">0x2a3f11</Data><Data Name=\\\"LogonType\\\">2</Data><Data Name=\\\"IpAddress\\\">127.0.0.1</Data><Data Name=\\\"ElevatedToken\\\">%%1842</Data></EventData></Event>\"},{\"RecordId\":48232,\"Id\":4672,\"Time\":\"2026-10-23T05:00:09.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4672</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:09.0000000Z\\\"/><EventRecordID>48232</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"SubjectUserName\\\">Ryan</Data><Data Name=\\\"SubjectDomainName\\\">RYAN-PC</Data><Data Name=\\\"SubjectLogonId\\\">0x2a3f11</Data><Data Name=\\\"PrivilegeList\\\">SeSecurityPrivilege\\n\\t\\t\\tSeTakeOwnershipPrivilege\\n\\t\\t\\tSeLoadDriverPrivilege\\n\\t\\t\\tSeBackupPrivilege</Data></EventData></Event>\"},{\"RecordId\":48239,\"Id\":4672,\"Time\":\"2026-10-23T05:00:10.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4672</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:10.0000000Z\\\"/><EventRecordID>48239</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">SYSTEM</Data><Data Name=\\\"SubjectDomainName\\\">NT AUTHORITY</Data><Data Name=\\\"PrivilegeList\\\">SeTcbPrivilege</Data></EventData></Event>\"},{\"RecordId\":48246,\"Id\":4625,\"Time\":\"2026-10-24T11:46:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:00.0000000Z\\\"/><EventRecordID>48246</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50122</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">administrator</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48253,\"Id\":4625,\"Time\":\"2026-10-24T11:46:11.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:11.0000000Z\\\"/><EventRecordID>48253</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50123</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">admin</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc0000064</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48260,\"Id\":4625,\"Time\":\"2026-10-24T11:46:22.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:22.0000000Z\\\"/><EventRecordID>48260</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50124</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">administrator</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48267,\"Id\":4625,\"Time\":\"2026-10-24T11:46:33.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:33.0000000Z\\\"/><EventRecordID>48267</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50125</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">user</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc0000064</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48274,\"Id\":4625,\"Time\":\"2026-10-24T11:46:44.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:44.0000000Z\\\"/><EventRecordID>48274</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50126</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">administrator</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48281,\"Id\":4624,\"Time\":\"2026-10-25T08:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4624</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-25T08:00:00.0000000Z\\\"/><EventRecordID>48281</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">RYAN-PC</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"TargetUserName\\\">Ryan</Data><Data Name=\\\"TargetLogonId\\\">0x4b7c21</Data><Data Name=\\\"LogonType\\\">7</Data><Data Name=\\\"IpAddress\\\">127.0.0.1</Data></EventData></Event>\"},{\"RecordId\":48288,\"Id\":4624,\"Time\":\"2026-10-25T09:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4624</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-25T09:00:00.0000000Z\\\"/><EventRecordID>48288</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">NT AUTHORITY</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-5-18</Data><Data Name=\\\"TargetUserName\\\">SYSTEM</Data><Data Name=\\\"LogonType\\\">5</Data><Data Name=\\\"IpAddress\\\">-</Data></EventData></Event>\"},{\"RecordId\":48295,\"Id\":4698,\"Time\":\"2026-10-25T10:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4698</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-25T10:00:00.0000000Z\\\"/><EventRecordID>48295</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"SubjectUserName\\\">Ryan</Data><Data Name=\\\"SubjectDomainName\\\">RYAN-PC</Data><Data Name=\\\"TaskName\\\">\\\\GoogleUpdaterTaskUser141.0.7390.123{6E4D2B1A}</Data></EventData></Event>\"}]}"
+    },
+    "ps.winlog_security_since_cursor": {
+      "exit_code": 0,
+      "stdout": "{\"Newest\":48298,\"Events\":[]}"
+    },
+    "ps.winlog_system_first_run": {
+      "exit_code": 0,
+      "stdout": "{\"Newest\":91084,\"Events\":[{\"RecordId\":91030,\"Id\":6008,\"Time\":\"2026-10-20T13:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"EventLog\\\"/><EventID>6008</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-20T13:00:00.0000000Z\\\"/><EventRecordID>91030</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>System</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data>3:41:12 AM</Data><Data>10/20/2026</Data><Data></Data><Data></Data><Data>52143</Data><Data></Data><Data></Data><Data>1e000a00010014000300290000000000</Data><Data></Data><Data></Data></EventData></Event>\"},{\"RecordId\":91037,\"Id\":7045,\"Time\":\"2026-10-22T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Service Control Manager\\\"/><EventID>7045</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-22T14:00:00.0000000Z\\\"/><EventRecordID>91037</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>System</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"ServiceName\\\">Brave Update Service (brave)</Data><Data Name=\\\"ImagePath\\\">\\\"C:\\\\Program Files (x86)\\\\BraveSoftware\\\\Update\\\\BraveUpdate.exe\\\" /svc</Data><Data Name=\\\"ServiceType\\\">user mode service</Data><Data Name=\\\"StartType\\\">auto start</Data><Data Name=\\\"AccountName\\\">LocalSystem</Data></EventData></Event>\"},{\"RecordId\":91044,\"Id\":7040,\"Time\":\"2026-10-22T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Service Control Manager\\\"/><EventID>7040</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-22T14:00:00.0000000Z\\\"/><EventRecordID>91044</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>System</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"param1\\\">Background Intelligent Transfer Service</Data><Data Name=\\\"param2\\\">auto start</Data><Data Name=\\\"param3\\\">demand start</Data><Data Name=\\\"param4\\\">BITS</Data></EventData></Event>\"}]}"
+    },
+    "ps.winlog_system_since_cursor": {
+      "exit_code": 0,
+      "stdout": "{\"Newest\":91084,\"Events\":[]}"
+    },
+    "ps.winlog_defender_first_run": {
+      "exit_code": 0,
+      "stdout": "{\"Newest\":3335,\"Events\":[{\"RecordId\":3309,\"Id\":1116,\"Time\":\"2026-10-19T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Windows Defender\\\"/><EventID>1116</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-19T14:00:00.0000000Z\\\"/><EventRecordID>3309</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Microsoft-Windows-Windows Defender/Operational</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"Product Name\\\">Microsoft Defender Antivirus</Data><Data Name=\\\"Product Version\\\">4.18.25090.3009</Data><Data Name=\\\"Threat Name\\\">PUA:Win32/Presenoker</Data><Data Name=\\\"Severity Name\\\">Low</Data><Data Name=\\\"Category Name\\\">Potentially Unwanted Software</Data><Data Name=\\\"Path\\\">file:_C:\\\\Users\\\\Ryan\\\\Downloads\\\\FreeVideoConverter_setup.exe</Data><Data Name=\\\"Detection User\\\">RYAN-PC\\\\Ryan</Data><Data Name=\\\"Process Name\\\">C:\\\\Windows\\\\explorer.exe</Data></EventData></Event>\"},{\"RecordId\":3316,\"Id\":1117,\"Time\":\"2026-10-19T14:00:04.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Windows Defender\\\"/><EventID>1117</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-19T14:00:04.0000000Z\\\"/><EventRecordID>3316</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Microsoft-Windows-Windows Defender/Operational</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"Product Name\\\">Microsoft Defender Antivirus</Data><Data Name=\\\"Product Version\\\">4.18.25090.3009</Data><Data Name=\\\"Threat Name\\\">PUA:Win32/Presenoker</Data><Data Name=\\\"Severity Name\\\">Low</Data><Data Name=\\\"Category Name\\\">Potentially Unwanted Software</Data><Data Name=\\\"Path\\\">file:_C:\\\\Users\\\\Ryan\\\\Downloads\\\\FreeVideoConverter_setup.exe</Data><Data Name=\\\"Detection User\\\">RYAN-PC\\\\Ryan</Data><Data Name=\\\"Process Name\\\">C:\\\\Windows\\\\explorer.exe</Data><Data Name=\\\"Action Name\\\">Quarantine</Data></EventData></Event>\"},{\"RecordId\":3323,\"Id\":5007,\"Time\":\"2026-10-23T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Windows Defender\\\"/><EventID>5007</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T14:00:00.0000000Z\\\"/><EventRecordID>3323</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Microsoft-Windows-Windows Defender/Operational</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"Product Name\\\">Microsoft Defender Antivirus</Data><Data Name=\\\"Old Value\\\">HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows Defender\\\\Signature Updates\\\\SignatureUpdateLastAttempted = 0x1DC3F...</Data><Data Name=\\\"New Value\\\">HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows Defender\\\\Signature Updates\\\\SignatureUpdateLastAttempted = 0x1DC44...</Data></EventData></Event>\"}]}"
+    },
+    "ps.winlog_defender_since_cursor": {
+      "exit_code": 0,
+      "stdout": "{\"Newest\":3335,\"Events\":[]}"
+    }
   },
-  "ps.defender_status": {
-   "exit_code": 0,
-   "stdout": "{\"AMServiceEnabled\":true,\"AntivirusEnabled\":true,\"RealTimeProtectionEnabled\":true,\"IsTamperProtected\":true,\"AntivirusSignatureAge\":4,\"AntivirusSignatureLastUpdated\":\"2026-10-21T11:00:00.0000000Z\",\"AMRunningMode\":\"Normal\"}"
+  "registry": {
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System::EnableLUA::64": 1,
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System::ConsentPromptBehaviorAdmin::64": 5,
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System::PromptOnSecureDesktop::64": 1,
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run::*::64": {
+      "SecurityHealth": "%windir%\\system32\\SecurityHealthSystray.exe",
+      "RtkAudUService": "\"C:\\Windows\\System32\\DriverStore\\FileRepository\\realtekservice.inf_amd64_8f0c1d2e3b4a5968\\RtkAudUService64.exe\" -background"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce::*::64": {},
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run::*::32": {
+      "SunJavaUpdateSched": "\"C:\\Program Files (x86)\\Common Files\\Java\\Java Update\\jusched.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce::*::32": {},
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run::*::": {
+      "OneDrive": "\"C:\\Users\\Ryan\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe\" /background",
+      "Discord": "\"C:\\Users\\Ryan\\AppData\\Local\\Discord\\Update.exe\" --processStart Discord.exe",
+      "Spotify": "\"C:\\Users\\Ryan\\AppData\\Roaming\\Spotify\\Spotify.exe\" --autostart --minimized",
+      "PerfBoostHelper": "\"C:\\Users\\Ryan\\AppData\\Local\\Temp\\pbh-2091\\perfboost.exe\" /tray"
+    },
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce::*::": {},
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa::RunAsPPL::64": 2,
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa::RunAsPPLBoot::64": 2,
+    "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa::LsaCfgFlags::64": null,
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall::<subkeys>::64": [
+      "7-Zip",
+      "AddressBook",
+      "Connection Manager",
+      "Git_is1",
+      "Google Chrome",
+      "KB5066128",
+      "Microsoft Edge",
+      "Mozilla Firefox 144.0 (x64 en-US)",
+      "Notepad++",
+      "VLC media player",
+      "WinRAR archiver",
+      "{0E5A8E7B-6F7C-4C47-9B44-5D5B0A2C3D11}",
+      "{1D8E6291-B0D5-35EC-8441-6616F567A0F7}",
+      "{5A6B7C8D-9E0F-4123-8456-789ABCDEF012}",
+      "{7B1B6D3A-5A3B-4D4E-8F6C-2E2A9B7C1D20}",
+      "{90160000-008C-0000-1000-0000000FF1CE}",
+      "{A2B3C4D5-E6F7-4890-ABCD-EF0123456789}",
+      "{B9F1D4C2-3A7E-4E8B-9D0C-1F2A3B4C5D6E}",
+      "{C0FFEE00-1234-4567-89AB-CDEF01234567}",
+      "{F3E2D1C0-B9A8-4765-8432-10FEDCBA9876}"
+    ],
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Git_is1::*::64": {
+      "DisplayName": "Git",
+      "DisplayVersion": "2.43.0",
+      "Publisher": "The Git Development Community",
+      "UninstallString": "\"C:\\Program Files\\Git\\uninstall.exe\"",
+      "InstallDate": "20240115"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\7-Zip::*::64": {
+      "DisplayName": "7-Zip 19.00 (x64)",
+      "DisplayVersion": "19.00",
+      "Publisher": "Igor Pavlov",
+      "UninstallString": "\"C:\\Program Files\\7-Zip 19.00 (x64)\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{0E5A8E7B-6F7C-4C47-9B44-5D5B0A2C3D11}::*::64": {
+      "DisplayName": "Python 3.12.7 (64-bit)",
+      "DisplayVersion": "3.12.7150.0",
+      "Publisher": "Python Software Foundation",
+      "UninstallString": "\"C:\\Program Files\\Python 3.12.7 (64-bit)\\uninstall.exe\"",
+      "InstallDate": "20241012"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{7B1B6D3A-5A3B-4D4E-8F6C-2E2A9B7C1D20}::*::64": {
+      "DisplayName": "Node.js",
+      "DisplayVersion": "22.11.0",
+      "Publisher": "Node.js Foundation",
+      "UninstallString": "\"C:\\Program Files\\Node.js\\uninstall.exe\"",
+      "InstallDate": "20241105"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{1D8E6291-B0D5-35EC-8441-6616F567A0F7}::*::64": {
+      "DisplayName": "Microsoft Visual C++ 2015-2022 Redistributable (x64) - 14.40.33810",
+      "DisplayVersion": "14.40.33810.0",
+      "Publisher": "Microsoft Corporation",
+      "UninstallString": "\"C:\\Program Files\\Microsoft Visual C++ 2015-2022 Redistributable (x64) - 14.40.33810\\uninstall.exe\"",
+      "InstallDate": "20250301"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Microsoft Edge::*::64": {
+      "DisplayName": "Microsoft Edge",
+      "DisplayVersion": "141.0.3537.85",
+      "Publisher": "Microsoft Corporation",
+      "UninstallString": "\"C:\\Program Files\\Microsoft Edge\\uninstall.exe\"",
+      "InstallDate": "20261021"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome::*::64": {
+      "DisplayName": "Google Chrome",
+      "DisplayVersion": "141.0.7390.123",
+      "Publisher": "Google LLC",
+      "UninstallString": "\"C:\\Program Files\\Google Chrome\\uninstall.exe\"",
+      "InstallDate": "20261022"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Mozilla Firefox 144.0 (x64 en-US)::*::64": {
+      "DisplayName": "Mozilla Firefox (x64 en-US)",
+      "DisplayVersion": "144.0",
+      "Publisher": "Mozilla",
+      "UninstallString": "\"C:\\Program Files\\Mozilla Firefox (x64 en-US)\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{B9F1D4C2-3A7E-4E8B-9D0C-1F2A3B4C5D6E}::*::64": {
+      "DisplayName": "Docker Desktop",
+      "DisplayVersion": "4.34.2",
+      "Publisher": "Docker Inc.",
+      "UninstallString": "\"C:\\Program Files\\Docker Desktop\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\VLC media player::*::64": {
+      "DisplayName": "VLC media player",
+      "DisplayVersion": "3.0.21",
+      "Publisher": "VideoLAN",
+      "UninstallString": "\"C:\\Program Files\\VLC media player\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Notepad++::*::64": {
+      "DisplayName": "Notepad++ (64-bit x64)",
+      "DisplayVersion": "8.7.1",
+      "Publisher": "Notepad++ Team",
+      "UninstallString": "\"C:\\Program Files\\Notepad++ (64-bit x64)\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{F3E2D1C0-B9A8-4765-8432-10FEDCBA9876}::*::64": {
+      "DisplayName": "NVIDIA Graphics Driver 566.14",
+      "DisplayVersion": "566.14",
+      "Publisher": "NVIDIA Corporation",
+      "UninstallString": "\"C:\\Program Files\\NVIDIA Graphics Driver 566.14\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{A2B3C4D5-E6F7-4890-ABCD-EF0123456789}::*::64": {
+      "DisplayName": "Logitech G HUB",
+      "DisplayVersion": "2024.8.641856",
+      "Publisher": "Logitech",
+      "UninstallString": "\"C:\\Program Files\\Logitech G HUB\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\WinRAR archiver::*::64": {
+      "DisplayName": "WinRAR 6.24 (64-bit)",
+      "DisplayVersion": "6.24.0",
+      "Publisher": "win.rar GmbH",
+      "UninstallString": "\"C:\\Program Files\\WinRAR 6.24 (64-bit)\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{5A6B7C8D-9E0F-4123-8456-789ABCDEF012}::*::64": {
+      "DisplayName": "Microsoft Update Health Tools",
+      "DisplayVersion": "5.72.0.0",
+      "Publisher": "Microsoft Corporation",
+      "UninstallString": "\"C:\\Program Files\\Microsoft Update Health Tools\\uninstall.exe\"",
+      "InstallDate": "20250115"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{C0FFEE00-1234-4567-89AB-CDEF01234567}::*::64": {
+      "DisplayName": "Microsoft .NET Host - 8.0.10 (x64)",
+      "DisplayVersion": "64.40.24456",
+      "Publisher": "Microsoft Corporation",
+      "UninstallString": "\"C:\\Program Files\\Microsoft .NET Host - 8.0.10 (x64)\\uninstall.exe\"",
+      "InstallDate": "20241015"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{90160000-008C-0000-1000-0000000FF1CE}::*::64": {
+      "DisplayName": "Office 16 Click-to-Run Extensibility Component",
+      "DisplayVersion": "16.0.18129.20158",
+      "SystemComponent": 1
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\KB5066128::*::64": {
+      "DisplayName": "Update for .NET Framework (KB5066128)",
+      "ParentKeyName": "NETFramework"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AddressBook::*::64": {},
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Connection Manager::*::64": {
+      "SystemComponent": 1
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall::<subkeys>::32": [
+      "Adobe Acrobat DC (64-bit)",
+      "Git_is1",
+      "Steam",
+      "{26A24AE4-039D-4CA4-87B4-2F64180431F0}"
+    ],
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam::*::32": {
+      "DisplayName": "Steam",
+      "DisplayVersion": "2.10.91.91",
+      "Publisher": "Valve Corporation",
+      "UninstallString": "\"C:\\Program Files\\Steam\\uninstall.exe\""
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{26A24AE4-039D-4CA4-87B4-2F64180431F0}::*::32": {
+      "DisplayName": "Java 8 Update 431",
+      "DisplayVersion": "8.0.4310.11",
+      "Publisher": "Oracle Corporation",
+      "UninstallString": "\"C:\\Program Files\\Java 8 Update 431\\uninstall.exe\"",
+      "InstallDate": "20241016"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Adobe Acrobat DC (64-bit)::*::32": {
+      "DisplayName": "Adobe Acrobat (64-bit)",
+      "DisplayVersion": "24.004.20220",
+      "Publisher": "Adobe",
+      "UninstallString": "\"C:\\Program Files\\Adobe Acrobat (64-bit)\\uninstall.exe\"",
+      "InstallDate": "20241112"
+    },
+    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Git_is1::*::32": {
+      "DisplayName": "Git",
+      "DisplayVersion": "2.43.0",
+      "Publisher": "The Git Development Community",
+      "UninstallString": "\"C:\\Program Files\\Git\\uninstall.exe\"",
+      "InstallDate": "20240115"
+    },
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall::<subkeys>::": [
+      "Discord",
+      "OneDriveSetup.exe",
+      "Spotify",
+      "Zoom",
+      "{771FD6B0-FA20-440A-A002-3B3BAC16DC50}_Microsoft VS Code"
+    ],
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Discord::*::": {
+      "DisplayName": "Discord",
+      "DisplayVersion": "1.0.9213",
+      "Publisher": "Discord Inc.",
+      "UninstallString": "\"C:\\Program Files\\Discord\\uninstall.exe\"",
+      "InstallDate": "20250901"
+    },
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Spotify::*::": {
+      "DisplayName": "Spotify",
+      "DisplayVersion": "1.2.74.477.g3be53afe",
+      "Publisher": "Spotify AB",
+      "UninstallString": "\"C:\\Program Files\\Spotify\\uninstall.exe\""
+    },
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{771FD6B0-FA20-440A-A002-3B3BAC16DC50}_Microsoft VS Code::*::": {
+      "DisplayName": "Microsoft Visual Studio Code (User)",
+      "DisplayVersion": "1.105.1",
+      "Publisher": "Microsoft Corporation",
+      "UninstallString": "\"C:\\Program Files\\Microsoft Visual Studio Code (User)\\uninstall.exe\"",
+      "InstallDate": "20261009"
+    },
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OneDriveSetup.exe::*::": {
+      "DisplayName": "Microsoft OneDrive",
+      "DisplayVersion": "25.184.0921.0002",
+      "Publisher": "Microsoft Corporation",
+      "UninstallString": "\"C:\\Program Files\\Microsoft OneDrive\\uninstall.exe\""
+    },
+    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Zoom::*::": {
+      "DisplayName": "Zoom Workplace (64-bit)",
+      "DisplayVersion": "6.2.11 (52834)",
+      "Publisher": "Zoom Video Communications, Inc.",
+      "UninstallString": "\"C:\\Program Files\\Zoom Workplace (64-bit)\\uninstall.exe\""
+    }
   },
-  "ps.securitycenter_av": {
-   "exit_code": 0,
-   "stdout": "{\"displayName\":\"Windows Defender\",\"productState\":397568}"
+  "files": {
+    "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp::<listdir>": "desktop.ini",
+    "C:\\Users\\Ryan\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup::<listdir>": "desktop.ini\nSpotify.lnk"
   },
-  "ps.local_users": {
-   "exit_code": 0,
-   "stdout": "{\"Users\":[{\"Name\":\"Administrator\",\"Enabled\":false,\"PasswordRequired\":true,\"PasswordLastSet\":null,\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-500\",\"PrincipalSource\":\"Local\"},{\"Name\":\"DefaultAccount\",\"Enabled\":false,\"PasswordRequired\":false,\"PasswordLastSet\":null,\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-503\",\"PrincipalSource\":\"Local\"},{\"Name\":\"Guest\",\"Enabled\":false,\"PasswordRequired\":false,\"PasswordLastSet\":null,\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-501\",\"PrincipalSource\":\"Local\"},{\"Name\":\"Ryan\",\"Enabled\":true,\"PasswordRequired\":true,\"PasswordLastSet\":\"2025-03-02T18:21:44.0000000Z\",\"LastLogon\":\"2026-10-25T08:00:00.0000000Z\",\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-1001\",\"PrincipalSource\":\"MicrosoftAccount\"},{\"Name\":\"WDAGUtilityAccount\",\"Enabled\":false,\"PasswordRequired\":true,\"PasswordLastSet\":\"2025-03-01T09:10:00.0000000Z\",\"LastLogon\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-504\",\"PrincipalSource\":\"Local\"}],\"CurrentUser\":\"RYAN-PC\\\\Ryan\",\"CurrentUserSid\":\"S-1-5-21-3623811015-3361044348-30300820-1001\"}"
-  },
-  "ps.admin_members": {
-   "exit_code": 0,
-   "stdout": "{\"Method\":\"Get-LocalGroupMember\",\"Error\":\"Failed to compare two elements in the array.\"}"
-  },
-  "ps.admin_members_fallback": {
-   "exit_code": 0,
-   "stdout": "{\"Method\":\"ADSI\",\"GroupName\":\"Administrators\",\"Members\":[{\"Name\":\"WinNT://RYAN-PC/Administrator\",\"ObjectClass\":\"User\",\"PrincipalSource\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-500\"},{\"Name\":\"WinNT://RYAN-PC/Ryan\",\"ObjectClass\":\"User\",\"PrincipalSource\":null,\"SID\":\"S-1-5-21-3623811015-3361044348-30300820-1001\"},{\"Name\":\"WinNT://S-1-5-21-1180699209-877415012-3182924384-1004\",\"ObjectClass\":\"User\",\"PrincipalSource\":null,\"SID\":\"S-1-5-21-1180699209-877415012-3182924384-1004\"}]}"
-  },
-  "ps.bitlocker_volume": {
-   "exit_code": 1,
-   "stdout": "",
-   "stderr": "Get-BitLockerVolume : The term 'Get-BitLockerVolume' is not recognized as the name of a cmdlet, function, script file, or operable program."
-  },
-  "manage-bde.status": {
-   "exit_code": 0,
-   "stdout": "BitLocker Drive Encryption: Configuration Tool version 10.0.26300\r\nCopyright (C) 2013 Microsoft Corporation. All rights reserved.\r\n\r\nVolume C: [Windows]\r\n[OS Volume]\r\n\r\n    Size:                 951.65 GB\r\n    BitLocker Version:    2.0\r\n    Conversion Status:    Used Space Only Encrypted\r\n    Percentage Encrypted: 100.0%\r\n    Encryption Method:    XTS-AES 128\r\n    Protection Status:    Protection On\r\n    Lock Status:          Unlocked\r\n    Identification Field: Unknown\r\n    Key Protectors:\r\n        TPM\r\n        Numerical Password\r\n"
-  },
-  "ps.secure_boot": {
-   "exit_code": 0,
-   "stdout": "{\"state\":\"on\",\"message\":null}"
-  },
-  "net.accounts": {
-   "exit_code": 0,
-   "stdout": "Force user logoff how long after time expires?:       Never\r\nMinimum password age (days):                          0\r\nMaximum password age (days):                          Unlimited\r\nMinimum password length:                              0\r\nLength of password history maintained:                None\r\nLockout threshold:                                    10\r\nLockout duration (minutes):                           10\r\nLockout observation window (minutes):                 10\r\nComputer role:                                        WORKSTATION\r\nThe command completed successfully.\r\n\r\n"
-  },
-  "ps.net_connection_profiles": {
-   "exit_code": 0,
-   "stdout": "{\"Name\":\"HomeNet-5G\",\"InterfaceAlias\":\"Wi-Fi\",\"NetworkCategory\":\"Private\",\"IPv4Connectivity\":\"Internet\",\"IPv6Connectivity\":\"NoTraffic\"}"
-  },
-  "netsh.wlan_interfaces": {
-   "exit_code": 0,
-   "stdout": "\r\nThere is 1 interface on the system: \r\n\r\n    Name                   : Wi-Fi\r\n    Description            : Intel(R) Wi-Fi 6E AX211 160MHz\r\n    GUID                   : 3c1b7e6a-0a52-4f43-9a0e-2a3b1e9d6f10\r\n    Physical address       : a4:c3:f0:11:22:33\r\n    Interface type         : Primary\r\n    State                  : connected\r\n    SSID                   : HomeNet-5G\r\n    AP BSSID               : 70:3a:cb:44:55:66\r\n    Band                   : 5 GHz\r\n    Channel                : 44\r\n    Network type           : Infrastructure\r\n    Radio type             : 802.11ax\r\n    Authentication         : WPA2-Personal\r\n    Cipher                 : CCMP\r\n    Connection mode        : Auto Connect\r\n    Receive rate (Mbps)    : 1201\r\n    Transmit rate (Mbps)   : 1201\r\n    Signal                 : 92% \r\n    Profile                : HomeNet-5G \r\n\r\n    Hosted network status  : Not available\r\n\r\n"
-  },
-  "ps.dns_client_servers": {
-   "exit_code": 0,
-   "stdout": "[{\"InterfaceAlias\":\"Wi-Fi\",\"InterfaceIndex\":14,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[\"192.168.1.1\"]},{\"InterfaceAlias\":\"Wi-Fi\",\"InterfaceIndex\":14,\"AddressFamily\":\"IPv6\",\"ServerAddresses\":[]},{\"InterfaceAlias\":\"Ethernet\",\"InterfaceIndex\":9,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[]},{\"InterfaceAlias\":\"vEthernet (WSL (Hyper-V firewall))\",\"InterfaceIndex\":41,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[]},{\"InterfaceAlias\":\"Loopback Pseudo-Interface 1\",\"InterfaceIndex\":1,\"AddressFamily\":\"IPv4\",\"ServerAddresses\":[]}]"
-  },
-  "ps.winlog_security_first_run": {
-   "exit_code": 0,
-   "stdout": "{\"Newest\":48298,\"Events\":[{\"RecordId\":48218,\"Id\":4625,\"Time\":\"2026-10-23T05:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:00.0000000Z\\\"/><EventRecordID>48218</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">RYAN-PC</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">ryan</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">2</Data><Data Name=\\\"IpAddress\\\">127.0.0.1</Data></EventData></Event>\"},{\"RecordId\":48225,\"Id\":4624,\"Time\":\"2026-10-23T05:00:09.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4624</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:09.0000000Z\\\"/><EventRecordID>48225</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">RYAN-PC</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"TargetUserName\\\">Ryan</Data><Data Name=\\\"TargetLogonId\\\">0x2a3f11</Data><Data Name=\\\"LogonType\\\">2</Data><Data Name=\\\"IpAddress\\\">127.0.0.1</Data><Data Name=\\\"ElevatedToken\\\">%%1842</Data></EventData></Event>\"},{\"RecordId\":48232,\"Id\":4672,\"Time\":\"2026-10-23T05:00:09.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4672</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:09.0000000Z\\\"/><EventRecordID>48232</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"SubjectUserName\\\">Ryan</Data><Data Name=\\\"SubjectDomainName\\\">RYAN-PC</Data><Data Name=\\\"SubjectLogonId\\\">0x2a3f11</Data><Data Name=\\\"PrivilegeList\\\">SeSecurityPrivilege\\n\\t\\t\\tSeTakeOwnershipPrivilege\\n\\t\\t\\tSeLoadDriverPrivilege\\n\\t\\t\\tSeBackupPrivilege</Data></EventData></Event>\"},{\"RecordId\":48239,\"Id\":4672,\"Time\":\"2026-10-23T05:00:10.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4672</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T05:00:10.0000000Z\\\"/><EventRecordID>48239</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">SYSTEM</Data><Data Name=\\\"SubjectDomainName\\\">NT AUTHORITY</Data><Data Name=\\\"PrivilegeList\\\">SeTcbPrivilege</Data></EventData></Event>\"},{\"RecordId\":48246,\"Id\":4625,\"Time\":\"2026-10-24T11:46:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:00.0000000Z\\\"/><EventRecordID>48246</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50122</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">administrator</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48253,\"Id\":4625,\"Time\":\"2026-10-24T11:46:11.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:11.0000000Z\\\"/><EventRecordID>48253</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50123</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">admin</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc0000064</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48260,\"Id\":4625,\"Time\":\"2026-10-24T11:46:22.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:22.0000000Z\\\"/><EventRecordID>48260</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50124</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">administrator</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48267,\"Id\":4625,\"Time\":\"2026-10-24T11:46:33.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:33.0000000Z\\\"/><EventRecordID>48267</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50125</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">user</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc0000064</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48274,\"Id\":4625,\"Time\":\"2026-10-24T11:46:44.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4625</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-24T11:46:44.0000000Z\\\"/><EventRecordID>48274</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-0-0</Data><Data Name=\\\"SubjectUserName\\\">-</Data><Data Name=\\\"SubjectDomainName\\\">-</Data><Data Name=\\\"SubjectLogonId\\\">0x0</Data><Data Name=\\\"TargetDomainName\\\"></Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x0</Data><Data Name=\\\"ProcessName\\\">-</Data><Data Name=\\\"IpPort\\\">50126</Data><Data Name=\\\"LogonProcessName\\\">NtLmSsp </Data><Data Name=\\\"AuthenticationPackageName\\\">NTLM</Data><Data Name=\\\"WorkstationName\\\">KALI</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-0-0</Data><Data Name=\\\"TargetUserName\\\">administrator</Data><Data Name=\\\"Status\\\">0xc000006d</Data><Data Name=\\\"SubStatus\\\">0xc000006a</Data><Data Name=\\\"FailureReason\\\">%%2313</Data><Data Name=\\\"LogonType\\\">3</Data><Data Name=\\\"IpAddress\\\">192.168.1.77</Data></EventData></Event>\"},{\"RecordId\":48281,\"Id\":4624,\"Time\":\"2026-10-25T08:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4624</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-25T08:00:00.0000000Z\\\"/><EventRecordID>48281</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">RYAN-PC</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"TargetUserName\\\">Ryan</Data><Data Name=\\\"TargetLogonId\\\">0x4b7c21</Data><Data Name=\\\"LogonType\\\">7</Data><Data Name=\\\"IpAddress\\\">127.0.0.1</Data></EventData></Event>\"},{\"RecordId\":48288,\"Id\":4624,\"Time\":\"2026-10-25T09:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4624</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-25T09:00:00.0000000Z\\\"/><EventRecordID>48288</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-18</Data><Data Name=\\\"SubjectUserName\\\">RYAN-PC$</Data><Data Name=\\\"SubjectDomainName\\\">WORKGROUP</Data><Data Name=\\\"SubjectLogonId\\\">0x3e7</Data><Data Name=\\\"TargetDomainName\\\">NT AUTHORITY</Data><Data Name=\\\"KeyLength\\\">0</Data><Data Name=\\\"ProcessId\\\">0x4a8</Data><Data Name=\\\"ProcessName\\\">C:\\\\Windows\\\\System32\\\\svchost.exe</Data><Data Name=\\\"IpPort\\\">0</Data><Data Name=\\\"LogonProcessName\\\">User32 </Data><Data Name=\\\"AuthenticationPackageName\\\">Negotiate</Data><Data Name=\\\"WorkstationName\\\">RYAN-PC</Data><Data Name=\\\"TransmittedServices\\\">-</Data><Data Name=\\\"LmPackageName\\\">-</Data><Data Name=\\\"TargetUserSid\\\">S-1-5-18</Data><Data Name=\\\"TargetUserName\\\">SYSTEM</Data><Data Name=\\\"LogonType\\\">5</Data><Data Name=\\\"IpAddress\\\">-</Data></EventData></Event>\"},{\"RecordId\":48295,\"Id\":4698,\"Time\":\"2026-10-25T10:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Security-Auditing\\\"/><EventID>4698</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-25T10:00:00.0000000Z\\\"/><EventRecordID>48295</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Security</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"SubjectUserSid\\\">S-1-5-21-3623811015-3361044348-30300820-1001</Data><Data Name=\\\"SubjectUserName\\\">Ryan</Data><Data Name=\\\"SubjectDomainName\\\">RYAN-PC</Data><Data Name=\\\"TaskName\\\">\\\\GoogleUpdaterTaskUser141.0.7390.123{6E4D2B1A}</Data></EventData></Event>\"}]}"
-  },
-  "ps.winlog_security_since_cursor": {
-   "exit_code": 0,
-   "stdout": "{\"Newest\":48298,\"Events\":[]}"
-  },
-  "ps.winlog_system_first_run": {
-   "exit_code": 0,
-   "stdout": "{\"Newest\":91084,\"Events\":[{\"RecordId\":91030,\"Id\":6008,\"Time\":\"2026-10-20T13:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"EventLog\\\"/><EventID>6008</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-20T13:00:00.0000000Z\\\"/><EventRecordID>91030</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>System</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data>3:41:12 AM</Data><Data>10/20/2026</Data><Data></Data><Data></Data><Data>52143</Data><Data></Data><Data></Data><Data>1e000a00010014000300290000000000</Data><Data></Data><Data></Data></EventData></Event>\"},{\"RecordId\":91037,\"Id\":7045,\"Time\":\"2026-10-22T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Service Control Manager\\\"/><EventID>7045</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-22T14:00:00.0000000Z\\\"/><EventRecordID>91037</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>System</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"ServiceName\\\">Brave Update Service (brave)</Data><Data Name=\\\"ImagePath\\\">\\\"C:\\\\Program Files (x86)\\\\BraveSoftware\\\\Update\\\\BraveUpdate.exe\\\" /svc</Data><Data Name=\\\"ServiceType\\\">user mode service</Data><Data Name=\\\"StartType\\\">auto start</Data><Data Name=\\\"AccountName\\\">LocalSystem</Data></EventData></Event>\"},{\"RecordId\":91044,\"Id\":7040,\"Time\":\"2026-10-22T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Service Control Manager\\\"/><EventID>7040</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-22T14:00:00.0000000Z\\\"/><EventRecordID>91044</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>System</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"param1\\\">Background Intelligent Transfer Service</Data><Data Name=\\\"param2\\\">auto start</Data><Data Name=\\\"param3\\\">demand start</Data><Data Name=\\\"param4\\\">BITS</Data></EventData></Event>\"}]}"
-  },
-  "ps.winlog_system_since_cursor": {
-   "exit_code": 0,
-   "stdout": "{\"Newest\":91084,\"Events\":[]}"
-  },
-  "ps.winlog_defender_first_run": {
-   "exit_code": 0,
-   "stdout": "{\"Newest\":3335,\"Events\":[{\"RecordId\":3309,\"Id\":1116,\"Time\":\"2026-10-19T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Windows Defender\\\"/><EventID>1116</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-19T14:00:00.0000000Z\\\"/><EventRecordID>3309</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Microsoft-Windows-Windows Defender/Operational</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"Product Name\\\">Microsoft Defender Antivirus</Data><Data Name=\\\"Product Version\\\">4.18.25090.3009</Data><Data Name=\\\"Threat Name\\\">PUA:Win32/Presenoker</Data><Data Name=\\\"Severity Name\\\">Low</Data><Data Name=\\\"Category Name\\\">Potentially Unwanted Software</Data><Data Name=\\\"Path\\\">file:_C:\\\\Users\\\\Ryan\\\\Downloads\\\\FreeVideoConverter_setup.exe</Data><Data Name=\\\"Detection User\\\">RYAN-PC\\\\Ryan</Data><Data Name=\\\"Process Name\\\">C:\\\\Windows\\\\explorer.exe</Data></EventData></Event>\"},{\"RecordId\":3316,\"Id\":1117,\"Time\":\"2026-10-19T14:00:04.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Windows Defender\\\"/><EventID>1117</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-19T14:00:04.0000000Z\\\"/><EventRecordID>3316</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Microsoft-Windows-Windows Defender/Operational</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"Product Name\\\">Microsoft Defender Antivirus</Data><Data Name=\\\"Product Version\\\">4.18.25090.3009</Data><Data Name=\\\"Threat Name\\\">PUA:Win32/Presenoker</Data><Data Name=\\\"Severity Name\\\">Low</Data><Data Name=\\\"Category Name\\\">Potentially Unwanted Software</Data><Data Name=\\\"Path\\\">file:_C:\\\\Users\\\\Ryan\\\\Downloads\\\\FreeVideoConverter_setup.exe</Data><Data Name=\\\"Detection User\\\">RYAN-PC\\\\Ryan</Data><Data Name=\\\"Process Name\\\">C:\\\\Windows\\\\explorer.exe</Data><Data Name=\\\"Action Name\\\">Quarantine</Data></EventData></Event>\"},{\"RecordId\":3323,\"Id\":5007,\"Time\":\"2026-10-23T14:00:00.0000000Z\",\"Xml\":\"<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name=\\\"Microsoft-Windows-Windows Defender\\\"/><EventID>5007</EventID><Version>0</Version><Level>0</Level><Task>0</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\\\"2026-10-23T14:00:00.0000000Z\\\"/><EventRecordID>3323</EventRecordID><Correlation/><Execution ProcessID='812' ThreadID='1620'/><Channel>Microsoft-Windows-Windows Defender/Operational</Channel><Computer>RYAN-PC</Computer><Security/></System><EventData><Data Name=\\\"Product Name\\\">Microsoft Defender Antivirus</Data><Data Name=\\\"Old Value\\\">HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows Defender\\\\Signature Updates\\\\SignatureUpdateLastAttempted = 0x1DC3F...</Data><Data Name=\\\"New Value\\\">HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows Defender\\\\Signature Updates\\\\SignatureUpdateLastAttempted = 0x1DC44...</Data></EventData></Event>\"}]}"
-  },
-  "ps.winlog_defender_since_cursor": {
-   "exit_code": 0,
-   "stdout": "{\"Newest\":3335,\"Events\":[]}"
-  }
- },
- "registry": {
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System::EnableLUA::64": 1,
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System::ConsentPromptBehaviorAdmin::64": 5,
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System::PromptOnSecureDesktop::64": 1,
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run::*::64": {
-   "SecurityHealth": "%windir%\\system32\\SecurityHealthSystray.exe",
-   "RtkAudUService": "\"C:\\Windows\\System32\\DriverStore\\FileRepository\\realtekservice.inf_amd64_8f0c1d2e3b4a5968\\RtkAudUService64.exe\" -background"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce::*::64": {},
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run::*::32": {
-   "SunJavaUpdateSched": "\"C:\\Program Files (x86)\\Common Files\\Java\\Java Update\\jusched.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce::*::32": {},
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run::*::": {
-   "OneDrive": "\"C:\\Users\\Ryan\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe\" /background",
-   "Discord": "\"C:\\Users\\Ryan\\AppData\\Local\\Discord\\Update.exe\" --processStart Discord.exe",
-   "Spotify": "\"C:\\Users\\Ryan\\AppData\\Roaming\\Spotify\\Spotify.exe\" --autostart --minimized",
-   "PerfBoostHelper": "\"C:\\Users\\Ryan\\AppData\\Local\\Temp\\pbh-2091\\perfboost.exe\" /tray"
-  },
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce::*::": {},
-  "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa::RunAsPPL::64": 2,
-  "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa::RunAsPPLBoot::64": 2,
-  "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa::LsaCfgFlags::64": null,
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall::<subkeys>::64": [
-   "7-Zip",
-   "AddressBook",
-   "Connection Manager",
-   "Git_is1",
-   "Google Chrome",
-   "KB5066128",
-   "Microsoft Edge",
-   "Mozilla Firefox 144.0 (x64 en-US)",
-   "Notepad++",
-   "VLC media player",
-   "WinRAR archiver",
-   "{0E5A8E7B-6F7C-4C47-9B44-5D5B0A2C3D11}",
-   "{1D8E6291-B0D5-35EC-8441-6616F567A0F7}",
-   "{5A6B7C8D-9E0F-4123-8456-789ABCDEF012}",
-   "{7B1B6D3A-5A3B-4D4E-8F6C-2E2A9B7C1D20}",
-   "{90160000-008C-0000-1000-0000000FF1CE}",
-   "{A2B3C4D5-E6F7-4890-ABCD-EF0123456789}",
-   "{B9F1D4C2-3A7E-4E8B-9D0C-1F2A3B4C5D6E}",
-   "{C0FFEE00-1234-4567-89AB-CDEF01234567}",
-   "{F3E2D1C0-B9A8-4765-8432-10FEDCBA9876}"
-  ],
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Git_is1::*::64": {
-   "DisplayName": "Git",
-   "DisplayVersion": "2.43.0",
-   "Publisher": "The Git Development Community",
-   "UninstallString": "\"C:\\Program Files\\Git\\uninstall.exe\"",
-   "InstallDate": "20240115"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\7-Zip::*::64": {
-   "DisplayName": "7-Zip 19.00 (x64)",
-   "DisplayVersion": "19.00",
-   "Publisher": "Igor Pavlov",
-   "UninstallString": "\"C:\\Program Files\\7-Zip 19.00 (x64)\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{0E5A8E7B-6F7C-4C47-9B44-5D5B0A2C3D11}::*::64": {
-   "DisplayName": "Python 3.12.7 (64-bit)",
-   "DisplayVersion": "3.12.7150.0",
-   "Publisher": "Python Software Foundation",
-   "UninstallString": "\"C:\\Program Files\\Python 3.12.7 (64-bit)\\uninstall.exe\"",
-   "InstallDate": "20241012"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{7B1B6D3A-5A3B-4D4E-8F6C-2E2A9B7C1D20}::*::64": {
-   "DisplayName": "Node.js",
-   "DisplayVersion": "22.11.0",
-   "Publisher": "Node.js Foundation",
-   "UninstallString": "\"C:\\Program Files\\Node.js\\uninstall.exe\"",
-   "InstallDate": "20241105"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{1D8E6291-B0D5-35EC-8441-6616F567A0F7}::*::64": {
-   "DisplayName": "Microsoft Visual C++ 2015-2022 Redistributable (x64) - 14.40.33810",
-   "DisplayVersion": "14.40.33810.0",
-   "Publisher": "Microsoft Corporation",
-   "UninstallString": "\"C:\\Program Files\\Microsoft Visual C++ 2015-2022 Redistributable (x64) - 14.40.33810\\uninstall.exe\"",
-   "InstallDate": "20250301"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Microsoft Edge::*::64": {
-   "DisplayName": "Microsoft Edge",
-   "DisplayVersion": "141.0.3537.85",
-   "Publisher": "Microsoft Corporation",
-   "UninstallString": "\"C:\\Program Files\\Microsoft Edge\\uninstall.exe\"",
-   "InstallDate": "20261021"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome::*::64": {
-   "DisplayName": "Google Chrome",
-   "DisplayVersion": "141.0.7390.123",
-   "Publisher": "Google LLC",
-   "UninstallString": "\"C:\\Program Files\\Google Chrome\\uninstall.exe\"",
-   "InstallDate": "20261022"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Mozilla Firefox 144.0 (x64 en-US)::*::64": {
-   "DisplayName": "Mozilla Firefox (x64 en-US)",
-   "DisplayVersion": "144.0",
-   "Publisher": "Mozilla",
-   "UninstallString": "\"C:\\Program Files\\Mozilla Firefox (x64 en-US)\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{B9F1D4C2-3A7E-4E8B-9D0C-1F2A3B4C5D6E}::*::64": {
-   "DisplayName": "Docker Desktop",
-   "DisplayVersion": "4.34.2",
-   "Publisher": "Docker Inc.",
-   "UninstallString": "\"C:\\Program Files\\Docker Desktop\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\VLC media player::*::64": {
-   "DisplayName": "VLC media player",
-   "DisplayVersion": "3.0.21",
-   "Publisher": "VideoLAN",
-   "UninstallString": "\"C:\\Program Files\\VLC media player\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Notepad++::*::64": {
-   "DisplayName": "Notepad++ (64-bit x64)",
-   "DisplayVersion": "8.7.1",
-   "Publisher": "Notepad++ Team",
-   "UninstallString": "\"C:\\Program Files\\Notepad++ (64-bit x64)\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{F3E2D1C0-B9A8-4765-8432-10FEDCBA9876}::*::64": {
-   "DisplayName": "NVIDIA Graphics Driver 566.14",
-   "DisplayVersion": "566.14",
-   "Publisher": "NVIDIA Corporation",
-   "UninstallString": "\"C:\\Program Files\\NVIDIA Graphics Driver 566.14\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{A2B3C4D5-E6F7-4890-ABCD-EF0123456789}::*::64": {
-   "DisplayName": "Logitech G HUB",
-   "DisplayVersion": "2024.8.641856",
-   "Publisher": "Logitech",
-   "UninstallString": "\"C:\\Program Files\\Logitech G HUB\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\WinRAR archiver::*::64": {
-   "DisplayName": "WinRAR 6.24 (64-bit)",
-   "DisplayVersion": "6.24.0",
-   "Publisher": "win.rar GmbH",
-   "UninstallString": "\"C:\\Program Files\\WinRAR 6.24 (64-bit)\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{5A6B7C8D-9E0F-4123-8456-789ABCDEF012}::*::64": {
-   "DisplayName": "Microsoft Update Health Tools",
-   "DisplayVersion": "5.72.0.0",
-   "Publisher": "Microsoft Corporation",
-   "UninstallString": "\"C:\\Program Files\\Microsoft Update Health Tools\\uninstall.exe\"",
-   "InstallDate": "20250115"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{C0FFEE00-1234-4567-89AB-CDEF01234567}::*::64": {
-   "DisplayName": "Microsoft .NET Host - 8.0.10 (x64)",
-   "DisplayVersion": "64.40.24456",
-   "Publisher": "Microsoft Corporation",
-   "UninstallString": "\"C:\\Program Files\\Microsoft .NET Host - 8.0.10 (x64)\\uninstall.exe\"",
-   "InstallDate": "20241015"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{90160000-008C-0000-1000-0000000FF1CE}::*::64": {
-   "DisplayName": "Office 16 Click-to-Run Extensibility Component",
-   "DisplayVersion": "16.0.18129.20158",
-   "SystemComponent": 1
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\KB5066128::*::64": {
-   "DisplayName": "Update for .NET Framework (KB5066128)",
-   "ParentKeyName": "NETFramework"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AddressBook::*::64": {},
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Connection Manager::*::64": {
-   "SystemComponent": 1
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall::<subkeys>::32": [
-   "Adobe Acrobat DC (64-bit)",
-   "Git_is1",
-   "Steam",
-   "{26A24AE4-039D-4CA4-87B4-2F64180431F0}"
-  ],
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam::*::32": {
-   "DisplayName": "Steam",
-   "DisplayVersion": "2.10.91.91",
-   "Publisher": "Valve Corporation",
-   "UninstallString": "\"C:\\Program Files\\Steam\\uninstall.exe\""
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{26A24AE4-039D-4CA4-87B4-2F64180431F0}::*::32": {
-   "DisplayName": "Java 8 Update 431",
-   "DisplayVersion": "8.0.4310.11",
-   "Publisher": "Oracle Corporation",
-   "UninstallString": "\"C:\\Program Files\\Java 8 Update 431\\uninstall.exe\"",
-   "InstallDate": "20241016"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Adobe Acrobat DC (64-bit)::*::32": {
-   "DisplayName": "Adobe Acrobat (64-bit)",
-   "DisplayVersion": "24.004.20220",
-   "Publisher": "Adobe",
-   "UninstallString": "\"C:\\Program Files\\Adobe Acrobat (64-bit)\\uninstall.exe\"",
-   "InstallDate": "20241112"
-  },
-  "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Git_is1::*::32": {
-   "DisplayName": "Git",
-   "DisplayVersion": "2.43.0",
-   "Publisher": "The Git Development Community",
-   "UninstallString": "\"C:\\Program Files\\Git\\uninstall.exe\"",
-   "InstallDate": "20240115"
-  },
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall::<subkeys>::": [
-   "Discord",
-   "OneDriveSetup.exe",
-   "Spotify",
-   "Zoom",
-   "{771FD6B0-FA20-440A-A002-3B3BAC16DC50}_Microsoft VS Code"
-  ],
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Discord::*::": {
-   "DisplayName": "Discord",
-   "DisplayVersion": "1.0.9213",
-   "Publisher": "Discord Inc.",
-   "UninstallString": "\"C:\\Program Files\\Discord\\uninstall.exe\"",
-   "InstallDate": "20250901"
-  },
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Spotify::*::": {
-   "DisplayName": "Spotify",
-   "DisplayVersion": "1.2.74.477.g3be53afe",
-   "Publisher": "Spotify AB",
-   "UninstallString": "\"C:\\Program Files\\Spotify\\uninstall.exe\""
-  },
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{771FD6B0-FA20-440A-A002-3B3BAC16DC50}_Microsoft VS Code::*::": {
-   "DisplayName": "Microsoft Visual Studio Code (User)",
-   "DisplayVersion": "1.105.1",
-   "Publisher": "Microsoft Corporation",
-   "UninstallString": "\"C:\\Program Files\\Microsoft Visual Studio Code (User)\\uninstall.exe\"",
-   "InstallDate": "20261009"
-  },
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OneDriveSetup.exe::*::": {
-   "DisplayName": "Microsoft OneDrive",
-   "DisplayVersion": "25.184.0921.0002",
-   "Publisher": "Microsoft Corporation",
-   "UninstallString": "\"C:\\Program Files\\Microsoft OneDrive\\uninstall.exe\""
-  },
-  "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Zoom::*::": {
-   "DisplayName": "Zoom Workplace (64-bit)",
-   "DisplayVersion": "6.2.11 (52834)",
-   "Publisher": "Zoom Video Communications, Inc.",
-   "UninstallString": "\"C:\\Program Files\\Zoom Workplace (64-bit)\\uninstall.exe\""
-  }
- },
- "files": {},
- "system": {
-  "cpu_percent": 7.5,
-  "memory": {
-   "total": 34225520640,
-   "available": 19812446208,
-   "percent": 42.1
-  },
-  "disks": [
-   {
-    "mountpoint": "C:\\",
-    "fstype": "NTFS",
-    "total": 1021811027968,
-    "used": 612354101248,
-    "free": 409456926720,
-    "percent": 59.9
-   }
-  ],
-  "boot_time": 1792731540.0,
-  "listening_sockets": [
-   {
-    "proto": "tcp",
-    "ip": "0.0.0.0",
-    "port": 135,
-    "pid": 1180,
-    "process": "svchost.exe"
-   },
-   {
-    "proto": "tcp",
-    "ip": "0.0.0.0",
-    "port": 445,
-    "pid": 4,
-    "process": "System"
-   },
-   {
-    "proto": "tcp",
-    "ip": "192.168.1.42",
-    "port": 139,
-    "pid": 4,
-    "process": "System"
-   },
-   {
-    "proto": "tcp",
-    "ip": "0.0.0.0",
-    "port": 5040,
-    "pid": 6312,
-    "process": "svchost.exe"
-   },
-   {
-    "proto": "tcp",
-    "ip": "0.0.0.0",
-    "port": 7680,
-    "pid": 9024,
-    "process": null
-   },
-   {
-    "proto": "tcp",
-    "ip": "0.0.0.0",
-    "port": 49664,
-    "pid": 1044,
-    "process": "lsass.exe"
-   },
-   {
-    "proto": "tcp",
-    "ip": "127.0.0.1",
-    "port": 8765,
-    "pid": 15520,
-    "process": "python.exe"
-   },
-   {
-    "proto": "tcp",
-    "ip": "127.0.0.1",
-    "port": 6463,
-    "pid": 11208,
-    "process": "Discord.exe"
-   },
-   {
-    "proto": "tcp",
-    "ip": "::",
-    "port": 445,
-    "pid": 4,
-    "process": "System"
-   },
-   {
-    "proto": "udp",
-    "ip": "0.0.0.0",
-    "port": 5353,
-    "pid": 2648,
-    "process": "svchost.exe"
-   },
-   {
-    "proto": "udp",
-    "ip": "0.0.0.0",
-    "port": 5050,
-    "pid": 6312,
-    "process": "svchost.exe"
-   }
-  ],
-  "connections": [
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52100,
-    "raddr": "142.250.65.70",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52101,
-    "raddr": "142.250.65.71",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52102,
-    "raddr": "142.250.65.72",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52103,
-    "raddr": "142.250.65.73",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52104,
-    "raddr": "142.250.65.74",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52105,
-    "raddr": "142.250.65.75",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52106,
-    "raddr": "142.250.65.76",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52107,
-    "raddr": "142.250.65.77",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52108,
-    "raddr": "142.250.65.70",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52109,
-    "raddr": "142.250.65.71",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52110,
-    "raddr": "142.250.65.72",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52111,
-    "raddr": "142.250.65.73",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52112,
-    "raddr": "142.250.65.74",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52113,
-    "raddr": "142.250.65.75",
-    "rport": 443,
-    "pid": 13880,
-    "process": "chrome.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52300,
-    "raddr": "162.159.135.234",
-    "rport": 443,
-    "pid": 11208,
-    "process": "Discord.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52310,
-    "raddr": "13.107.42.12",
-    "rport": 443,
-    "pid": 9120,
-    "process": "OneDrive.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52320,
-    "raddr": "35.186.224.25",
-    "rport": 443,
-    "pid": 10112,
-    "process": "Spotify.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "192.168.1.42",
-    "lport": 52331,
-    "raddr": "198.51.100.23",
-    "rport": 443,
-    "pid": 7716,
-    "process": "perfboost.exe"
-   },
-   {
-    "proto": "tcp",
-    "laddr": "127.0.0.1",
-    "lport": 52400,
-    "raddr": "127.0.0.1",
-    "rport": 8765,
-    "pid": 15600,
-    "process": "python.exe"
-   }
-  ],
-  "interfaces": [
-   {
-    "name": "Wi-Fi",
-    "is_up": true,
-    "mtu": 1500,
-    "speed": 1201,
-    "addresses": [
-     {
-      "family": "ipv4",
-      "address": "192.168.1.42",
-      "netmask": "255.255.255.0"
-     },
-     {
-      "family": "ipv6",
-      "address": "fe80::5d1c:2b7a:9e10:4f3c",
-      "netmask": null
-     }
+  "system": {
+    "cpu_percent": 7.5,
+    "memory": {
+      "total": 34225520640,
+      "available": 19812446208,
+      "percent": 42.1
+    },
+    "disks": [
+      {
+        "mountpoint": "C:\\",
+        "fstype": "NTFS",
+        "total": 1021811027968,
+        "used": 612354101248,
+        "free": 409456926720,
+        "percent": 59.9
+      }
+    ],
+    "boot_time": 1792731540.0,
+    "listening_sockets": [
+      {
+        "proto": "tcp",
+        "ip": "0.0.0.0",
+        "port": 135,
+        "pid": 1180,
+        "process": "svchost.exe"
+      },
+      {
+        "proto": "tcp",
+        "ip": "0.0.0.0",
+        "port": 445,
+        "pid": 4,
+        "process": "System"
+      },
+      {
+        "proto": "tcp",
+        "ip": "192.168.1.42",
+        "port": 139,
+        "pid": 4,
+        "process": "System"
+      },
+      {
+        "proto": "tcp",
+        "ip": "0.0.0.0",
+        "port": 5040,
+        "pid": 6312,
+        "process": "svchost.exe"
+      },
+      {
+        "proto": "tcp",
+        "ip": "0.0.0.0",
+        "port": 7680,
+        "pid": 9024,
+        "process": null
+      },
+      {
+        "proto": "tcp",
+        "ip": "0.0.0.0",
+        "port": 49664,
+        "pid": 1044,
+        "process": "lsass.exe"
+      },
+      {
+        "proto": "tcp",
+        "ip": "127.0.0.1",
+        "port": 8765,
+        "pid": 15520,
+        "process": "python.exe"
+      },
+      {
+        "proto": "tcp",
+        "ip": "127.0.0.1",
+        "port": 6463,
+        "pid": 11208,
+        "process": "Discord.exe"
+      },
+      {
+        "proto": "tcp",
+        "ip": "::",
+        "port": 445,
+        "pid": 4,
+        "process": "System"
+      },
+      {
+        "proto": "udp",
+        "ip": "0.0.0.0",
+        "port": 5353,
+        "pid": 2648,
+        "process": "svchost.exe"
+      },
+      {
+        "proto": "udp",
+        "ip": "0.0.0.0",
+        "port": 5050,
+        "pid": 6312,
+        "process": "svchost.exe"
+      }
+    ],
+    "connections": [
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52100,
+        "raddr": "142.250.65.70",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52101,
+        "raddr": "142.250.65.71",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52102,
+        "raddr": "142.250.65.72",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52103,
+        "raddr": "142.250.65.73",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52104,
+        "raddr": "142.250.65.74",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52105,
+        "raddr": "142.250.65.75",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52106,
+        "raddr": "142.250.65.76",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52107,
+        "raddr": "142.250.65.77",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52108,
+        "raddr": "142.250.65.70",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52109,
+        "raddr": "142.250.65.71",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52110,
+        "raddr": "142.250.65.72",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52111,
+        "raddr": "142.250.65.73",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52112,
+        "raddr": "142.250.65.74",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52113,
+        "raddr": "142.250.65.75",
+        "rport": 443,
+        "pid": 13880,
+        "process": "chrome.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52300,
+        "raddr": "162.159.135.234",
+        "rport": 443,
+        "pid": 11208,
+        "process": "Discord.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52310,
+        "raddr": "13.107.42.12",
+        "rport": 443,
+        "pid": 9120,
+        "process": "OneDrive.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52320,
+        "raddr": "35.186.224.25",
+        "rport": 443,
+        "pid": 10112,
+        "process": "Spotify.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "192.168.1.42",
+        "lport": 52331,
+        "raddr": "198.51.100.23",
+        "rport": 443,
+        "pid": 7716,
+        "process": "perfboost.exe"
+      },
+      {
+        "proto": "tcp",
+        "laddr": "127.0.0.1",
+        "lport": 52400,
+        "raddr": "127.0.0.1",
+        "rport": 8765,
+        "pid": 15600,
+        "process": "python.exe"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "Wi-Fi",
+        "is_up": true,
+        "mtu": 1500,
+        "speed": 1201,
+        "addresses": [
+          {
+            "family": "ipv4",
+            "address": "192.168.1.42",
+            "netmask": "255.255.255.0"
+          },
+          {
+            "family": "ipv6",
+            "address": "fe80::5d1c:2b7a:9e10:4f3c",
+            "netmask": null
+          }
+        ]
+      },
+      {
+        "name": "Ethernet",
+        "is_up": false,
+        "mtu": 1500,
+        "speed": 0,
+        "addresses": []
+      },
+      {
+        "name": "vEthernet (WSL (Hyper-V firewall))",
+        "is_up": true,
+        "mtu": 1500,
+        "speed": 10000,
+        "addresses": [
+          {
+            "family": "ipv4",
+            "address": "172.29.208.1",
+            "netmask": "255.255.240.0"
+          }
+        ]
+      },
+      {
+        "name": "Loopback Pseudo-Interface 1",
+        "is_up": true,
+        "mtu": 1500,
+        "speed": 1073,
+        "addresses": [
+          {
+            "family": "ipv4",
+            "address": "127.0.0.1",
+            "netmask": "255.0.0.0"
+          },
+          {
+            "family": "ipv6",
+            "address": "::1",
+            "netmask": null
+          }
+        ]
+      }
+    ],
+    "processes": [
+      {
+        "pid": 4,
+        "name": "System",
+        "exe": null,
+        "username": null,
+        "create_time": 1792731540.0
+      },
+      {
+        "pid": 1044,
+        "name": "lsass.exe",
+        "exe": null,
+        "username": null,
+        "create_time": 1792731548.0
+      },
+      {
+        "pid": 1180,
+        "name": "svchost.exe",
+        "exe": null,
+        "username": null,
+        "create_time": 1792731549.0
+      },
+      {
+        "pid": 5512,
+        "name": "explorer.exe",
+        "exe": "C:\\Windows\\explorer.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792731580.0
+      },
+      {
+        "pid": 13880,
+        "name": "chrome.exe",
+        "exe": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792735140.0
+      },
+      {
+        "pid": 11208,
+        "name": "Discord.exe",
+        "exe": "C:\\Users\\Ryan\\AppData\\Local\\Discord\\app-1.0.9213\\Discord.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792731600.0
+      },
+      {
+        "pid": 9120,
+        "name": "OneDrive.exe",
+        "exe": "C:\\Users\\Ryan\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792731595.0
+      },
+      {
+        "pid": 10112,
+        "name": "Spotify.exe",
+        "exe": "C:\\Users\\Ryan\\AppData\\Roaming\\Spotify\\Spotify.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792731610.0
+      },
+      {
+        "pid": 7716,
+        "name": "perfboost.exe",
+        "exe": "C:\\Users\\Ryan\\AppData\\Local\\Temp\\pbh-2091\\perfboost.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792731605.0
+      },
+      {
+        "pid": 14220,
+        "name": "Code.exe",
+        "exe": "C:\\Users\\Ryan\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792738740.0
+      },
+      {
+        "pid": 15520,
+        "name": "python.exe",
+        "exe": "C:\\Users\\Ryan\\code\\sentinel\\.venv\\Scripts\\python.exe",
+        "username": "RYAN-PC\\Ryan",
+        "create_time": 1792738840.0
+      },
+      {
+        "pid": 6620,
+        "name": "MsMpEng.exe",
+        "exe": null,
+        "username": null,
+        "create_time": 1792731552.0
+      }
     ]
-   },
-   {
-    "name": "Ethernet",
-    "is_up": false,
-    "mtu": 1500,
-    "speed": 0,
-    "addresses": []
-   },
-   {
-    "name": "vEthernet (WSL (Hyper-V firewall))",
-    "is_up": true,
-    "mtu": 1500,
-    "speed": 10000,
-    "addresses": [
-     {
-      "family": "ipv4",
-      "address": "172.29.208.1",
-      "netmask": "255.255.240.0"
-     }
+  },
+  "startup_folders": [
+    [
+      "all_users",
+      "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp"
+    ],
+    [
+      "current_user",
+      "C:\\Users\\Ryan\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
     ]
-   },
-   {
-    "name": "Loopback Pseudo-Interface 1",
-    "is_up": true,
-    "mtu": 1500,
-    "speed": 1073,
-    "addresses": [
-     {
-      "family": "ipv4",
-      "address": "127.0.0.1",
-      "netmask": "255.0.0.0"
-     },
-     {
-      "family": "ipv6",
-      "address": "::1",
-      "netmask": null
-     }
-    ]
-   }
-  ],
-  "processes": [
-   {
-    "pid": 4,
-    "name": "System",
-    "exe": null,
-    "username": null,
-    "create_time": 1792731540.0
-   },
-   {
-    "pid": 1044,
-    "name": "lsass.exe",
-    "exe": null,
-    "username": null,
-    "create_time": 1792731548.0
-   },
-   {
-    "pid": 1180,
-    "name": "svchost.exe",
-    "exe": null,
-    "username": null,
-    "create_time": 1792731549.0
-   },
-   {
-    "pid": 5512,
-    "name": "explorer.exe",
-    "exe": "C:\\Windows\\explorer.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792731580.0
-   },
-   {
-    "pid": 13880,
-    "name": "chrome.exe",
-    "exe": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792735140.0
-   },
-   {
-    "pid": 11208,
-    "name": "Discord.exe",
-    "exe": "C:\\Users\\Ryan\\AppData\\Local\\Discord\\app-1.0.9213\\Discord.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792731600.0
-   },
-   {
-    "pid": 9120,
-    "name": "OneDrive.exe",
-    "exe": "C:\\Users\\Ryan\\AppData\\Local\\Microsoft\\OneDrive\\OneDrive.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792731595.0
-   },
-   {
-    "pid": 10112,
-    "name": "Spotify.exe",
-    "exe": "C:\\Users\\Ryan\\AppData\\Roaming\\Spotify\\Spotify.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792731610.0
-   },
-   {
-    "pid": 7716,
-    "name": "perfboost.exe",
-    "exe": "C:\\Users\\Ryan\\AppData\\Local\\Temp\\pbh-2091\\perfboost.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792731605.0
-   },
-   {
-    "pid": 14220,
-    "name": "Code.exe",
-    "exe": "C:\\Users\\Ryan\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792738740.0
-   },
-   {
-    "pid": 15520,
-    "name": "python.exe",
-    "exe": "C:\\Users\\Ryan\\code\\sentinel\\.venv\\Scripts\\python.exe",
-    "username": "RYAN-PC\\Ryan",
-    "create_time": 1792738840.0
-   },
-   {
-    "pid": 6620,
-    "name": "MsMpEng.exe",
-    "exe": null,
-    "username": null,
-    "create_time": 1792731552.0
-   }
   ]
- }
 }

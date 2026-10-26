@@ -113,6 +113,7 @@ def test_linux_resolution_does_not_touch_windows_apis(monkeypatch):
     def boom(*_args):
         raise AssertionError("Windows API called on Linux")
 
+    monkeypatch.setattr(executables.sys, "platform", "linux")  # also meaningful when the suite runs on Windows
     monkeypatch.setattr(executables, "_system_windows_directory", boom)
     monkeypatch.setattr(executables, "_known_folder_path", boom)
     executables.is_available("ss")

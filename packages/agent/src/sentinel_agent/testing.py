@@ -70,6 +70,7 @@ class FixtureContext:
         self._commands: dict[str, Any] = dict(fixture.get("commands", {}))
         self._registry: dict[str, Any] = dict(fixture.get("registry", {}))
         self._files: dict[str, str | None] = dict(fixture.get("files", {}))
+        self._startup_folders: list[list[str]] | None = fixture.get("startup_folders")
         self._cancelled = cancelled
         self.calls: list[tuple[str, dict[str, object]]] = []
         system = dict(fixture.get("system", {}))
@@ -138,6 +139,13 @@ class FixtureContext:
 
     def path_exists(self, path: str) -> bool:
         return path in self._files or (path + "::<listdir>") in self._files
+
+    def startup_folders(self) -> list[tuple[str, str]]:
+        """The fixture's "startup_folders" ([[scope, path], ...]) when given, else ProgramData/APPDATA."""
+        from .context import env_startup_folders
+
+        given = self._startup_folders
+        return [(str(scope), str(path)) for scope, path in given] if given is not None else env_startup_folders()
 
     def list_dir(self, path: str) -> list[str]:
         """Like the live context, a folder the fixture has no listing for does not exist."""

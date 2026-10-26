@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
-import os
 import re
-import sys
 from typing import Any
 
 from sentinel_core.checks import Check, CheckContext, SkipCheck
 from sentinel_core.models import CheckOutput, Confidence, FindingKind, Platform, Severity
 
-from ...context import PathNotAllowed, windows_startup_folders
+from ...context import PathNotAllowed
 from .._util import finding, join_path, windows_temp_like
 
 RUN_KEYS = (r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", r"SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce")
 LOCATIONS = (("HKLM", "64"), ("HKLM", "32"), ("HKCU", None))
-STARTUP_SUBPATH = ("Microsoft", "Windows", "Start Menu", "Programs")
 
 _POWERSHELL = re.compile(r"(?i)\b(powershell|pwsh)(\.exe)?\b")
 _SCRIPT_HOST_URL = re.compile(r"(?i)\b(mshta|wscript|cscript)(\.exe)?\b.*\bhttps?://")
@@ -48,24 +45,6 @@ def suspicious_reason(command: str) -> str | None:
     return None
 
 
-def startup_folders() -> list[tuple[str, str]]:
-    """The all-users and per-user Startup folders.
-
-    On Windows they come from the OS (known folders), the same source as the agent's read allowlist, because a
-    user can point APPDATA or ProgramData anywhere. Elsewhere (tests and fixture demos) the environment is used.
-    """
-    if sys.platform == "win32":
-        return windows_startup_folders()
-    out = []
-    program_data = os.environ.get("ProgramData")
-    app_data = os.environ.get("APPDATA")
-    if program_data:
-        out.append(("all_users", join_path(program_data, *STARTUP_SUBPATH, "StartUp")))
-    if app_data:
-        out.append(("current_user", join_path(app_data, *STARTUP_SUBPATH, "Startup")))
-    return out
-
-
 class StartupPrograms(Check):
     id = "win.startup"
     version = "1"
@@ -88,7 +67,7 @@ class StartupPrograms(Check):
                     where = f"{hive}{view or ''}\\{key.rsplit(chr(92), 1)[-1]}"
                     entries.append({"location": where, "name": name or "(Default)", "command": str(command)})
         missing_folders: list[str] = []
-        for scope, folder in startup_folders():
+        for scope, folder in ctx.startup_folders():
             try:
                 names = ctx.list_dir(folder)
             except FileNotFoundError:

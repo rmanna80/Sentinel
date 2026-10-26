@@ -1,4 +1,5 @@
 import json
+import sys
 import time
 
 import httpx
@@ -147,13 +148,15 @@ def test_windows_check_skipped_on_linux_plan():
 
 # --------------------------------------------------------------------------- safe command runner
 
-SLEEP = CommandSpec("t.sleep", "sleep", ("{seconds}",), params={"seconds": ParamKind.INT}, timeout=0.5)
-ECHO = CommandSpec("t.echo", "echo", ("hello",))
+# Python stands in for a system tool so these run the real runner on Windows and Linux alike.
+SLEEP = CommandSpec("t.sleep", "python", ("-c", "import time; time.sleep({seconds})"),
+                    params={"seconds": ParamKind.INT}, timeout=0.5)
+ECHO = CommandSpec("t.echo", "python", ("-c", "print('hello')"))
 
 
 @pytest.fixture
 def fake_resolve(monkeypatch):
-    monkeypatch.setattr(safe_commands, "resolve", lambda name: {"sleep": "/bin/sleep", "echo": "/bin/echo"}[name])
+    monkeypatch.setattr(safe_commands, "resolve", lambda name: {"python": sys.executable}[name])
 
 
 def test_unregistered_command_is_refused(fake_resolve):
