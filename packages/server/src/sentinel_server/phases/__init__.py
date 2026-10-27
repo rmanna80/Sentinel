@@ -28,6 +28,8 @@ PHASE_MODULES = [
     "assistant",  # Phase 6: evidence-grounded AI assistant
     "analytics",  # Phase 6: analytics endpoints
     "reports",  # Phase 6: PDF / CSV / JSON reports
+    "intel_feed",  # Threat-intelligence advisory feed (Hacker News + CVE/KEV), matched to inventory
+    "field_data",  # Uploaded sensor captures (passive Wi-Fi survey) with rogue-AP / weak-network correlation
 ]
 
 

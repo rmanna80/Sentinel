@@ -7,6 +7,7 @@ from sentinel_core.checks import Check
 from .common.dependencies import ProjectDependencies
 from .common.network import DnsConfiguration, ListeningPorts, NetworkInterfaces, SuspiciousProcessLocations, UnusualOutbound
 from .common.resources import ResourceDiagnostics
+from .common.secrets_scan import SecretsScan
 from .linux.authlog import LinuxAuthLog
 from .linux.packages import LinuxPackages
 from .linux.ssh import SshServerConfig
@@ -67,6 +68,7 @@ ALL_CHECKS: list[type[Check]] = [
     WindowsOsInventory,
     LinuxPackages,
     ProjectDependencies,
+    SecretsScan,
     # logs
     WindowsSecurityLog,
     WindowsSystemLog,

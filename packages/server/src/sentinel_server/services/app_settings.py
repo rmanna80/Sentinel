@@ -34,8 +34,14 @@ DEFAULTS: dict[str, Any] = {
         "msrc": {"enabled": False},
         "hibp": {"enabled": False},
         "pwned_passwords": {"enabled": True},
+        # Threat-intelligence feed. Fetches public Hacker News search results (no account, nothing about you
+        # is sent) and matches headlines to your inventory. Off by default like every outbound integration.
+        "hackernews": {"enabled": False, "min_points": 20, "refresh_hours": 6},
         "ollama": {"enabled": False, "url": "http://127.0.0.1:11434", "model": "llama3.1:8b"},
     },
+    # Networks you own, so an uploaded Wi-Fi survey can flag an evil-twin AP imitating your SSID,
+    # or an open/WEP network that is actually yours. Everything else is left classified "unknown".
+    "field_data": {"own_ssids": [], "own_bssids": []},
     "retention": {"log_event_days": 90, "metric_days": 90},
 }
 

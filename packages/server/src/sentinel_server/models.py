@@ -574,3 +574,72 @@ class Report(Base):
     file_name: Mapped[str] = mapped_column(String(128))  # generated server-side, never from input
     sha256: Mapped[str] = mapped_column(String(64))
     size_bytes: Mapped[int] = mapped_column(Integer)
+
+
+# =========================================================================== Threat-intelligence advisory feed
+
+
+class Advisory(Base):
+    """A security news/advisory item (Hacker News, CISA KEV ...) matched against this install's inventory.
+
+    Advisories are information for a person to read. They never become executable code: ``suggested_coverage``
+    is plain text for a human to review, and nothing here is ever run.
+    """
+
+    __tablename__ = "advisories"
+    __table_args__ = (UniqueConstraint("source", "external_id"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source: Mapped[str] = mapped_column(String(32), index=True)  # hackernews | kev | manual
+    external_id: Mapped[str] = mapped_column(String(128))
+    title: Mapped[str] = mapped_column(String(500))
+    url: Mapped[str | None] = mapped_column(String(1024))
+    summary: Mapped[str] = mapped_column(Text, default="")
+    author: Mapped[str | None] = mapped_column(String(128))
+    score: Mapped[int | None] = mapped_column(Integer)  # HN points, when applicable
+    tags: Mapped[list[str]] = mapped_column(JSON, default=list)  # security keywords found
+    cve_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    matched: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    match_detail: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # software/finding names it touched
+    severity_hint: Mapped[str] = mapped_column(String(16), default="info")
+    suggested_coverage: Mapped[str | None] = mapped_column(Text)  # human-reviewed note; NEVER executed
+    status: Mapped[str] = mapped_column(String(16), default="new", index=True)  # new|read|pinned|dismissed
+    published_at: Mapped[datetime | None] = mapped_column(UTCDateTime, index=True)
+    fetched_at: Mapped[datetime] = mapped_column(UTCDateTime, default=now)
+    read_at: Mapped[datetime | None] = mapped_column(UTCDateTime)
+    notified: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+# =========================================================================== Field data (uploaded sensor captures)
+
+
+class FieldCapture(Base):
+    """A file of data the user captured with their own equipment (e.g. a passive Wi-Fi survey) and uploaded."""
+
+    __tablename__ = "field_captures"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(32), index=True)  # wifi_survey | rf_survey | host_report | generic
+    source_label: Mapped[str] = mapped_column(String(128), default="")  # e.g. "Alfa AWUS036ACHM", "Raspberry Pi 5"
+    notes: Mapped[str] = mapped_column(Text, default="")
+    uploaded_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    uploaded_at: Mapped[datetime] = mapped_column(UTCDateTime, default=now, index=True)
+    original_format: Mapped[str] = mapped_column(String(32), default="json")  # airodump_csv | json
+    sha256: Mapped[str] = mapped_column(String(64))
+    size_bytes: Mapped[int] = mapped_column(Integer, default=0)
+    record_count: Mapped[int] = mapped_column(Integer, default=0)
+    summary: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+
+class FieldObservation(Base):
+    """One parsed record from a capture (e.g. an access point seen in a Wi-Fi survey)."""
+
+    __tablename__ = "field_observations"
+    __table_args__ = (Index("ix_field_obs_capture", "capture_id", "kind"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    capture_id: Mapped[int] = mapped_column(ForeignKey("field_captures.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(32))  # access_point | rf_signal | host | generic
+    key: Mapped[str] = mapped_column(String(256), default="")  # bssid, device id ...
+    label: Mapped[str] = mapped_column(String(256), default="")  # ssid, friendly name
+    data: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    classification: Mapped[str] = mapped_column(String(24), default="unknown")  # own|known|unknown|rogue_suspect|weak_own
+    severity: Mapped[str] = mapped_column(String(16), default="info")
+    note: Mapped[str] = mapped_column(Text, default="")

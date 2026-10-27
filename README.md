@@ -17,6 +17,9 @@ A local-first security assistant for your own machines. Sentinel runs read-only 
 | Network | Scope list you control, previewed TCP-connect scans with Nmap, TLS certificate and HTTP security-header checks |
 | Malware | ClamAV signature scans of folders you choose. Sentinel never deletes or quarantines anything |
 | Assistant | Local AI (Ollama) that answers from Sentinel's stored data with citations, through read-only tools; deterministic scan summaries and explanations that work without any AI |
+| Secret scanning | Finds committed secrets and risky config (API keys, private keys, `.env` files, debug mode on) in your own project folders |
+| Advisories | A threat-intelligence feed from Hacker News, matched to your inventory and open findings; informational only, it never changes a check ([docs/field-data.md](docs/field-data.md)) |
+| Field Data | Upload passive Wi-Fi surveys from your own adapter; flags evil-twin APs imitating your SSID and your own open/WEP networks ([docs/field-data.md](docs/field-data.md)) |
 | Reports | PDF, CSV and JSON with executive summary, technical findings, evidence, remediation and limitations |
 | Operations | Scheduled scans, notifications with quiet hours and optional email digests, tamper-evident audit log, backups |
 
@@ -110,6 +113,7 @@ Every server-side integration starts **switched off**: until you turn one on, no
 | FIRST EPSS | Exploit likelihood | CVE IDs | None |
 | Have I Been Pwned | Email breach checks | The full email address (Core tiers have no k-anonymity search) | Paid key; Core 1 is $4.39/month billed annually |
 | Pwned Passwords | Password exposure | First 5 characters of a SHA-1 hash, computed in your browser | None |
+| Hacker News | Threat-intelligence advisories | Nothing about you (a public security-news search) | None |
 | Ollama | AI assistant | Nothing (runs on this machine) | None |
 | Nmap, ClamAV | Network discovery, malware signatures | Probes to your scoped targets / signature downloads | None |
 
