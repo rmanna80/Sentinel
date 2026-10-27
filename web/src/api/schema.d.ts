@@ -1539,6 +1539,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/advisories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Advisories */
+        get: operations["list_advisories_api_advisories_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/advisories/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Advisory Summary */
+        get: operations["advisory_summary_api_advisories_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/advisories/{advisory_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Advisory */
+        get: operations["get_advisory_api_advisories__advisory_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Advisory */
+        patch: operations["update_advisory_api_advisories__advisory_id__patch"];
+        trace?: never;
+    };
+    "/api/intel/feed/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh Feed */
+        post: operations["refresh_feed_api_intel_feed_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/field/known-networks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Known Networks */
+        get: operations["get_known_networks_api_field_known_networks_get"];
+        /** Put Known Networks */
+        put: operations["put_known_networks_api_field_known_networks_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/field/captures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Captures */
+        get: operations["list_captures_api_field_captures_get"];
+        put?: never;
+        /** Create Capture */
+        post: operations["create_capture_api_field_captures_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/field/captures/{capture_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Capture */
+        get: operations["get_capture_api_field_captures__capture_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Capture */
+        delete: operations["delete_capture_api_field_captures__capture_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/field/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Field Summary */
+        get: operations["field_summary_api_field_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -1566,6 +1706,57 @@ export interface components {
             action: string;
             /** Count */
             count: number;
+        };
+        /** AdvisoryOut */
+        AdvisoryOut: {
+            /** Id */
+            id: number;
+            /** Source */
+            source: string;
+            /** Title */
+            title: string;
+            /** Url */
+            url: string | null;
+            /** Summary */
+            summary: string;
+            /** Author */
+            author: string | null;
+            /** Score */
+            score: number | null;
+            /** Tags */
+            tags: string[];
+            /** Cve Ids */
+            cve_ids: string[];
+            /** Matched */
+            matched: boolean;
+            /** Match Detail */
+            match_detail: {
+                [key: string]: unknown;
+            };
+            /** Severity Hint */
+            severity_hint: string;
+            /** Suggested Coverage */
+            suggested_coverage: string | null;
+            /** Status */
+            status: string;
+            /** Published At */
+            published_at: unknown;
+            /** Fetched At */
+            fetched_at: unknown;
+            /** Read At */
+            read_at: unknown;
+        };
+        /** AdvisoryPage */
+        AdvisoryPage: {
+            /** Items */
+            items: components["schemas"]["AdvisoryOut"][];
+            /** Total */
+            total: number;
+        };
+        /** AdvisoryUpdate */
+        AdvisoryUpdate: {
+            /** Status */
+            status: string;
         };
         /** AffectedSoftware */
         AffectedSoftware: {
@@ -1914,6 +2105,90 @@ export interface components {
             csrf_token?: string | null;
             /** Mode */
             mode: string;
+        };
+        /** CaptureDetail */
+        CaptureDetail: {
+            /** Id */
+            id: number;
+            /** Kind */
+            kind: string;
+            /** Source Label */
+            source_label: string;
+            /** Notes */
+            notes: string;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Original Format */
+            original_format: string;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Record Count */
+            record_count: number;
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Observations */
+            observations: components["schemas"]["sentinel_server__phases__field_data__ObservationOut"][];
+        };
+        /** CaptureIn */
+        CaptureIn: {
+            /** Kind */
+            kind: string;
+            /**
+             * Source Label
+             * @default
+             */
+            source_label: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /** Airodump Csv */
+            airodump_csv?: string | null;
+            /** Observations */
+            observations?: components["schemas"]["ObservationIn"][] | null;
+        };
+        /** CaptureOut */
+        CaptureOut: {
+            /** Id */
+            id: number;
+            /** Kind */
+            kind: string;
+            /** Source Label */
+            source_label: string;
+            /** Notes */
+            notes: string;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Original Format */
+            original_format: string;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Record Count */
+            record_count: number;
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+        };
+        /** CapturePage */
+        CapturePage: {
+            /** Items */
+            items: components["schemas"]["CaptureOut"][];
+            /** Total */
+            total: number;
         };
         /** ChangePasswordRequest */
         ChangePasswordRequest: {
@@ -2556,6 +2831,47 @@ export interface components {
              */
             collected_at: string;
         };
+        /** FeedStatus */
+        FeedStatus: {
+            /** Enabled */
+            enabled: boolean;
+            /** Outbound Enabled */
+            outbound_enabled: boolean;
+            /** Last Synced At */
+            last_synced_at: unknown;
+            /** Status */
+            status: string;
+            /** Detail */
+            detail: string | null;
+            /** Total */
+            total: number;
+            /** New Count */
+            new_count: number;
+            /** Matched Open */
+            matched_open: number;
+            /** Pinned */
+            pinned: number;
+            /** Note */
+            note: string;
+        };
+        /** FieldSummary */
+        FieldSummary: {
+            /** Captures */
+            captures: number;
+            /** Access Points */
+            access_points: number;
+            /** Rogue Suspects */
+            rogue_suspects: number;
+            /** Weak Own */
+            weak_own: number;
+            /** Own */
+            own: number;
+            /** Unknown */
+            unknown: number;
+            known_networks: components["schemas"]["KnownNetworks"];
+            /** Note */
+            note: string;
+        };
         /** Finding */
         Finding: {
             /** Rule Id */
@@ -2671,7 +2987,7 @@ export interface components {
             /** Events */
             events: components["schemas"]["FindingEventOut"][];
             /** Observations */
-            observations: components["schemas"]["ObservationOut"][];
+            observations: components["schemas"]["sentinel_server__schemas__ObservationOut"][];
             /** Tasks */
             tasks: components["schemas"]["TaskOut"][];
             /** Allowed Statuses */
@@ -3102,6 +3418,13 @@ export interface components {
              */
             added_at: string;
         };
+        /** KnownNetworks */
+        KnownNetworks: {
+            /** Own Ssids */
+            own_ssids?: string[];
+            /** Own Bssids */
+            own_bssids?: string[];
+        };
         /** LinkedAlert */
         LinkedAlert: {
             /** Id */
@@ -3463,19 +3786,27 @@ export interface components {
             /** Suppressed Reason */
             suppressed_reason: string | null;
         };
-        /** ObservationOut */
-        ObservationOut: {
-            /** Scan Id */
-            scan_id: number;
-            /** Check Run Id */
-            check_run_id: number;
+        /** ObservationIn */
+        ObservationIn: {
             /**
-             * Observed At
-             * Format: date-time
+             * Kind
+             * @default generic
              */
-            observed_at: string;
-            /** Evidence */
-            evidence: components["schemas"]["EvidenceOut"][];
+            kind: string;
+            /**
+             * Key
+             * @default
+             */
+            key: string;
+            /**
+             * Label
+             * @default
+             */
+            label: string;
+            /** Data */
+            data?: {
+                [key: string]: unknown;
+            };
         };
         /** OutboundOut */
         OutboundOut: {
@@ -4477,6 +4808,41 @@ export interface components {
             new: number;
             /** Resolved */
             resolved: number;
+        };
+        /** ObservationOut */
+        sentinel_server__phases__field_data__ObservationOut: {
+            /** Id */
+            id: number;
+            /** Kind */
+            kind: string;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Data */
+            data: {
+                [key: string]: unknown;
+            };
+            /** Classification */
+            classification: string;
+            /** Severity */
+            severity: string;
+            /** Note */
+            note: string;
+        };
+        /** ObservationOut */
+        sentinel_server__schemas__ObservationOut: {
+            /** Scan Id */
+            scan_id: number;
+            /** Check Run Id */
+            check_run_id: number;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceOut"][];
         };
     };
     responses: never;
@@ -7733,6 +8099,347 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_advisories_api_advisories_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                matched?: boolean | null;
+                source?: string | null;
+                q?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdvisoryPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    advisory_summary_api_advisories_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedStatus"];
+                };
+            };
+        };
+    };
+    get_advisory_api_advisories__advisory_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                advisory_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdvisoryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_advisory_api_advisories__advisory_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                advisory_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdvisoryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdvisoryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_feed_api_intel_feed_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedStatus"];
+                };
+            };
+        };
+    };
+    get_known_networks_api_field_known_networks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnownNetworks"];
+                };
+            };
+        };
+    };
+    put_known_networks_api_field_known_networks_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KnownNetworks"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnownNetworks"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_captures_api_field_captures_get: {
+        parameters: {
+            query?: {
+                kind?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapturePage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_capture_api_field_captures_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CaptureIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaptureDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_capture_api_field_captures__capture_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                capture_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaptureDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_capture_api_field_captures__capture_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                capture_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    field_summary_api_field_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FieldSummary"];
                 };
             };
         };

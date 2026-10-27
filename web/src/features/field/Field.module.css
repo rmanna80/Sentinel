@@ -1,0 +1,63 @@
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.tile {
+  border: 1px solid var(--sn-line);
+  border-radius: var(--sn-radius-control);
+  background: var(--sn-surface);
+  padding: 12px 14px;
+}
+.tile[data-highlight="warn"] {
+  border-color: color-mix(in srgb, var(--sn-sev-high) 55%, var(--sn-line));
+  background: var(--sn-sev-high-soft);
+}
+.tile[data-highlight="danger"] {
+  border-color: color-mix(in srgb, var(--sn-sev-critical) 55%, var(--sn-line));
+  background: var(--sn-sev-critical-soft);
+}
+.tileLabel {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+}
+.tileValue {
+  margin-top: 4px;
+  font-size: 1.6rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.tileNote {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+  margin-top: 2px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+.prominentRow {
+  background: var(--sn-surface-2);
+}
+.obsData {
+  font-size: 11px;
+  color: var(--sn-text-3);
+  overflow-wrap: anywhere;
+}
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+}
+.editorCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .editorCols {
+    grid-template-columns: 1fr;
+  }
+}

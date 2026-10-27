@@ -26,7 +26,7 @@ export type FindingOut = S["FindingOut"];
 export type FindingDetail = S["FindingDetail"];
 export type FindingUpdate = S["FindingUpdate"];
 export type FindingEvent = S["FindingEventOut"];
-export type Observation = S["ObservationOut"];
+export type Observation = S["sentinel_server__schemas__ObservationOut"];
 export type Evidence = S["EvidenceOut"];
 export type Task = S["TaskOut"];
 export type TaskCreate = S["TaskCreate"];
@@ -119,6 +119,22 @@ export type Analytics = S["Analytics"];
 export type ReportOut = S["ReportOut"];
 export type ReportCreate = S["ReportCreate"];
 
+// Advisories (threat-intelligence feed)
+export type AdvisoryOut = S["AdvisoryOut"];
+export type AdvisoryPage = S["AdvisoryPage"];
+export type AdvisoryUpdate = S["AdvisoryUpdate"];
+export type FeedStatus = S["FeedStatus"];
+
+// Field data (passive Wi-Fi/RF/host surveys)
+export type CaptureOut = S["CaptureOut"];
+export type CaptureDetail = S["CaptureDetail"];
+export type CaptureIn = S["CaptureIn"];
+export type CapturePage = S["CapturePage"];
+export type FieldSummary = S["FieldSummary"];
+export type KnownNetworks = S["KnownNetworks"];
+export type FieldObservation = S["sentinel_server__phases__field_data__ObservationOut"];
+export type ObservationIn = S["ObservationIn"];
+
 type QueryOf<P extends keyof paths> = paths[P] extends { get: { parameters: { query?: infer Q } } }
   ? NonNullable<Q>
   : never;
@@ -134,3 +150,5 @@ export type LogsQuery = QueryOf<"/api/logs">;
 export type SoftwareQuery = QueryOf<"/api/software">;
 export type AnalyticsQuery = QueryOf<"/api/analytics">;
 export type ExportFindingsQuery = QueryOf<"/api/export/findings">;
+export type AdvisoriesQuery = QueryOf<"/api/advisories">;
+export type CapturesQuery = QueryOf<"/api/field/captures">;

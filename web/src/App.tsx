@@ -23,7 +23,10 @@ const ThreatsPage = page(() => import("./features/threats/ThreatsPage"), "Threat
 const AlertDetailPage = page(() => import("./features/threats/AlertDetailPage"), "AlertDetailPage");
 const IncidentDetailPage = page(() => import("./features/threats/IncidentDetailPage"), "IncidentDetailPage");
 const LogsPage = page(() => import("./features/logs/LogsPage"), "LogsPage");
+const AdvisoriesPage = page(() => import("./features/advisories/AdvisoriesPage"), "AdvisoriesPage");
 const NetworkPage = page(() => import("./features/network/NetworkPage"), "NetworkPage");
+const FieldDataPage = page(() => import("./features/field/FieldDataPage"), "FieldDataPage");
+const CaptureDetailPage = page(() => import("./features/field/CaptureDetailPage"), "CaptureDetailPage");
 const EmailPage = page(() => import("./features/email/EmailPage"), "EmailPage");
 const AnalyticsPage = page(() => import("./features/analytics/AnalyticsPage"), "AnalyticsPage");
 const AssistantPage = page(() => import("./features/assistant/AssistantPage"), "AssistantPage");
@@ -66,7 +69,10 @@ const router = createBrowserRouter([
       { path: "threats/alerts/:alertId", element: <AlertDetailPage /> },
       { path: "threats/incidents/:incidentId", element: <IncidentDetailPage /> },
       { path: "logs", element: <LogsPage /> },
+      { path: "advisories", element: <AdvisoriesPage /> },
       { path: "network", element: <NetworkPage /> },
+      { path: "field", element: <FieldDataPage /> },
+      { path: "field/:captureId", element: <CaptureDetailPage /> },
       { path: "email", element: <EmailPage /> },
       { path: "analytics", element: <AnalyticsPage /> },
       { path: "assistant", element: <AssistantPage /> },

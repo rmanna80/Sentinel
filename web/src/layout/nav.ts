@@ -1,6 +1,7 @@
 import {
   IconActivityHeartbeat,
   IconAlertTriangle,
+  IconAntenna,
   IconBug,
   IconCalendarTime,
   IconChartBar,
@@ -12,6 +13,7 @@ import {
   IconNetwork,
   IconPlug,
   IconRadar,
+  IconRss,
   IconSettings,
   type Icon,
 } from "@tabler/icons-react";
@@ -43,7 +45,9 @@ export const NAV: NavGroup[] = [
     items: [
       { label: "Threat detection", to: "/threats", icon: IconAlertTriangle },
       { label: "Logs and events", to: "/logs", icon: IconListDetails },
+      { label: "Advisories", to: "/advisories", icon: IconRss },
       { label: "Network security", to: "/network", icon: IconNetwork },
+      { label: "Field Data", to: "/field", icon: IconAntenna },
       { label: "Email security", to: "/email", icon: IconMail },
     ],
   },

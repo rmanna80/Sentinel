@@ -37,6 +37,7 @@ const INTEGRATIONS: Record<string, { label: string; sends: string; purpose: stri
   msrc: { label: "Microsoft Security Response Center", sends: "Nothing (downloads public update documents)", purpose: "Windows security updates" },
   hibp: { label: "Have I Been Pwned", sends: "The full email address you ask about", purpose: "Breach lookups for monitored addresses (API key needed)" },
   pwned_passwords: { label: "Pwned Passwords", sends: "First 5 characters of a password's SHA-1 hash, computed in your browser", purpose: "Whether a password appears in known breaches" },
+  hackernews: { label: "Hacker News feed", sends: "Public search queries only, no device data", purpose: "Security news matched to your inventory, shown under Advisories" },
   ollama: { label: "Ollama (local AI model)", sends: "Nothing leaves this computer: Ollama runs on 127.0.0.1", purpose: "The AI security assistant" },
 };
 
