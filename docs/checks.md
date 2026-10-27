@@ -37,6 +37,7 @@ Generated from the agent's registry by `scripts/gen_checks_doc.py`. Every check 
 | Check | Platforms | Admin | What it reads |
 | --- | --- | --- | --- |
 | `dev.dependencies` — Dependencies of your development projects | Linux, Windows | No | Package names and exact versions from requirements.txt and package-lock.json in the project folders you configured (nothing else in those folders is read) |
+| `dev.secrets` — No secrets or risky config are committed in your projects | Linux, Windows | No | File names and matched line numbers in your configured project folders; the matched secret values themselves are never stored. |
 | `linux.packages` — Installed packages | Linux | No | Names and versions of installed packages from dpkg (or rpm); on Debian and Ubuntu, listed by source package as security advisories are |
 | `win.os.inventory` — Windows version | Windows | No | Windows name, edition, version and build number (already known to the agent) |
 | `win.software.inventory` — Installed programs | Windows | No | Name, version, publisher and install date of programs listed in the Uninstall registry keys (machine-wide 64- and 32-bit, and the current user's) |
@@ -64,4 +65,4 @@ Generated from the agent's registry by `scripts/gen_checks_doc.py`. Every check 
 | --- | --- | --- | --- |
 | `malware.clamav` — ClamAV scan of your chosen folders | Linux, Windows | No | For the folders you configured on the agent: the paths of files that match a ClamAV malware signature and the signature name (file contents are scanned locally and never uploaded) |
 
-Total: 37 checks.
+Total: 38 checks.

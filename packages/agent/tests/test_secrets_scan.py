@@ -158,3 +158,17 @@ def test_secret_values_never_appear_in_output():
     dumped = json.dumps(out.model_dump(mode="json"))
     for secret in (AWS_KEY, AWS_SECRET, SLACK, GITHUB, GOOGLE, PW, PRIVKEY_MARKER):
         assert secret not in dumped
+
+
+def test_unreadable_key_file_is_flagged_by_name_without_reading():
+    """On a live host the allowlist refuses .pem/.key files; their existence is still reported."""
+    tree = dict(TREE)
+    tree[f"{PROJECT}::<listdir>"] = tree[f"{PROJECT}::<listdir>"] + "\nserver.key\ncert.pem"
+    # server.key is listed but has no content entry -> read_text raises -> flagged by name
+    tree[f"{PROJECT}/cert.pem"] = "-----BEGIN CERTIFICATE-----\nnotaprivatekey\n-----END CERTIFICATE-----\n"
+    out = _run(files=tree)
+    pkf = [f for f in out.findings if f.rule_id == "dev.secrets.private_key_file"]
+    assert len(pkf) == 1 and pkf[0].subject_key == f"{PROJECT}:server.key:private_key_file:0"
+    assert (pkf[0].severity, pkf[0].kind) == (Severity.HIGH, FindingKind.HEURISTIC)
+    # a readable .pem that is only a public certificate is NOT flagged as a key
+    assert not any("cert.pem" in f.subject_key and "key" in f.rule_id for f in out.findings)

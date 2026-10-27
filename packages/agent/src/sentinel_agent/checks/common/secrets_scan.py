@@ -94,7 +94,8 @@ _LINE_RULES_FULL = ("private_key", "aws_access_key", "aws_secret_key", "github_t
 # The low-noise, high-confidence rules only (.md and .txt get just these).
 _HIGH_CONF_RULES = ("private_key", "aws_access_key", "github_token", "slack_token")
 
-_ALL_RULE_NAMES = (*_LINE_RULES_FULL, "debug_enabled", "committed_env_file", "committed_private_key_file")
+_ALL_RULE_NAMES = (*_LINE_RULES_FULL, "debug_enabled", "committed_env_file", "committed_private_key_file",
+                   "private_key_file")
 
 # --------------------------------------------------------------------------- finding copy
 _ROTATE = (
@@ -166,6 +167,17 @@ _RULES: dict[str, dict[str, Any]] = {
         "impact": "This file is a private key stored in a project folder. Anyone with the files or the git history "
                   "has the key.",
     },
+    # Flagged by file name/extension without reading the file: Sentinel never opens .pem/.key files on a live
+    # host. It may be a private key (remove and rotate it) or a public certificate (safe to ignore).
+    "private_key_file": {
+        "label": "Key file (.pem/.key) present", "severity": Severity.HIGH, "kind": FindingKind.HEURISTIC,
+        "confidence": Confidence.MEDIUM,
+        "remediation": "Sentinel did not open this file. If it is a private key committed to the project, remove it, "
+                       "rotate it, and purge it from git history (git filter-repo / BFG). If it is a public "
+                       "certificate it is fine to keep.",
+        "impact": "A .pem/.key file is in a project folder. If it holds a private key, anyone with the files or the "
+                  "git history has it.",
+    },
 }
 
 
@@ -227,7 +239,10 @@ def _walk_project(ctx: CheckContext, root: str) -> tuple[list[tuple[str, str, st
             except PermissionError:
                 continue  # an unreadable sub-folder: skip it, do not guess at its contents
             except PathNotAllowed:
-                continue  # the allowlist refuses this path (e.g. a .pem/.key file on a live host)
+                # An allowed root but a denied leaf (a .pem/.key/*_key file the agent must never read). Record
+                # it by name so its existence can still be reported; it is never opened.
+                files.append((childrel, child, name, here_in_repo))
+                continue
             except OSError:
                 files.append((childrel, child, name, here_in_repo))  # not a directory -> a regular file
                 continue
@@ -313,9 +328,15 @@ class SecretsScan(Check):
                                 record(rule, project, relpath, lineno)
                     if is_key and _BEGIN_PRIVATE_KEY.search(raw):
                         record("committed_private_key_file", project, relpath, 0)
+                    # a readable key file WITHOUT a private-key header is a certificate/public key -> not flagged
                     if is_env:
                         env_keys = sum(1 for ln in raw.splitlines()
                                        if _ENV_KEY.match(ln) and not ln.lstrip().startswith("#"))
+
+                if is_key and raw is None:
+                    # could not read it (the allowlist refuses key files on a live host, or it was too large):
+                    # report its existence by name, without ever opening it
+                    record("private_key_file", project, relpath, 0)
 
                 if is_env and name not in _ENV_EXCLUDE and in_repo:
                     record("committed_env_file", project, relpath, 0, keys=env_keys)
