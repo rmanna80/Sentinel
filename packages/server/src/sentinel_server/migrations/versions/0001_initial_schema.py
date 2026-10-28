@@ -48,6 +48,43 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_advisories_source'), ['source'], unique=False)
         batch_op.create_index(batch_op.f('ix_advisories_status'), ['status'], unique=False)
 
+    op.create_table('behavior_detections',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('device_id', sa.Integer(), nullable=True),
+    sa.Column('rule_id', sa.String(length=128), nullable=False),
+    sa.Column('title', sa.String(length=300), nullable=False),
+    sa.Column('summary', sa.String(length=1000), nullable=False),
+    sa.Column('explanation', sa.Text(), nullable=False),
+    sa.Column('severity', sa.String(length=16), nullable=False),
+    sa.Column('confidence', sa.String(length=16), nullable=False),
+    sa.Column('technique_ids', sa.JSON(), nullable=False),
+    sa.Column('technique_names', sa.JSON(), nullable=False),
+    sa.Column('host', sa.String(length=256), nullable=False),
+    sa.Column('dedup_key', sa.String(length=512), nullable=False),
+    sa.Column('process_guids', sa.JSON(), nullable=False),
+    sa.Column('events', sa.JSON(), nullable=False),
+    sa.Column('process_tree', sa.JSON(), nullable=False),
+    sa.Column('first_ts', sentinel_server.models.UTCDateTime(), nullable=False),
+    sa.Column('last_ts', sentinel_server.models.UTCDateTime(), nullable=False),
+    sa.Column('count', sa.Integer(), nullable=False),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('created_at', sentinel_server.models.UTCDateTime(), nullable=False),
+    sa.Column('notified', sa.Boolean(), nullable=False),
+    sa.ForeignKeyConstraint(['device_id'], ['devices.id'], ondelete='SET NULL'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('device_id', 'dedup_key')
+    )
+    with op.batch_alter_table('behavior_detections', schema=None) as batch_op:
+        batch_op.create_index('ix_behavior_det_device_status', ['device_id', 'status'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_created_at'), ['created_at'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_dedup_key'), ['dedup_key'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_device_id'), ['device_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_host'), ['host'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_last_ts'), ['last_ts'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_rule_id'), ['rule_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_severity'), ['severity'], unique=False)
+        batch_op.create_index(batch_op.f('ix_behavior_detections_status'), ['status'], unique=False)
+
     op.create_table('app_settings',
     sa.Column('key', sa.String(length=128), nullable=False),
     sa.Column('value', sa.JSON(), nullable=False),
@@ -803,4 +840,16 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_advisories_matched'))
 
     op.drop_table('advisories')
+    with op.batch_alter_table('behavior_detections', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_status'))
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_severity'))
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_rule_id'))
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_last_ts'))
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_host'))
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_device_id'))
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_dedup_key'))
+        batch_op.drop_index(batch_op.f('ix_behavior_detections_created_at'))
+        batch_op.drop_index('ix_behavior_det_device_status')
+
+    op.drop_table('behavior_detections')
     # ### end Alembic commands ###

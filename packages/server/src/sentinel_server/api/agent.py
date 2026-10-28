@@ -18,6 +18,7 @@ from sentinel_core.models import (
     ScanPlan,
     ScanType,
 )
+from sentinel_core.telemetry import Detection
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -25,9 +26,13 @@ from .. import audit
 from ..config import Settings
 from ..db import get_db
 from ..deps import client_ip, current_device, settings_dep
-from ..models import Device, EnrollmentCode, MetricSampleRecord, Scan, now
+from ..models import BehaviorDetection, Device, EnrollmentCode, MetricSampleRecord, Scan, now
 from ..security import hash_token, new_token, normalize_code, rate_limiter
 from ..services.ingest import IngestError, apply_host, complete_scan, extend_lease, record_plan, record_result
+from ..services.notify import notify
+
+MAX_DETECTIONS_PER_POST = 500
+NOTIFY_SEVERITIES = {"critical", "high"}
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 
@@ -146,6 +151,47 @@ def complete(scan_id: int, body: ScanCompletion, device: Device = Depends(curren
         complete_scan(db, scan, body, settings)
     except IngestError as exc:
         raise HTTPException(422, str(exc)) from exc
+    db.commit()
+    return Response(status_code=204)
+
+
+@router.post("/detections", status_code=204)
+def ingest_detections(body: list[Detection], device: Device = Depends(current_device),
+                      db: Session = Depends(get_db)) -> Response:
+    """Receive behavioural detections from the agent's detection engine (conclusions only, with evidence).
+
+    A detection is upserted on (device, dedup_key): a repeat of the same behaviour updates the one row and
+    bumps its count rather than piling up. Nothing in the payload is ever executed."""
+    device.last_seen_at = now()
+    for det in body[:MAX_DETECTIONS_PER_POST]:
+        events = [e.model_dump(mode="json") for e in det.events]
+        tree = [p.model_dump(mode="json") for p in det.process_tree]
+        existing = db.execute(select(BehaviorDetection).where(
+            BehaviorDetection.device_id == device.id,
+            BehaviorDetection.dedup_key == det.dedup_key)).scalar_one_or_none()
+        if existing is not None:
+            existing.count += 1
+            existing.last_ts = max(existing.last_ts, det.last_ts)
+            existing.severity = det.severity.value
+            existing.events, existing.process_tree = events, tree  # keep the latest occurrence's evidence
+            continue
+        row = BehaviorDetection(
+            device_id=device.id, rule_id=det.rule_id, title=det.title[:300], summary=det.summary[:1000],
+            explanation=det.explanation, severity=det.severity.value, confidence=det.confidence.value,
+            technique_ids=det.technique_ids, technique_names=det.technique_names,
+            host=(det.host or device.hostname)[:256], dedup_key=det.dedup_key[:512],
+            process_guids=det.process_guids, events=events, process_tree=tree,
+            first_ts=det.first_ts, last_ts=det.last_ts, count=1, status="new",
+        )
+        db.add(row)
+        db.flush()
+        if det.severity.value in NOTIFY_SEVERITIES:
+            notify(db, severity=det.severity.value, kind="behavior",
+                   title=f"Behavioural detection: {det.title}"[:300], body=det.summary,
+                   link=f"/behavior/{row.id}", dedupe_key=f"behavior:{device.id}:{det.dedup_key}")
+            row.notified = True
+    audit.record(db, f"device:{device.id}", "behavior.detections_ingested", "device", device.id,
+                 {"count": len(body[:MAX_DETECTIONS_PER_POST])})
     db.commit()
     return Response(status_code=204)
 

@@ -21,6 +21,7 @@ from sentinel_core.models import (
     ScanPlan,
     ScanStatus,
 )
+from sentinel_core.telemetry import Detection
 
 from . import __version__
 
@@ -80,6 +81,12 @@ class ServerClient:
 
     def send_metrics(self, samples: list[MetricSample]) -> None:
         self._request("POST", "/api/agent/metrics", json=[s.model_dump(mode="json") for s in samples], retries=1)
+
+    def send_detections(self, detections: list[Detection]) -> None:
+        if not detections:
+            return
+        body = [d.model_dump(mode="json") for d in detections]
+        self._request("POST", "/api/agent/detections", json=body, retries=1)
 
     def complete(self, scan_id: int, status: ScanStatus, error: str | None = None) -> None:
         body = ScanCompletion(status=status, error=error).model_dump(mode="json")

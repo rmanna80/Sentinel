@@ -42,6 +42,8 @@ class AgentConfig:
     malware_scan_paths: list[str] = field(default_factory=list)
     # Development projects whose dependency manifests are checked for known vulnerabilities.
     project_paths: list[str] = field(default_factory=list)
+    # Sentinel X: when on, the run loop reads Sysmon telemetry each cycle and ships detections (off by default).
+    telemetry_enabled: bool = False
 
     @classmethod
     def load(cls) -> AgentConfig:

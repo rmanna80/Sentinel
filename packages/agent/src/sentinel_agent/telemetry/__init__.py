@@ -9,6 +9,7 @@ offline-export reader live in :mod:`.collector`.
 from __future__ import annotations
 
 from .collector import Collector, CollectorError, ExportCollector, SysmonCollector
+from .pump import run_cycle
 from .sysmon import SYSMON_CHANNEL, SYSMON_IDS, map_sysmon, parse_sysmon_log
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "SysmonCollector",
     "map_sysmon",
     "parse_sysmon_log",
+    "run_cycle",
 ]

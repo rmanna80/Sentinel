@@ -643,3 +643,42 @@ class FieldObservation(Base):
     classification: Mapped[str] = mapped_column(String(24), default="unknown")  # own|known|unknown|rogue_suspect|weak_own
     severity: Mapped[str] = mapped_column(String(16), default="info")
     note: Mapped[str] = mapped_column(Text, default="")
+
+
+# =========================================================================== Sentinel X: behavioural detections
+
+
+class BehaviorDetection(Base):
+    """A behavioural detection correlated from OS telemetry (Sentinel X), stored with its triggering events.
+
+    The detection engine runs on the endpoint; only the conclusion is shipped here, never the raw telemetry
+    firehose. ``events`` and ``process_tree`` are kept verbatim as evidence and are never executed. Repeats of
+    the same behaviour (same device + ``dedup_key``) update one row and bump ``count`` rather than piling up.
+    """
+
+    __tablename__ = "behavior_detections"
+    __table_args__ = (
+        UniqueConstraint("device_id", "dedup_key"),
+        Index("ix_behavior_det_device_status", "device_id", "status"),
+    )
+    id: Mapped[int] = mapped_column(primary_key=True)
+    device_id: Mapped[int | None] = mapped_column(ForeignKey("devices.id", ondelete="SET NULL"), index=True)
+    rule_id: Mapped[str] = mapped_column(String(128), index=True)
+    title: Mapped[str] = mapped_column(String(300))
+    summary: Mapped[str] = mapped_column(String(1000), default="")
+    explanation: Mapped[str] = mapped_column(Text, default="")
+    severity: Mapped[str] = mapped_column(String(16), default="info", index=True)
+    confidence: Mapped[str] = mapped_column(String(16), default="medium")
+    technique_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    technique_names: Mapped[list[str]] = mapped_column(JSON, default=list)
+    host: Mapped[str] = mapped_column(String(256), default="", index=True)
+    dedup_key: Mapped[str] = mapped_column(String(512), index=True)
+    process_guids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    events: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)  # verbatim evidence; never executed
+    process_tree: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    first_ts: Mapped[datetime] = mapped_column(UTCDateTime)
+    last_ts: Mapped[datetime] = mapped_column(UTCDateTime, index=True)
+    count: Mapped[int] = mapped_column(Integer, default=1)
+    status: Mapped[str] = mapped_column(String(16), default="new", index=True)  # new | acknowledged | dismissed
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=now, index=True)
+    notified: Mapped[bool] = mapped_column(Boolean, default=False)

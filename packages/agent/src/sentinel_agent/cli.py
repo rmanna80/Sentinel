@@ -226,6 +226,23 @@ def _metrics() -> list[MetricSample]:
     return samples
 
 
+def _telemetry_step(client: Any, engine: Any, host: HostInfo, config: AgentConfig) -> None:
+    """One Sentinel X cycle inside the run loop: read Sysmon, correlate, ship detections. Never fatal."""
+    from .telemetry.collector import CollectorError, SysmonCollector
+    from .telemetry.pump import run_cycle
+
+    runner = SafeCommandRunner(SysmonCollector.commands, cancelled=lambda: False)
+    state = StagedState(FileState())
+    ctx = LiveContext(host, runner, state, config.as_mapping(), lambda: False, None, None)
+    try:
+        detections = run_cycle(SysmonCollector(ctx), engine, client)
+        state.commit()  # advance the telemetry cursor only after a clean cycle
+        if detections:
+            log.info("shipped %d behavioural detection(s)", len(detections))
+    except CollectorError as exc:
+        log.warning("telemetry skipped this cycle: %s", exc)
+
+
 def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
     from .transport import AuthError, ServerClient
 
@@ -269,7 +286,15 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
     except Exception:  # noqa: S110
         pass
     log.info("agent %s polling %s (%s)", __version__, config.server_url, "elevated" if host.is_elevated else "standard")
+    telemetry_on = (args.telemetry or config.telemetry_enabled) and not args.fixtures and not args.elevated
+    engine = None
+    if telemetry_on:
+        from sentinel_detect import Engine
+
+        engine = Engine()
+        log.info("Sentinel X telemetry enabled (reading Sysmon, shipping behavioural detections)")
     last_metrics = 0.0
+    last_telemetry = 0.0
     idle_deadline = time.monotonic() + args.idle_exit if args.idle_exit else None
     while True:
         try:
@@ -277,6 +302,9 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
             if not args.fixtures and not args.elevated and metrics_due:
                 last_metrics = time.monotonic()
                 client.send_metrics(_metrics())
+            if engine is not None and time.monotonic() - last_telemetry >= max(config.poll_interval_seconds, 15.0):
+                last_telemetry = time.monotonic()
+                _telemetry_step(client, engine, host, config)
             job = client.next_job(elevated=args.elevated)
             job_host, job_factory = host, factory
             if job is None and demo_elevated is not None and not args.elevated:
@@ -405,6 +433,8 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--fixtures", metavar="FILE", help="DEMO MODE: enroll as the machine described in a fixture file")
     r = sub.add_parser("run", help="poll the server for scan jobs")
     r.add_argument("--once", action="store_true")
+    r.add_argument("--telemetry", action="store_true",
+                   help="read Sysmon telemetry each cycle and ship behavioural detections (Sentinel X)")
     r.add_argument("--elevated", action="store_true", help="only take elevated scans (admin shell)")
     r.add_argument("--fixtures", metavar="FILE", help="DEMO MODE: answer jobs from a fixture file")
     r.add_argument("--idle-exit", type=float, default=0, help="exit after this many idle seconds")

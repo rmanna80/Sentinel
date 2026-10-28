@@ -30,6 +30,7 @@ PHASE_MODULES = [
     "reports",  # Phase 6: PDF / CSV / JSON reports
     "intel_feed",  # Threat-intelligence advisory feed (Hacker News + CVE/KEV), matched to inventory
     "field_data",  # Uploaded sensor captures (passive Wi-Fi survey) with rogue-AP / weak-network correlation
+    "behavior",  # Sentinel X: behavioural detections correlated from OS telemetry (Sysmon)
 ]
 
 
