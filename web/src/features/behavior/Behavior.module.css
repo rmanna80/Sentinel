@@ -1,0 +1,225 @@
+/* Summary tiles (mirrors the Field Data tiles). */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.tile {
+  border: 1px solid var(--sn-line);
+  border-radius: var(--sn-radius-control);
+  background: var(--sn-surface);
+  padding: 12px 14px;
+}
+.tile[data-highlight="warn"] {
+  border-color: color-mix(in srgb, var(--sn-sev-high) 55%, var(--sn-line));
+  background: var(--sn-sev-high-soft);
+}
+.tile[data-highlight="danger"] {
+  border-color: color-mix(in srgb, var(--sn-sev-critical) 55%, var(--sn-line));
+  background: var(--sn-sev-critical-soft);
+}
+.tileLabel {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+}
+.tileValue {
+  margin-top: 4px;
+  font-size: 1.6rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.tileNote {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+  margin-top: 2px;
+}
+.note {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Filters + list (mirrors Advisories). */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--sn-line);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.list > li {
+  border-bottom: 1px solid var(--sn-line);
+}
+.list > li:last-child {
+  border-bottom: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+}
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  min-width: 0;
+}
+.title {
+  font-weight: 650;
+  font-size: var(--mantine-font-size-sm);
+  overflow-wrap: anywhere;
+}
+.ruleId {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+  color: var(--sn-text-3);
+}
+.body {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 4px;
+  margin: -4px;
+  border-radius: var(--sn-radius-control);
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.body:hover {
+  background: var(--sn-surface-2);
+}
+.body:focus-visible {
+  outline: 2px solid var(--sn-accent);
+  outline-offset: 2px;
+}
+.summary {
+  font-size: var(--mantine-font-size-sm);
+  color: var(--sn-text-2);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 8px;
+}
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 8px;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--sn-text-3);
+}
+
+/* Drawer sections (mirrors Advisories). */
+.drawerSection + .drawerSection {
+  margin-top: 16px;
+}
+.explanation {
+  font-size: var(--mantine-font-size-sm);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Process-tree ancestry list: nearest process first, connected top-to-bottom. */
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.proc {
+  border: 1px solid var(--sn-line);
+  border-radius: var(--sn-radius-control);
+  background: var(--sn-surface);
+  padding: 8px 10px;
+}
+.proc[data-primary="yes"] {
+  border-color: color-mix(in srgb, var(--sn-accent) 45%, var(--sn-line));
+  background: var(--sn-accent-soft);
+}
+.procHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+}
+.procImage {
+  font-weight: 600;
+  font-size: var(--mantine-font-size-sm);
+  overflow-wrap: anywhere;
+}
+.procPid {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+  color: var(--sn-text-3);
+}
+.procCmd {
+  margin-top: 4px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+  color: var(--sn-text-2);
+  overflow-wrap: anywhere;
+}
+.treeArrow {
+  color: var(--sn-text-3);
+  font-size: 11px;
+  padding-left: 10px;
+}
+
+/* Triggering events list. */
+.events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.events > li {
+  border-bottom: 1px solid var(--sn-line);
+  padding: 8px 0;
+}
+.events > li:first-child {
+  padding-top: 0;
+}
+.events > li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.eventHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 10px;
+}
+.eventSummary {
+  margin-top: 2px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+  color: var(--sn-text-2);
+  overflow-wrap: anywhere;
+}

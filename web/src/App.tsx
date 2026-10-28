@@ -23,6 +23,7 @@ const ThreatsPage = page(() => import("./features/threats/ThreatsPage"), "Threat
 const AlertDetailPage = page(() => import("./features/threats/AlertDetailPage"), "AlertDetailPage");
 const IncidentDetailPage = page(() => import("./features/threats/IncidentDetailPage"), "IncidentDetailPage");
 const LogsPage = page(() => import("./features/logs/LogsPage"), "LogsPage");
+const BehaviorPage = page(() => import("./features/behavior/BehaviorPage"), "BehaviorPage");
 const AdvisoriesPage = page(() => import("./features/advisories/AdvisoriesPage"), "AdvisoriesPage");
 const NetworkPage = page(() => import("./features/network/NetworkPage"), "NetworkPage");
 const FieldDataPage = page(() => import("./features/field/FieldDataPage"), "FieldDataPage");
@@ -69,6 +70,7 @@ const router = createBrowserRouter([
       { path: "threats/alerts/:alertId", element: <AlertDetailPage /> },
       { path: "threats/incidents/:incidentId", element: <IncidentDetailPage /> },
       { path: "logs", element: <LogsPage /> },
+      { path: "behavior", element: <BehaviorPage /> },
       { path: "advisories", element: <AdvisoriesPage /> },
       { path: "network", element: <NetworkPage /> },
       { path: "field", element: <FieldDataPage /> },

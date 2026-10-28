@@ -2,6 +2,7 @@ import {
   IconActivityHeartbeat,
   IconAlertTriangle,
   IconAntenna,
+  IconBinaryTree,
   IconBug,
   IconCalendarTime,
   IconChartBar,
@@ -45,6 +46,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: "Threat detection", to: "/threats", icon: IconAlertTriangle },
       { label: "Logs and events", to: "/logs", icon: IconListDetails },
+      { label: "Behavior", to: "/behavior", icon: IconBinaryTree },
       { label: "Advisories", to: "/advisories", icon: IconRss },
       { label: "Network security", to: "/network", icon: IconNetwork },
       { label: "Field Data", to: "/field", icon: IconAntenna },

@@ -125,6 +125,14 @@ export type AdvisoryPage = S["AdvisoryPage"];
 export type AdvisoryUpdate = S["AdvisoryUpdate"];
 export type FeedStatus = S["FeedStatus"];
 
+// Behaviour (Sentinel X behavioural detections)
+export type DetectionOut = S["DetectionOut"];
+export type DetectionDetail = S["DetectionDetail"];
+export type DetectionPage = S["DetectionPage"];
+export type DetectionStatusUpdate = S["StatusUpdate"];
+export type BehaviorSummary = S["BehaviorSummary"];
+export type RuleCount = S["RuleCount"];
+
 // Field data (passive Wi-Fi/RF/host surveys)
 export type CaptureOut = S["CaptureOut"];
 export type CaptureDetail = S["CaptureDetail"];
@@ -152,3 +160,4 @@ export type AnalyticsQuery = QueryOf<"/api/analytics">;
 export type ExportFindingsQuery = QueryOf<"/api/export/findings">;
 export type AdvisoriesQuery = QueryOf<"/api/advisories">;
 export type CapturesQuery = QueryOf<"/api/field/captures">;
+export type DetectionsQuery = QueryOf<"/api/behavior/detections">;

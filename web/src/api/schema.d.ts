@@ -208,6 +208,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/agent/detections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ingest Detections
+         * @description Receive behavioural detections from the agent's detection engine (conclusions only, with evidence).
+         *
+         *     A detection is upserted on (device, dedup_key): a repeat of the same behaviour updates the one row and
+         *     bumps its count rather than piling up. Nothing in the payload is ever executed.
+         */
+        post: operations["ingest_detections_api_agent_detections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/agent/metrics": {
         parameters: {
             query?: never;
@@ -1679,6 +1702,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/behavior/detections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Detections */
+        get: operations["list_detections_api_behavior_detections_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/behavior/detections/{detection_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Detection */
+        get: operations["get_detection_api_behavior_detections__detection_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Detection */
+        patch: operations["update_detection_api_behavior_detections__detection_id__patch"];
+        trace?: never;
+    };
+    "/api/behavior/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Behavior Summary */
+        get: operations["behavior_summary_api_behavior_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -2106,6 +2181,27 @@ export interface components {
             /** Mode */
             mode: string;
         };
+        /** BehaviorSummary */
+        BehaviorSummary: {
+            /** Total */
+            total: number;
+            /** New */
+            new: number;
+            /** Acknowledged */
+            acknowledged: number;
+            /** Dismissed */
+            dismissed: number;
+            /** By Severity */
+            by_severity: {
+                [key: string]: number;
+            };
+            /** Hosts */
+            hosts: number;
+            /** Top Rules */
+            top_rules: components["schemas"]["RuleCount"][];
+            /** Note */
+            note: string;
+        };
         /** CaptureDetail */
         CaptureDetail: {
             /** Id */
@@ -2484,6 +2580,155 @@ export interface components {
             /** Failure */
             failure: number;
         };
+        /**
+         * Detection
+         * @description A behaviour the engine concluded is worth investigating, with the evidence that led to it.
+         *
+         *     A detection is a conclusion, not an alarm bell on a single event: the ``events`` list holds the actual
+         *     telemetry that triggered it and ``process_tree`` the ancestry that puts it in context, so the reasoning
+         *     can always be re-examined. Nothing here is ever executed; remediation, if any, is for a human to decide.
+         */
+        Detection: {
+            /** Rule Id */
+            rule_id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            /** Explanation */
+            explanation: string;
+            severity: components["schemas"]["Severity"];
+            confidence: components["schemas"]["Confidence"];
+            /** @default heuristic */
+            kind: components["schemas"]["FindingKind"];
+            /** Technique Ids */
+            technique_ids?: string[];
+            /** Technique Names */
+            technique_names?: string[];
+            /** Host */
+            host: string;
+            /**
+             * First Ts
+             * Format: date-time
+             */
+            first_ts: string;
+            /**
+             * Last Ts
+             * Format: date-time
+             */
+            last_ts: string;
+            /** Dedup Key */
+            dedup_key: string;
+            /** Process Guids */
+            process_guids?: string[];
+            /** Events */
+            events?: components["schemas"]["TelemetryEvent"][];
+            /** Process Tree */
+            process_tree?: components["schemas"]["ProcessSnapshot"][];
+        };
+        /** DetectionDetail */
+        DetectionDetail: {
+            /** Id */
+            id: number;
+            /** Device Id */
+            device_id: number | null;
+            /** Rule Id */
+            rule_id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            /** Severity */
+            severity: string;
+            /** Confidence */
+            confidence: string;
+            /** Technique Ids */
+            technique_ids: string[];
+            /** Technique Names */
+            technique_names: string[];
+            /** Host */
+            host: string;
+            /**
+             * First Ts
+             * Format: date-time
+             */
+            first_ts: string;
+            /**
+             * Last Ts
+             * Format: date-time
+             */
+            last_ts: string;
+            /** Count */
+            count: number;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Explanation */
+            explanation: string;
+            /** Process Guids */
+            process_guids: string[];
+            /** Events */
+            events: {
+                [key: string]: unknown;
+            }[];
+            /** Process Tree */
+            process_tree: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** DetectionOut */
+        DetectionOut: {
+            /** Id */
+            id: number;
+            /** Device Id */
+            device_id: number | null;
+            /** Rule Id */
+            rule_id: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            /** Severity */
+            severity: string;
+            /** Confidence */
+            confidence: string;
+            /** Technique Ids */
+            technique_ids: string[];
+            /** Technique Names */
+            technique_names: string[];
+            /** Host */
+            host: string;
+            /**
+             * First Ts
+             * Format: date-time
+             */
+            first_ts: string;
+            /**
+             * Last Ts
+             * Format: date-time
+             */
+            last_ts: string;
+            /** Count */
+            count: number;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** DetectionPage */
+        DetectionPage: {
+            /** Items */
+            items: components["schemas"]["DetectionOut"][];
+            /** Total */
+            total: number;
+        };
         /** DeviceCount */
         DeviceCount: {
             /** Device Id */
@@ -2751,6 +2996,11 @@ export interface components {
             /** Command */
             command: string;
         };
+        /**
+         * EventKind
+         * @enum {string}
+         */
+        EventKind: "process_create" | "process_exit" | "network_connect" | "file_write" | "file_delete" | "registry_set" | "image_load";
         /**
          * Evidence
          * @description What a check actually observed. Stored verbatim (after redaction) as proof.
@@ -3944,6 +4194,27 @@ export interface components {
          * @enum {string}
          */
         Platform: "windows" | "linux" | "macos";
+        /**
+         * ProcessSnapshot
+         * @description A point-in-time view of one process, used to carry a detection's process-tree context.
+         */
+        ProcessSnapshot: {
+            /** Process Guid */
+            process_guid: string;
+            /** Pid */
+            pid: number;
+            /**
+             * Image
+             * @default
+             */
+            image: string;
+            /** Command Line */
+            command_line?: string | null;
+            /** User */
+            user?: string | null;
+            /** Parent Guid */
+            parent_guid?: string | null;
+        };
         /** PwnedRange */
         PwnedRange: {
             /** Suffixes */
@@ -4068,6 +4339,15 @@ export interface components {
             sha256: string;
             /** Size Bytes */
             size_bytes: number;
+        };
+        /** RuleCount */
+        RuleCount: {
+            /** Rule Id */
+            rule_id: string;
+            /** Title */
+            title: string;
+            /** Count */
+            count: number;
         };
         /** RuleOut */
         RuleOut: {
@@ -4602,6 +4882,11 @@ export interface components {
              */
             open_vulnerabilities: number;
         };
+        /** StatusUpdate */
+        StatusUpdate: {
+            /** Status */
+            status: string;
+        };
         /** SyncAccepted */
         SyncAccepted: {
             /** Requested */
@@ -4671,6 +4956,58 @@ export interface components {
             status?: ("open" | "done") | null;
             /** Notes */
             notes?: string | null;
+        };
+        /** TelemetryEvent */
+        TelemetryEvent: {
+            kind: components["schemas"]["EventKind"];
+            /**
+             * Ts
+             * Format: date-time
+             */
+            ts: string;
+            /** Host */
+            host: string;
+            /** Seq */
+            seq: number;
+            /** Pid */
+            pid: number;
+            /** Process Guid */
+            process_guid: string;
+            /**
+             * Image
+             * @default
+             */
+            image: string;
+            /** User */
+            user?: string | null;
+            /** Command Line */
+            command_line?: string | null;
+            /** Parent Pid */
+            parent_pid?: number | null;
+            /** Parent Guid */
+            parent_guid?: string | null;
+            /** Parent Image */
+            parent_image?: string | null;
+            /** Exit Code */
+            exit_code?: number | null;
+            /** Dest Ip */
+            dest_ip?: string | null;
+            /** Dest Port */
+            dest_port?: number | null;
+            /** Protocol */
+            protocol?: string | null;
+            /** Direction */
+            direction?: string | null;
+            /** File Path */
+            file_path?: string | null;
+            /** Registry Path */
+            registry_path?: string | null;
+            /** Registry Value */
+            registry_value?: string | null;
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            };
         };
         /** TestEmailResult */
         TestEmailResult: {
@@ -5199,6 +5536,37 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ScanCompletion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ingest_detections_api_agent_detections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Detection"][];
             };
         };
         responses: {
@@ -8440,6 +8808,128 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FieldSummary"];
+                };
+            };
+        };
+    };
+    list_detections_api_behavior_detections_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                severity?: string | null;
+                host?: string | null;
+                q?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetectionPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_detection_api_behavior_detections__detection_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                detection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetectionDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_detection_api_behavior_detections__detection_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                detection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetectionDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    behavior_summary_api_behavior_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BehaviorSummary"];
                 };
             };
         };
