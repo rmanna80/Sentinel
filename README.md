@@ -171,21 +171,20 @@ Adding a check: see [docs/dev-conventions.md](docs/dev-conventions.md). In short
 Everything above is a **scanner**: point-in-time posture and inventory checks. Sentinel X adds a **sensor** —
 a continuous telemetry pipeline and a correlation engine that reasons about *sequences* of operating-system
 events (a process spawning a shell, that shell reaching the internet, then a security setting being changed)
-rather than single facts. It is being built in increments; today the detection engine, its event schema, and a
-Windows collector that reads [Sysmon](https://learn.microsoft.com/sysinternals/downloads/sysmon) telemetry are
-complete and tested. Surfacing detections in the dashboard comes next.
-
-Try the engine on a normalized sample stream, or run the full pipeline over a sample Sysmon export:
+rather than single facts. The full loop is built and tested: a Windows collector reads
+[Sysmon](https://learn.microsoft.com/sysinternals/downloads/sysmon) telemetry, the engine correlates it,
+detections (conclusions only — never the raw telemetry) ship to the server and appear on the dashboard's
+**Behavior** page, and a measurement lab scores the engine against a labelled corpus.
 
 ```bash
 uv run sentinel-detect packages/detect/samples/suspicious_chain.jsonl          # fires a CRITICAL chain
-uv run sentinel-detect packages/detect/samples/benign_admin.jsonl              # stays silent
 uv run sentinel-agent telemetry --export packages/agent/samples/sysmon_suspicious.xml   # Sysmon -> detections
+uv run sentinel-agent run --telemetry                                          # live: ship detections to the server
+uv run python scripts/run_detection_lab.py                                     # precision/recall/coverage/latency
 ```
 
-On a real machine with Sysmon installed, `uv run sentinel-agent telemetry` reads the live Sysmon log.
-
-The design and the reasoning behind it are written up as a guided, chapter-by-chapter walkthrough in
+Precision, recall, ATT&CK technique coverage, detection latency and engine throughput are reported by the lab.
+The design and reasoning are written up chapter by chapter in
 [docs/sentinel-x-learning.md](docs/sentinel-x-learning.md).
 
 ## Limitations

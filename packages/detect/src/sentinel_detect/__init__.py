@@ -10,7 +10,9 @@ from __future__ import annotations
 from sentinel_core.telemetry import Detection, EventKind, ProcessSnapshot, TelemetryEvent
 
 from . import attack
+from .corpus import default_corpus
 from .engine import Engine
+from .lab import Scenario, Scorecard, measure_throughput, score
 from .process_tree import ProcessNode, ProcessTree
 from .replay import StreamBuilder, dump_stream, load_stream, run_replay
 from .rules import Rule, default_rules
@@ -24,14 +26,19 @@ __all__ = [
     "ProcessSnapshot",
     "ProcessTree",
     "Rule",
+    "Scenario",
+    "Scorecard",
     "StreamBuilder",
     "Suppression",
     "SuppressionList",
     "TelemetryEvent",
     "attack",
+    "default_corpus",
     "default_rules",
     "default_suppressions",
     "dump_stream",
     "load_stream",
+    "measure_throughput",
     "run_replay",
+    "score",
 ]

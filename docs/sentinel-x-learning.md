@@ -12,11 +12,11 @@ we are and why each piece exists.
 - **Chapter 1 — The engine (done).** The event schema and the detection engine, tested entirely against
   synthetic event streams. No live data collection yet.
 - **Chapter 2 — The Windows collector (done).** A real collector that produces the events Chapter 1 invented,
-  from Sysmon telemetry on your machine. ← *you are here*
-- **Chapter 3 — Surfacing detections (next).** Storing detections on the server and showing them in the
-  dashboard.
-- **Chapter 4 — The measurement lab.** Scoring the engine against documented attacks: true/false positives,
-  detection latency, and overhead.
+  from Sysmon telemetry on your machine.
+- **Chapter 3 — Surfacing detections (done).** Storing detections on the server and showing them in the
+  dashboard — conclusions only, never the firehose.
+- **Chapter 4 — The measurement lab (done).** Scoring the engine against documented attacks: true/false
+  positives, technique coverage, detection latency, and overhead. ← *you are here*
 
 ---
 
@@ -397,6 +397,185 @@ means "the sensor wasn't asked for them," not "nothing happened."
 
 ---
 
-*Next: Chapter 3, where detections stop living in a terminal and start living in Sentinel — shipped from the
-agent to the server (conclusions only, never the firehose) and shown on a page in the dashboard beside the
-posture findings.*
+---
+
+## Chapter 3 — Surfacing detections
+
+Until now a detection has lived and died in a terminal. Chapter 3 gives it a home: the agent ships detections
+to the server, the server stores them, and the dashboard shows them beside the posture findings — so a person
+who wasn't watching the console can still see what happened and triage it.
+
+### Lesson 13: Ship the conclusion, not the firehose
+
+The single most important decision in this chapter is what *doesn't* get sent. The endpoint produces a torrent
+of telemetry — thousands of events a minute on a busy machine. None of it leaves the endpoint. Only the
+**detections** travel to the server, each carrying the handful of events that triggered it as evidence.
+
+> **Q (student):** Why not send everything to the server and detect there? A central view sounds powerful.
+>
+> **A (teacher):** Three reasons, and they all point the same way. **Volume:** shipping and storing every
+> process and connection is a data-pipeline problem an order of magnitude bigger than the detection problem.
+> **Privacy:** Sentinel is local-first; a minute-by-minute record of everything you ran is exactly the kind of
+> surveillance it's meant not to be. **Trust boundary:** the endpoint is where the privilege and the raw data
+> already are, so detecting there and sending only conclusions keeps the server unprivileged and small. The
+> server learns *"a suspicious chain ran on WKS-14, here are the three events,"* not *"here is everything
+> WKS-14 did today."* Look at `BehaviorDetection` in the server models: it stores the detection plus its
+> `events` and `process_tree` as evidence, and nothing else.
+
+Repeats are folded in, not piled up: the ingest endpoint upserts on `(device, dedup_key)`, bumping a `count`.
+One noisy condition becomes one row that says "seen 40 times," not forty rows.
+
+### Lesson 14: Two doors into the server
+
+Open [`packages/server/src/sentinel_server/api/agent.py`](../packages/server/src/sentinel_server/api/agent.py)
+(the `/api/agent/detections` route) and
+[`packages/server/src/sentinel_server/phases/behavior.py`](../packages/server/src/sentinel_server/phases/behavior.py).
+
+The server has two kinds of caller, and they authenticate differently:
+
+- The **agent** posts detections to `/api/agent/detections`, authenticated by a **device token** (`current_device`).
+  A user session cannot post here; a device cannot do anything else.
+- A **person** reads and triages through `/api/behavior/*`, authenticated by their **session** (`current_auth`).
+
+This split is deliberate: the machine that writes telemetry has exactly one power (report detections), and the
+human who acts on it has exactly the others (list, inspect, acknowledge, dismiss). A detection at or above
+*high* also raises a notification through the same system the rest of Sentinel uses — so a critical chain finds
+you rather than waiting to be discovered.
+
+### Lesson 15: Evidence travels, and a status is a decision
+
+The read API has a small status workflow — `new`, `acknowledged`, `dismissed` — and the default list hides
+dismissed, so triaging something makes it disappear from the working view without deleting the record (the
+`status=all` filter brings it back). The detail endpoint returns the full `events` and `process_tree`, so the
+reasoning behind a conclusion is one click away. `test_behavior.py` walks the whole path: a device ships real
+engine output, the user lists it, opens one to see its three triggering events, and dismisses it.
+
+> **Q:** Dismiss hides it but keeps it. Why not just delete?
+>
+> **A:** Because "I looked at this and it's fine" is itself information. A deleted detection is indistinguishable
+> from one that never happened; a dismissed one tells the next person (and the next audit) that a human judged
+> it. Detection work is as much about recording decisions as about raising alarms.
+
+### Lesson 16: The agent run loop — a long-lived engine
+
+Open the `run` command in [`packages/agent/src/sentinel_agent/cli.py`](../packages/agent/src/sentinel_agent/cli.py)
+and [`telemetry/pump.py`](../packages/agent/src/sentinel_agent/telemetry/pump.py).
+
+With `--telemetry` (or `telemetry_enabled` in config — **off by default**, like every outbound feature), each
+loop cycle reads new Sysmon events, feeds them to a **long-lived** engine, and ships any detections. The engine
+is created once, outside the loop, on purpose: its process tree and in-flight sequence state must survive
+across cycles, because a chain's three stages can easily land in different reads. `test_telemetry_pump.py`
+proves exactly that — a chain whose spawn and network arrive in cycle one and whose tamper arrives in cycle two
+still fires, because the same engine saw all three. The collector's cursor lives in agent state, so each cycle
+reads only what's new.
+
+### Lesson 17: Try it
+
+On a machine running the agent with Sysmon configured:
+
+```bash
+uv run sentinel-agent run --telemetry        # poll for scans AND ship behavioural detections
+```
+
+Then open the dashboard's **Behavior** page (in the Detection group): the detections appear with their severity,
+ATT&CK techniques, host and count; click one for its explanation, process tree, and triggering events, and
+acknowledge or dismiss it. The raw telemetry never left the machine — only what you see did.
+
+### Check your understanding
+
+1. A busy host generates ~3,000 telemetry events a minute. Roughly how many of them reach the server, and why
+   is that the whole point? (Lesson 13.)
+2. Why can't a stolen device token be used to read other machines' detections, and why can't a user session
+   post a detection? (Lesson 14.)
+3. The agent's run loop creates the engine *once*, before the loop, not inside it. What breaks if you move it
+   inside? (Lesson 16.)
+
+---
+
+## Chapter 4 — The measurement lab
+
+Three chapters built a detector. This one asks the only question that keeps a detector honest: **is it any
+good, and how do you know?** A detector you can't measure is one you can't improve, can't defend, and can't
+trust — so the lab turns the engine's behaviour into numbers.
+
+### Lesson 18: You can't improve what you don't measure
+
+Open [`packages/detect/src/sentinel_detect/lab.py`](../packages/detect/src/sentinel_detect/lab.py) and
+[`corpus.py`](../packages/detect/src/sentinel_detect/corpus.py).
+
+The lab runs a corpus of **labelled scenarios** — streams tagged `malicious` or `benign`, each malicious one
+annotated with the rules and ATT&CK techniques it *should* trigger — and scores the engine's output against
+those labels. The corpus is small and hand-built, in the exact spirit of
+[Atomic Red Team](https://github.com/redcanaryco/atomic-red-team): one named, technique-tagged case at a time.
+Adding a scenario is how you turn "I'm pretty sure it handles that" into a number you can watch over time.
+
+> **Q (student):** The corpus scores 100% precision and recall. Doesn't that mean the engine is perfect?
+>
+> **A (teacher):** No — and the lab is deliberately honest about this. 100% means "correct on the cases we have
+> written down." It is a regression guarantee and a coverage statement, not a claim about the real world. The
+> value isn't the 100%; it's that the moment a change breaks a case, or you add a scenario the engine *can't*
+> handle, the number drops and tells you. A perfect score on an empty corpus is meaningless; the work is
+> growing the corpus to look like the threats you care about.
+
+### Lesson 19: The four numbers that matter
+
+Run it:
+
+```bash
+uv run python scripts/run_detection_lab.py
+```
+
+```
+  precision 100%   recall 100%   (TP 4  FP 0  FN 0  TN 4)
+  ATT&CK techniques covered: 5/5
+  detection latency (s): min 1  median 1  max 1
+  throughput: ~279,000 events/s  (3.6 us/event)
+```
+
+- **Recall** (TP / (TP+FN)) — of the malicious scenarios, how many we caught. A miss is a false negative: the
+  attack we didn't see.
+- **Precision** (TP / (TP+FP)) — of everything we fired on, how much was real. A false positive is a benign
+  scenario we alarmed on, and precision is the number that decides whether anyone keeps the tool switched on.
+- **Technique coverage** — which ATT&CK techniques in the corpus we actually detect. This is the map of what we
+  can and can't see, in the industry's shared vocabulary.
+- **Detection latency** — how long after a behaviour began the detection fired, in *stream-clock* time (so it's
+  deterministic and comparable run to run, not wall-clock noise). For a multi-stage chain this is the gap
+  between the first stage and the stage that completed the pattern.
+
+`test_lab.py` also proves the scorer itself is right, not just the engine: a deliberately-missed malicious
+scenario is counted as a false negative (recall drops, the technique shows uncovered), and a benign scenario
+the engine fires on is counted as a false positive (precision drops). A scorer you haven't tested is just
+another thing that can lie to you.
+
+### Lesson 20: Can it keep up?
+
+The last number is overhead: `measure_throughput` feeds a stream of benign events and reports sustained
+events-per-second and the per-event cost. It's a rough, honest "can this keep pace with a busy host?" figure,
+not a micro-benchmark — but it's the difference between a detector that runs on real machines and one that
+falls behind and starts dropping events. The same determinism that makes latency comparable makes this
+meaningful: the engine's cost is a property of the events, not of a particular run's luck.
+
+> **Q:** Where does this go next?
+>
+> **A:** You grow the corpus toward the threats you actually face (more Atomic Red Team techniques, your own
+> incident replays), and you watch precision/recall/coverage as you add rules — so every new rule is judged on
+> whether it catches more *without* alarming on more benign activity. That trade-off, measured, is the entire
+> craft of detection engineering. The lab is the instrument that makes the craft possible; the four chapters
+> together — a trustworthy pipeline, a correlation engine, a way to surface conclusions, and a way to measure
+> them — are a small but complete endpoint-detection platform.
+
+### Check your understanding
+
+1. The corpus scores 100% recall. Why is that *not* a claim that the engine catches every attack, and what is
+   the number actually guaranteeing? (Lesson 18.)
+2. A new rule raises recall from 90% to 95% but drops precision from 100% to 80%. Is that a good change? What
+   would you need to know to decide? (Lesson 19.)
+3. Why is detection latency measured on the event stream's clock rather than the wall clock? (Lesson 19, and
+   Chapter 1's Lesson 8.)
+
+---
+
+*The arc is complete: Chapter 1 built the engine, Chapter 2 gave it real senses, Chapter 3 gave its
+conclusions a home, and Chapter 4 gave you the instruments to measure them. From here the work is iterative —
+grow the corpus, add rules judged against it, and, when a stream Sysmon can't give you matters, write the raw
+ETW consumer for that one source (Chapter 2, Lesson 9). The platform is built; what remains is the craft.*
