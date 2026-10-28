@@ -146,7 +146,7 @@ Three processes, split by privilege: the dashboard, an unprivileged server that 
 
 ```text
 packages/core     shared contract (models, Check base class, command specs, fingerprints, redaction, telemetry)
-packages/agent    checks, safe command runner, scan runner, CLI
+packages/agent    checks, safe command runner, scan runner, CLI, Sysmon telemetry collectors
 packages/detect   Sentinel X: telemetry event schema, process tree, correlation/detection engine
 packages/server   API, auth, ingestion, findings, scoring, audit, phase modules, migrations
 web/              React + TypeScript + Vite + Mantine + Recharts dashboard
@@ -171,16 +171,19 @@ Adding a check: see [docs/dev-conventions.md](docs/dev-conventions.md). In short
 Everything above is a **scanner**: point-in-time posture and inventory checks. Sentinel X adds a **sensor** —
 a continuous telemetry pipeline and a correlation engine that reasons about *sequences* of operating-system
 events (a process spawning a shell, that shell reaching the internet, then a security setting being changed)
-rather than single facts. It is being built in increments; today the detection engine and its event schema
-are complete and tested, driven by recorded/synthetic event streams. The live Windows collector (Event
-Tracing for Windows) comes next.
+rather than single facts. It is being built in increments; today the detection engine, its event schema, and a
+Windows collector that reads [Sysmon](https://learn.microsoft.com/sysinternals/downloads/sysmon) telemetry are
+complete and tested. Surfacing detections in the dashboard comes next.
 
-Try the engine on a sample stream:
+Try the engine on a normalized sample stream, or run the full pipeline over a sample Sysmon export:
 
 ```bash
-uv run sentinel-detect packages/detect/samples/suspicious_chain.jsonl   # fires, including a CRITICAL chain
-uv run sentinel-detect packages/detect/samples/benign_admin.jsonl       # stays silent
+uv run sentinel-detect packages/detect/samples/suspicious_chain.jsonl          # fires a CRITICAL chain
+uv run sentinel-detect packages/detect/samples/benign_admin.jsonl              # stays silent
+uv run sentinel-agent telemetry --export packages/agent/samples/sysmon_suspicious.xml   # Sysmon -> detections
 ```
+
+On a real machine with Sysmon installed, `uv run sentinel-agent telemetry` reads the live Sysmon log.
 
 The design and the reasoning behind it are written up as a guided, chapter-by-chapter walkthrough in
 [docs/sentinel-x-learning.md](docs/sentinel-x-learning.md).

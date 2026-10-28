@@ -9,9 +9,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from sentinel_agent.telemetry.sysmon import SYSMON_CHANNEL, SYSMON_PROVIDER
+from sentinel_agent.testing import win_event_xml
 from sentinel_detect import StreamBuilder, dump_stream
 
-SAMPLES = Path(__file__).resolve().parent.parent / "packages" / "detect" / "samples"
+ROOT = Path(__file__).resolve().parent.parent
+SAMPLES = ROOT / "packages" / "detect" / "samples"
+AGENT_SAMPLES = ROOT / "packages" / "agent" / "samples"
 
 EXPLORER = r"C:\Windows\explorer.exe"
 WINWORD = r"C:\Program Files\Microsoft Office\root\Office16\winword.exe"
@@ -51,11 +55,48 @@ def benign_admin() -> str:
     return header + dump_stream(b.events)
 
 
+def sysmon_suspicious() -> str:
+    """The same chain as suspicious_chain.jsonl, but as raw Sysmon event XML the way a real export looks.
+
+    Feed it with: sentinel-agent telemetry --export packages/agent/samples/sysmon_suspicious.xml
+    """
+    def ev(rid, eid, secs, data):
+        ts = f"2026-10-28T20:00:{secs:02d}.000Z"
+        return win_event_xml(eid, rid, ts, data, channel=SYSMON_CHANNEL, provider=SYSMON_PROVIDER, computer="WKS-14")
+
+    events = [
+        ev(1, 1, 0, {"UtcTime": "2026-10-28 20:00:00.000", "ProcessGuid": "{gW}", "ProcessId": "6001",
+                     "Image": WINWORD, "CommandLine": '"winword.exe" /n "C:\\Users\\sam\\Downloads\\invoice.docm"',
+                     "User": "CORP\\sam", "ParentProcessGuid": "{gE}", "ParentProcessId": "5000",
+                     "ParentImage": EXPLORER}),
+        ev(2, 1, 1, {"UtcTime": "2026-10-28 20:00:01.000", "ProcessGuid": "{gP}", "ProcessId": "6100",
+                     "Image": PWSH, "CommandLine": "powershell -nop -w hidden -enc SQBFAFgA...",
+                     "User": "CORP\\sam", "ParentProcessGuid": "{gW}", "ParentProcessId": "6001",
+                     "ParentImage": WINWORD}),
+        ev(3, 1, 2, {"UtcTime": "2026-10-28 20:00:02.000", "ProcessGuid": "{gR}", "ProcessId": "6200",
+                     "Image": RUNDLL, "CommandLine": "rundll32.exe C:\\Users\\Public\\u.dll,Start",
+                     "User": "CORP\\sam", "ParentProcessGuid": "{gP}", "ParentProcessId": "6100",
+                     "ParentImage": PWSH}),
+        ev(4, 3, 3, {"UtcTime": "2026-10-28 20:00:03.000", "ProcessGuid": "{gR}", "ProcessId": "6200",
+                     "Image": RUNDLL, "Protocol": "tcp", "Initiated": "true", "SourceIp": "10.0.0.14",
+                     "DestinationIp": "45.142.212.61", "DestinationPort": "443"}),
+        ev(5, 13, 4, {"UtcTime": "2026-10-28 20:00:04.000", "ProcessGuid": "{gP}", "ProcessId": "6100",
+                      "Image": PWSH, "EventType": "SetValue",
+                      "TargetObject": DEFENDER_RT + "\\DisableRealtimeMonitoring", "Details": "DWORD (0x00000001)"}),
+    ]
+    header = ("<!-- Sample Sysmon export: a malicious execution chain (Word macro -> PowerShell -> rundll32,\n"
+              "     outbound connection, Defender disabled). Analyze with:\n"
+              "     sentinel-agent telemetry --export packages/agent/samples/sysmon_suspicious.xml -->\n")
+    return header + "\n".join(events) + "\n"
+
+
 def main() -> None:
     SAMPLES.mkdir(parents=True, exist_ok=True)
+    AGENT_SAMPLES.mkdir(parents=True, exist_ok=True)
     (SAMPLES / "suspicious_chain.jsonl").write_text(suspicious_chain(), encoding="utf-8")
     (SAMPLES / "benign_admin.jsonl").write_text(benign_admin(), encoding="utf-8")
-    print(f"wrote samples to {SAMPLES}")
+    (AGENT_SAMPLES / "sysmon_suspicious.xml").write_text(sysmon_suspicious(), encoding="utf-8")
+    print(f"wrote samples to {SAMPLES} and {AGENT_SAMPLES}")
 
 
 if __name__ == "__main__":

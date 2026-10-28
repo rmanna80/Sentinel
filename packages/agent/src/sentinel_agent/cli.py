@@ -317,6 +317,43 @@ def _run_job(client: Any, registry: CheckRegistry, host: HostInfo, factory: Cont
             pass
 
 
+def cmd_telemetry(args: argparse.Namespace, registry: CheckRegistry) -> int:
+    """Run Sentinel X behavioural detection over Sysmon telemetry (live, or a saved export)."""
+    from sentinel_detect import Engine
+    from sentinel_detect.replay import _format
+
+    from .telemetry.collector import CollectorError, ExportCollector, SysmonCollector
+
+    try:
+        if args.export:
+            events = ExportCollector(args.export).collect()
+            source = f"export {args.export}"
+        else:
+            config = AgentConfig.load()
+            host = current_host()
+            runner = SafeCommandRunner(SysmonCollector.commands, cancelled=lambda: False)
+            state = StagedState(FileState())
+            ctx = LiveContext(host, runner, state, config.as_mapping(), lambda: False, None, None)
+            events = SysmonCollector(ctx).collect()
+            state.commit()  # advance the cursor only after a clean read
+            source = f"live Sysmon log on {host.hostname}"
+    except CollectorError as exc:
+        print(f"Telemetry unavailable: {exc}", file=sys.stderr)
+        return 2
+
+    detections = Engine().feed_stream(events)
+    if args.json:
+        print(json.dumps({"source": source, "events": len(events),
+                          "detections": [d.model_dump(mode="json") for d in detections]}, indent=2, default=str))
+        return 0
+    print(f"Read {len(events)} telemetry events from {source}; {len(detections)} detection(s).")
+    for d in detections:
+        print()
+        print(_format(d))
+        print("-" * 78)
+    return 0
+
+
 def cmd_status(args: argparse.Namespace, registry: CheckRegistry) -> int:
     config = AgentConfig.load()
     host = current_host()
@@ -371,6 +408,9 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--elevated", action="store_true", help="only take elevated scans (admin shell)")
     r.add_argument("--fixtures", metavar="FILE", help="DEMO MODE: answer jobs from a fixture file")
     r.add_argument("--idle-exit", type=float, default=0, help="exit after this many idle seconds")
+    t = sub.add_parser("telemetry", help="run Sentinel X behavioural detection over Sysmon telemetry")
+    t.add_argument("--export", metavar="FILE", help="analyze a saved Sysmon log export (XML) instead of the live log")
+    t.add_argument("--json", action="store_true")
     sub.add_parser("status", help="show agent configuration")
     c = sub.add_parser("config", help="show or change agent configuration")
     c.add_argument("--add-malware-path", action="append")
@@ -384,7 +424,7 @@ def main(argv: list[str] | None = None) -> int:
     registry = default_registry()
     handlers = {
         "checks": cmd_checks, "scan": cmd_scan, "enroll": cmd_enroll, "run": cmd_run,
-        "status": cmd_status, "config": cmd_config,
+        "telemetry": cmd_telemetry, "status": cmd_status, "config": cmd_config,
     }
     return handlers[args.cmd](args, registry)
 

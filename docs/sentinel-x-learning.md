@@ -10,10 +10,11 @@ The plan is built in increments. This document grows one chapter per increment, 
 we are and why each piece exists.
 
 - **Chapter 1 — The engine (done).** The event schema and the detection engine, tested entirely against
-  synthetic event streams. No live data collection yet. ← *you are here*
-- **Chapter 2 — The Windows collector (next).** A real Event Tracing for Windows consumer that produces the
-  events Chapter 1 invented, running on your machine.
-- **Chapter 3 — Surfacing detections.** Storing detections on the server and showing them in the dashboard.
+  synthetic event streams. No live data collection yet.
+- **Chapter 2 — The Windows collector (done).** A real collector that produces the events Chapter 1 invented,
+  from Sysmon telemetry on your machine. ← *you are here*
+- **Chapter 3 — Surfacing detections (next).** Storing detections on the server and showing them in the
+  dashboard.
 - **Chapter 4 — The measurement lab.** Scoring the engine against documented attacks: true/false positives,
   detection latency, and overhead.
 
@@ -261,5 +262,141 @@ logic. Realistic evil needs a realistically routable address.
 
 ---
 
-*Next: Chapter 2, where we replace the invented streams with a real Event Tracing for Windows consumer running
-on your machine — and discover why the collector is the part that has to earn the word "trustworthy".*
+---
+
+## Chapter 2 — The Windows collector
+
+In Chapter 1 we built a brain and fed it invented events. Now we give it senses: a collector that produces
+real `TelemetryEvent`s from what actually happened on a Windows machine. This is the part that has to earn the
+word *trustworthy*, because every conclusion the engine draws is only as good as the events it was fed.
+
+### Lesson 9: The honest choice — raw ETW, or stand on Sysmon?
+
+The project brief said "build a collector using Event Tracing for Windows." Let's be precise about what that
+means, because there's a fork in the road and picking the wrong branch costs months.
+
+**ETW** is Windows' built-in firehose. The kernel and thousands of components are *providers* that emit
+events; a *consumer* opens a *session*, subscribes to some providers, and receives their events in real time.
+It is genuinely the right foundation — it's how everything on Windows sees process and network activity.
+
+But raw ETW is unforgiving. Each provider has its own schema (some modern manifests, some ancient MOF
+classes); the kernel providers that carry process and network events need a privileged session; and — the
+detail that matters most for us — the raw kernel process events do **not** hand you a stable process GUID.
+You'd have to synthesise one yourself from boot id, PID, and creation time, correctly, under race conditions,
+or inherit exactly the PID-reuse bug Chapter 1's whole design exists to avoid.
+
+> **Q (student):** So do we write a raw ETW consumer or not?
+>
+> **A (teacher):** We stand on **Sysmon**, and here's the reasoning. Sysmon is a free Microsoft tool that is
+> *itself* a hardened ETW consumer. It has already solved the fragile parts: it subscribes to the right kernel
+> providers, and — crucially — it assigns every process a stable `ProcessGuid`, the exact key our model is
+> built on. It writes clean, documented, named-field events to its own event-log channel. Re-implementing that
+> from raw ETW would be months of work to arrive at a *worse* version of something Microsoft ships for free.
+> So "use ETW" becomes "consume a trustworthy ETW consumer." That is the pragmatic engineering call, and it's
+> the one real detection teams make.
+
+> **Q:** Isn't that cheating the "learn the pipeline" goal?
+>
+> **A:** No — it moves the learning to where the value is. The pipeline has three stages: *subscribe*,
+> *normalise*, *correlate*. Sysmon owns `subscribe` and does it better than we could; the learning that's worth
+> having is in `normalise` (this chapter) and `correlate` (Chapter 1). If you later need something Sysmon can't
+> give — AMSI script contents, a provider Sysmon doesn't cover — *that* is when you drop to a raw ETW consumer
+> for that one stream, and you'll do it understanding exactly what you're buying. Building it first, for
+> everything, would have been motion mistaken for progress.
+
+### Lesson 10: Normalisation is where you decide what you trust
+
+Open [`packages/agent/src/sentinel_agent/telemetry/sysmon.py`](../packages/agent/src/sentinel_agent/telemetry/sysmon.py).
+This module is the *only* Windows-specific knowledge in the entire detection path, and it is deliberately
+pure: give `map_sysmon` the fields of one Sysmon event and it returns one of our `TelemetryEvent`s, or `None`
+for an event id we don't model yet. No I/O, no global state — which is why it's trivially testable.
+
+Three small pieces of translation carry real weight:
+
+- **GUID normalisation** (`strip_guid`). Sysmon wraps GUIDs in braces (`{a1b2…}`); we store the bare value so
+  the key the engine correlates on is consistent no matter which collector produced it.
+- **Registry value parsing** (`parse_registry_value`). Sysmon renders a value as `DWORD (0x00000001)`. The
+  defense-tamper rule needs to know whether a Defender flag is 1 or 0, so we pull the integer out. A string or
+  binary value becomes `None`, kept raw in `value_raw`. This is a tiny function doing load-bearing work: get
+  it wrong and either the tamper rule never fires, or it fires on every benign write.
+- **Capping** (`_cap`). A real command line can be enormous; our schema has limits. We truncate rather than let
+  an over-long field reject the whole event — losing the tail of a command line is fine, dropping the event
+  entirely is not. See `test_overlong_command_line_is_truncated_not_rejected`.
+
+> **Q:** Why return `None` for event ids we "don't model yet" instead of storing them anyway?
+>
+> **A:** Because an event the engine has no rule for is just memory pressure and noise. The schema has room for
+> more kinds (file writes, image loads — both already mapped), and adding the next one is a single `if` branch
+> plus a test. Storing everything "just in case" is how a sensor drowns itself.
+
+### Lesson 11: Reading the live log — and testing it without Windows
+
+Open [`packages/agent/src/sentinel_agent/telemetry/collector.py`](../packages/agent/src/sentinel_agent/telemetry/collector.py).
+
+`SysmonCollector` reads the live Sysmon channel through the agent's ordinary command runner — the *exact* same
+`Get-WinEvent … | ForEach { $_.ToXml() }` mechanism the posture log checks already use — and keeps a
+**record-id cursor** in agent state so each call returns only what's new. Two details worth noting:
+
+- **The cursor makes it a tail, not a re-scan.** First run reads a recent window; afterwards it asks only for
+  records past the last id it saw. If a log is cleared (record ids restart at 1), it notices the newest id is
+  below the cursor and re-reads the window instead of waiting forever. That logic is lifted straight from the
+  existing event-log checks, because it was already solved there.
+- **It goes through a `CheckContext`, so it's testable without Windows.** This is the same trick as Chapter 1.
+  A `FixtureContext` supplies the command's JSON output, and the collector can't tell it isn't talking to a
+  real machine — so `test_telemetry_collector.py` exercises the entire read → parse → map path, cursor and
+  all, on Linux CI. Look at `test_second_collect_reads_incrementally_from_cursor`: two `collect()` calls, the
+  second returning only the newer process, cursor advanced — all from fixtures.
+
+> **Q:** Where does the collector run, and what gets sent to the server?
+>
+> **A:** The collector runs *with the agent*, on the endpoint, where the privilege and the firehose are. The
+> design rule — which Chapter 3 implements — is that the **raw events never leave the machine**; only the
+> *detections*, each carrying the few events that triggered it, go to the server. That keeps the volume down
+> and matches Sentinel's local-first, privacy-preserving identity: the server learns conclusions, not a
+> minute-by-minute record of everything you ran.
+
+### Lesson 12: Try it
+
+The agent grew a command. Point it at the sample Sysmon export that ships with the repo:
+
+```bash
+uv run sentinel-agent telemetry --export packages/agent/samples/sysmon_suspicious.xml
+```
+
+That file is raw Sysmon event XML (the same shape `wevtutil` or `Get-WinEvent` produces). The command parses
+it, maps it, runs the engine, and prints the detections — the full pipeline, end to end, on a file you can
+open and read. On a real machine, drop the `--export` flag to read the live Sysmon log instead.
+
+**The gotcha for Chapter 2:** none of this produces a single event unless Sysmon is installed *and configured
+to log these event types*. A bare Sysmon install with an empty config logs almost nothing. You want a config
+that enables process creation (event 1), network connections (event 3 — off by default in some configs),
+registry value sets (event 13), and process termination (event 5). The community configs from
+SwiftOnSecurity and Olaf Hartong (`sysmon-modular`) are the usual starting points. The lesson generalises: a
+telemetry pipeline is only as good as what the sensor is told to record, and "I got zero events" almost always
+means "the sensor wasn't asked for them," not "nothing happened."
+
+### What Chapter 2 gives you, concretely
+
+- A pure, fully-tested mapping from Sysmon's event schema to our `TelemetryEvent` (`telemetry/sysmon.py`).
+- A live `SysmonCollector` that tails the Sysmon channel with a cursor, and an `ExportCollector` for saved
+  logs — both reusing the agent's existing, trusted command machinery, both driven by fixtures in tests.
+- A `sentinel-agent telemetry` command that runs the whole pipeline over live or exported telemetry.
+- A realistic sample Sysmon export, and tests that carry raw Sysmon XML all the way to a `CRITICAL` detection.
+
+### Check your understanding
+
+1. We "used ETW" without writing a raw ETW consumer. In one sentence, how — and what would make you write a raw
+   consumer later? (Lesson 9.)
+2. `parse_registry_value("DWORD (0x00000000)")` returns `0`. Why does that specific value matter to the
+   defense-tamper rule, and what would break if the function returned `None` here instead? (Lesson 10 and
+   Chapter 1's Lesson 5.)
+3. The collector reads live Windows logs, yet its tests run on Linux. What makes that possible, and why is it
+   the same idea as Chapter 1? (Lesson 11.)
+4. A user runs `sentinel-agent telemetry` on a real machine and gets zero events, though they were clearly
+   active. What is the first thing to check, and why isn't it the code? (Lesson 12.)
+
+---
+
+*Next: Chapter 3, where detections stop living in a terminal and start living in Sentinel — shipped from the
+agent to the server (conclusions only, never the firehose) and shown on a page in the dashboard beside the
+posture findings.*
