@@ -1,0 +1,19 @@
+[project]
+name = "sentinel-detect"
+version = "0.1.0"
+description = "Sentinel X: operating-system telemetry correlation and behavioural detection engine"
+requires-python = ">=3.12"
+dependencies = [
+    "sentinel-core",
+    "pydantic>=2.7",
+]
+
+[project.scripts]
+sentinel-detect = "sentinel_detect.replay:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sentinel_detect"]

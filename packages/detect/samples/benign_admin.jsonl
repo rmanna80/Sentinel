@@ -1,0 +1,7 @@
+# Sample: an ordinary administrative session. Expected detections: none.
+# An admin opens PowerShell from Explorer, queries services, talks to an internal host, and
+# writes a benign per-user value. Nothing here should fire.
+{"kind":"process_create","ts":"2026-01-01T12:00:00Z","host":"WKS-14","seq":0,"pid":5000,"process_guid":"gE","image":"C:\\Windows\\explorer.exe"}
+{"kind":"process_create","ts":"2026-01-01T12:00:01Z","host":"WKS-14","seq":1,"pid":6100,"process_guid":"gP","image":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","user":"CORP\\admin","command_line":"powershell -Command Get-Service","parent_guid":"gE","parent_image":"C:\\Windows\\explorer.exe"}
+{"kind":"network_connect","ts":"2026-01-01T12:00:02Z","host":"WKS-14","seq":2,"pid":0,"process_guid":"gP","image":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","dest_ip":"10.12.0.8","dest_port":443,"protocol":"tcp","direction":"outbound"}
+{"kind":"registry_set","ts":"2026-01-01T12:00:03Z","host":"WKS-14","seq":3,"pid":0,"process_guid":"gP","image":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","registry_path":"HKCU\\Software\\Contoso\\Console","registry_value":"LastRun","details":{"value":1}}

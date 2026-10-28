@@ -145,8 +145,9 @@ Each machine runs its own server today; remote agents reporting to one server ne
 Three processes, split by privilege: the dashboard, an unprivileged server that owns the data and never starts processes, and an agent that can only run checks from a fixed list. Details in [docs/architecture.md](docs/architecture.md); every check in [docs/checks.md](docs/checks.md); threat model in [docs/security-model.md](docs/security-model.md); day-to-day operations in [docs/operations.md](docs/operations.md).
 
 ```text
-packages/core     shared contract (models, Check base class, command specs, fingerprints, redaction)
+packages/core     shared contract (models, Check base class, command specs, fingerprints, redaction, telemetry)
 packages/agent    checks, safe command runner, scan runner, CLI
+packages/detect   Sentinel X: telemetry event schema, process tree, correlation/detection engine
 packages/server   API, auth, ingestion, findings, scoring, audit, phase modules, migrations
 web/              React + TypeScript + Vite + Mantine + Recharts dashboard
 scripts/          install, start, elevated scan, startup tasks, demo, build
@@ -164,6 +165,25 @@ scripts\dev.ps1                 # API + Vite hot reload on http://127.0.0.1:5173
 ```
 
 Adding a check: see [docs/dev-conventions.md](docs/dev-conventions.md). In short, declare every command as a `CommandSpec` on the check class, return evidence and findings, raise `SkipCheck` when you cannot tell, add fixture tests, and register it in `ALL_CHECKS`. Regenerate the checks document with `uv run python scripts/gen_checks_doc.py`.
+
+## Sentinel X — behavioural detection (in progress)
+
+Everything above is a **scanner**: point-in-time posture and inventory checks. Sentinel X adds a **sensor** —
+a continuous telemetry pipeline and a correlation engine that reasons about *sequences* of operating-system
+events (a process spawning a shell, that shell reaching the internet, then a security setting being changed)
+rather than single facts. It is being built in increments; today the detection engine and its event schema
+are complete and tested, driven by recorded/synthetic event streams. The live Windows collector (Event
+Tracing for Windows) comes next.
+
+Try the engine on a sample stream:
+
+```bash
+uv run sentinel-detect packages/detect/samples/suspicious_chain.jsonl   # fires, including a CRITICAL chain
+uv run sentinel-detect packages/detect/samples/benign_admin.jsonl       # stays silent
+```
+
+The design and the reasoning behind it are written up as a guided, chapter-by-chapter walkthrough in
+[docs/sentinel-x-learning.md](docs/sentinel-x-learning.md).
 
 ## Limitations
 
