@@ -2,7 +2,7 @@
 
 A local-first security assistant for your own machines. Sentinel runs read-only checks on Windows and Linux, keeps every finding with the evidence behind it, watches event logs for suspicious patterns, matches installed software against vulnerability data, and explains it all in a dashboard on `http://127.0.0.1:8765`. Nothing leaves your machine unless you turn on an integration, and every request that does is listed on the Outbound data page.
 
-> **Status: first full build, not yet run on real Windows.** Every check is tested against hand-written fixtures shaped like real command output, and the full stack is tested end to end on Linux. The first live run on your machine is the real test: see [First run on your machine](#first-run-on-your-machine).
+
 
 ## What it does
 
