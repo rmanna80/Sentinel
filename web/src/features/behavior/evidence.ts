@@ -62,6 +62,10 @@ const KIND_LABELS: Record<string, string> = {
   file_delete: "File deleted",
   registry_set: "Registry set",
   image_load: "Image loaded",
+  process_access: "Process accessed",
+  remote_thread: "Remote thread",
+  dns_query: "DNS query",
+  wmi_subscription: "WMI subscription",
 };
 
 export function eventKindLabel(kind: string): string {
@@ -100,6 +104,23 @@ export function eventSummary(ev: Record<string, unknown>): string {
     }
     case "image_load":
       return `${actor} loaded ${str(ev.file_path) ?? "(unknown image)"}`;
+    case "process_access": {
+      const details = (ev.details ?? {}) as Record<string, unknown>;
+      const mask = num(details.granted_access);
+      const rights = mask !== null ? ` (access 0x${mask.toString(16)})` : "";
+      return `${actor} opened ${basename(str(ev.target_image)) || "(unknown process)"}${rights}`;
+    }
+    case "remote_thread":
+      return `${actor} started a thread in ${basename(str(ev.target_image)) || "(unknown process)"}`;
+    case "dns_query":
+      return `${actor} looked up ${str(ev.dns_query) ?? "(unknown name)"}`;
+    case "wmi_subscription": {
+      const details = (ev.details ?? {}) as Record<string, unknown>;
+      const stage = str(details.stage) ?? "subscription";
+      const name = str(details.name) ?? str(details.consumer) ?? "(unnamed)";
+      const runs = str(details.destination);
+      return runs ? `WMI ${stage} ${name} · ${runs}` : `WMI ${stage} ${name}`;
+    }
     default:
       return actor;
   }

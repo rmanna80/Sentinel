@@ -11,7 +11,9 @@ def test_corpus_scores_perfectly():
     card = score(default_corpus())
     assert card.precision == 1.0 and card.recall == 1.0
     assert card.fp == 0 and card.fn == 0
-    assert card.tp == 4 and card.tn == 4
+    malicious = sum(1 for s in default_corpus() if s.label == MALICIOUS)
+    assert card.tp == malicious and card.tn == len(default_corpus()) - malicious
+    assert malicious >= 14 and card.tn >= 11  # the corpus only ever grows
     # every malicious scenario fired exactly the rule it was supposed to
     for r in card.results:
         if r.label == MALICIOUS:
@@ -29,7 +31,7 @@ def test_all_corpus_techniques_are_covered():
 def test_latency_is_measured_for_detections():
     card = score(default_corpus())
     stats = card.latency_stats()
-    assert stats["count"] == 4  # one per malicious scenario
+    assert stats["count"] == card.tp  # one per malicious scenario
     assert stats["min"] >= 0 and stats["max"] >= stats["min"]
 
 

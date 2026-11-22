@@ -33,6 +33,10 @@ class EventKind(StrEnum):
     FILE_DELETE = "file_delete"
     REGISTRY_SET = "registry_set"
     IMAGE_LOAD = "image_load"
+    PROCESS_ACCESS = "process_access"  # one process opened a handle to another (Sysmon 10)
+    REMOTE_THREAD = "remote_thread"  # one process started a thread inside another (Sysmon 8)
+    DNS_QUERY = "dns_query"  # a process resolved a name (Sysmon 22)
+    WMI_SUBSCRIPTION = "wmi_subscription"  # a WMI event filter/consumer/binding was registered (Sysmon 19-21)
 
 
 # A process is identified by its GUID, not its PID. Windows reuses PIDs within seconds; a GUID (the agent's
@@ -69,6 +73,13 @@ class TelemetryEvent(BaseModel):
     # registry_set
     registry_path: str | None = Field(default=None, max_length=1024)  # full key path
     registry_value: str | None = Field(default=None, max_length=256)  # value name within the key
+
+    # process_access / remote_thread: the process that was acted upon (the acting process is ``image``)
+    target_image: str | None = Field(default=None, max_length=1024)
+    target_guid: str | None = Field(default=None, max_length=128)
+
+    # dns_query
+    dns_query: str | None = Field(default=None, max_length=1024)
 
     details: dict[str, Any] = Field(default_factory=dict)  # collector extras: hashes, new value data, ...
 

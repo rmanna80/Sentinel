@@ -71,7 +71,7 @@ def test_registry_set_splits_target_and_parses_value():
 
 
 def test_unmapped_event_id_and_missing_guid_return_none():
-    assert map_sysmon(22, WHEN, "H", {"ProcessGuid": "{g}", "QueryName": "evil.com"}, seq=0) is None  # DNS: not modelled
+    assert map_sysmon(17, WHEN, "H", {"ProcessGuid": "{g}", "PipeName": "\\x"}, seq=0) is None  # pipes: not modelled
     assert map_sysmon(1, WHEN, "H", {"ProcessId": "1", "Image": PWSH}, seq=0) is None  # no ProcessGuid
 
 
@@ -96,3 +96,56 @@ def test_shipped_sysmon_export_feeds_the_engine():
     rule_ids = {d.rule_id for d in Engine().feed_stream(events)}
     assert "intrusion.suspicious_exec_chain" in rule_ids
     assert "exec.office_spawns_interpreter" in rule_ids
+
+
+def test_process_access_keeps_actor_and_target_apart():
+    out = map_sysmon(10, WHEN, "H", {
+        "SourceProcessGUID": "{src}", "SourceProcessId": "4242", "SourceImage": r"C:\Temp\x.exe",
+        "TargetProcessGUID": "{tgt}", "TargetImage": r"C:\Windows\System32\lsass.exe",
+        "GrantedAccess": "0x1410", "CallTrace": "ntdll.dll+9d4c4|UNKNOWN(0000)", "SourceUser": "WKS\\sam",
+    }, seq=3)
+    assert out.kind is EventKind.PROCESS_ACCESS
+    assert (out.process_guid, out.pid, out.image, out.user) == ("src", 4242, r"C:\Temp\x.exe", "WKS\\sam")
+    assert (out.target_guid, out.target_image) == ("tgt", r"C:\Windows\System32\lsass.exe")
+    assert out.details["granted_access"] == 0x1410 and "ntdll" in out.details["call_trace"]
+
+
+def test_remote_thread_accepts_either_guid_spelling():
+    for key in ("SourceProcessGuid", "SourceProcessGUID"):
+        out = map_sysmon(8, WHEN, "H", {key: "{src}", "SourceImage": PWSH, "TargetProcessGuid": "{t}",
+                                        "TargetImage": r"C:\Windows\explorer.exe", "StartFunction": "LoadLibraryA"}, seq=0)
+        assert out.kind is EventKind.REMOTE_THREAD and out.process_guid == "src" and out.target_guid == "t"
+        assert out.details == {"start_function": "LoadLibraryA"}
+    assert map_sysmon(8, WHEN, "H", {"SourceImage": PWSH}, seq=0) is None  # no acting process
+
+
+def test_dns_query_and_file_delete():
+    dns = map_sysmon(22, WHEN, "H", {"ProcessGuid": "{g}", "Image": PWSH, "QueryName": "c2.example.invalid",
+                                     "QueryStatus": "0", "QueryResults": "198.51.100.7;"}, seq=0)
+    assert dns.kind is EventKind.DNS_QUERY and dns.dns_query == "c2.example.invalid"
+    assert dns.details == {"query_status": "0", "query_results": "198.51.100.7;"}
+    for eid in (23, 26):
+        gone = map_sysmon(eid, WHEN, "H", {"ProcessGuid": "{g}", "Image": PWSH, "TargetFilename": r"C:\d\a.docx"}, seq=0)
+        assert gone.kind is EventKind.FILE_DELETE and gone.file_path == r"C:\d\a.docx"
+
+
+def test_wmi_events_have_no_process_and_carry_their_stage():
+    consumer = map_sysmon(20, WHEN, "H", {"Operation": "Created", "User": "WKS\\sam", "Name": "Upd",
+                                          "Type": "Command Line", "Destination": "powershell -enc AAAA"}, seq=0)
+    assert consumer.kind is EventKind.WMI_SUBSCRIPTION and consumer.process_guid == "wmi-activity"
+    assert consumer.details["stage"] == "consumer" and consumer.details["consumer_type"] == "Command Line"
+    assert map_sysmon(19, WHEN, "H", {"Name": "f", "Query": "select 1"}, seq=0).details["stage"] == "filter"
+    assert map_sysmon(21, WHEN, "H", {"Consumer": "c", "Filter": "f"}, seq=0).details["stage"] == "binding"
+
+
+def test_new_sysmon_events_drive_the_new_rules_end_to_end():
+    lsass = win_event_xml(10, 1, "2026-10-28T20:00:00.000Z", {
+        "SourceProcessGUID": "{aa}", "SourceProcessId": "9", "SourceImage": r"C:\Users\sam\AppData\Local\Temp\d.exe",
+        "TargetProcessGUID": "{bb}", "TargetImage": r"C:\Windows\System32\lsass.exe", "GrantedAccess": "0x1410",
+    }, channel=SYSMON_CHANNEL, provider=SYSMON_PROVIDER)
+    wmi = win_event_xml(20, 2, "2026-10-28T20:00:01.000Z", {
+        "Operation": "Created", "Name": "Upd", "Type": "Command Line", "Destination": "cmd /c a.exe",
+    }, channel=SYSMON_CHANNEL, provider=SYSMON_PROVIDER)
+    events = parse_sysmon_log(lsass + wmi)
+    assert [e.kind for e in events] == [EventKind.PROCESS_ACCESS, EventKind.WMI_SUBSCRIPTION]
+    assert {d.rule_id for d in Engine().feed_stream(events)} == {"cred.lsass_access", "persist.wmi_subscription"}

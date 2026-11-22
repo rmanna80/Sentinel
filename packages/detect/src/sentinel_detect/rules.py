@@ -154,7 +154,9 @@ class Rule:
         self, *, tree: ProcessTree, events: list[TelemetryEvent], primary_guid: str,
         summary: str, explanation: str, dedup_key: str,
         severity: Severity | None = None, confidence: Confidence | None = None,
+        technique_ids: tuple[str, ...] | None = None,
     ) -> Detection:
+        techniques = list(technique_ids if technique_ids is not None else self.technique_ids)
         times = [e.ts for e in events]
         guids: list[str] = []
         for g in [primary_guid, *(e.process_guid for e in events)]:
@@ -164,8 +166,8 @@ class Rule:
         return Detection(
             rule_id=self.id, title=self.title, summary=summary, explanation=explanation,
             severity=severity or self.severity, confidence=confidence or self.confidence,
-            kind=FindingKind.HEURISTIC, technique_ids=list(self.technique_ids),
-            technique_names=attack.names(list(self.technique_ids)), host=host,
+            kind=FindingKind.HEURISTIC, technique_ids=techniques,
+            technique_names=attack.names(techniques), host=host,
             first_ts=min(times), last_ts=max(times), dedup_key=dedup_key,
             process_guids=guids[:50], events=events, process_tree=tree.snapshot(primary_guid),
         )
@@ -396,9 +398,12 @@ def _basename_reg(path: str | None) -> str:
 
 def default_rules() -> list[Rule]:
     """The rules the engine runs by default. Order is irrelevant; each keeps its own state."""
+    from .rules_tradecraft import tradecraft_rules  # imported here: that module builds on this one
+
     return [
         OfficeSpawnsInterpreter(),
         AutorunPersistence(),
         DefenseTamper(),
         SuspiciousExecChain(),
+        *tradecraft_rules(),
     ]

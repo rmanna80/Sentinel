@@ -80,6 +80,37 @@ class StreamBuilder:
         return self._emit(ts, kind=EventKind.FILE_WRITE, process_guid=process_guid, image=image, pid=pid,
                           file_path=file_path)
 
+    def file_delete(self, process_guid: str, file_path: str, *, image: str = "", pid: int = 0,
+                    ts: datetime | None = None) -> TelemetryEvent:
+        return self._emit(ts, kind=EventKind.FILE_DELETE, process_guid=process_guid, image=image, pid=pid,
+                          file_path=file_path)
+
+    def process_access(self, process_guid: str, target_image: str, *, granted_access: int = 0x1410,
+                       image: str = "", target_guid: str | None = None, pid: int = 0,
+                       ts: datetime | None = None) -> TelemetryEvent:
+        return self._emit(ts, kind=EventKind.PROCESS_ACCESS, process_guid=process_guid, image=image, pid=pid,
+                          target_image=target_image, target_guid=target_guid,
+                          details={"granted_access": granted_access})
+
+    def remote_thread(self, process_guid: str, target_image: str, *, image: str = "",
+                      target_guid: str | None = None, pid: int = 0,
+                      ts: datetime | None = None) -> TelemetryEvent:
+        return self._emit(ts, kind=EventKind.REMOTE_THREAD, process_guid=process_guid, image=image, pid=pid,
+                          target_image=target_image, target_guid=target_guid)
+
+    def dns_query(self, process_guid: str, name: str, *, image: str = "", pid: int = 0,
+                  ts: datetime | None = None) -> TelemetryEvent:
+        return self._emit(ts, kind=EventKind.DNS_QUERY, process_guid=process_guid, image=image, pid=pid,
+                          dns_query=name)
+
+    def wmi_subscription(self, stage: str, *, name: str = "", consumer_type: str | None = None,
+                         destination: str | None = None, query: str | None = None,
+                         ts: datetime | None = None) -> TelemetryEvent:
+        details = {k: v for k, v in {"stage": stage, "name": name, "consumer_type": consumer_type,
+                                     "destination": destination, "query": query}.items() if v}
+        return self._emit(ts, kind=EventKind.WMI_SUBSCRIPTION, process_guid="wmi-activity", image="", pid=0,
+                          details=details)
+
 
 # --------------------------------------------------------------------------- loading / running
 

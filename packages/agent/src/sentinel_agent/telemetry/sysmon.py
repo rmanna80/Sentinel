@@ -19,9 +19,22 @@ The event ids we map:
   3  Network connect            network_connect
   5  Process terminate          process_exit
   7  Image loaded               image_load
+  8  CreateRemoteThread         remote_thread
+ 10  Process access             process_access
  11  File create                file_write
  13  Registry value set         registry_set
+ 19  WMI event filter           wmi_subscription
+ 20  WMI event consumer         wmi_subscription
+ 21  WMI consumer-to-filter     wmi_subscription
+ 22  DNS query                  dns_query
+ 23  File delete (archived)     file_delete
+ 26  File delete (detected)     file_delete
 ===  =========================  ===================================
+
+Events 8 and 10 describe one process acting on another, so Sysmon names the actor ``Source*`` and the victim
+``Target*``; we keep the actor in the usual ``process_guid``/``image`` fields and the victim in
+``target_guid``/``target_image``. WMI events (19-21) carry no process at all - WMI itself performs the
+registration - so they are anchored to a fixed placeholder GUID and the interesting fields live in ``details``.
 """
 
 from __future__ import annotations
@@ -36,7 +49,9 @@ from ..checks._util import as_int, parse_iso
 
 SYSMON_CHANNEL = "Microsoft-Windows-Sysmon/Operational"
 SYSMON_PROVIDER = "Microsoft-Windows-Sysmon"
-SYSMON_IDS = (1, 3, 5, 7, 11, 13)
+SYSMON_IDS = (1, 3, 5, 7, 8, 10, 11, 13, 19, 20, 21, 22, 23, 26)
+WMI_PLACEHOLDER_GUID = "wmi-activity"  # WMI events name no acting process; see the module docstring
+_WMI_STAGE = {19: "filter", 20: "consumer", 21: "binding"}
 
 _REGISTRY_INT = re.compile(r"^[QD]WORD\s*\(0x([0-9a-fA-F]+)\)")  # "DWORD (0x00000001)" / "QWORD (0x...)"
 
@@ -67,6 +82,10 @@ def parse_registry_value(details: str | None) -> int | None:
 def map_sysmon(eid: int, when: datetime, host: str, data: dict[str, str], seq: int) -> TelemetryEvent | None:
     """Translate one Sysmon event's fields into a TelemetryEvent, or None for an id we do not model."""
     common = {"host": host[:256], "ts": when, "seq": seq}
+    if eid in (8, 10):
+        return _map_cross_process(eid, data, common)
+    if eid in _WMI_STAGE:
+        return _map_wmi(eid, data, common)
     guid = strip_guid(data.get("ProcessGuid"))
     pid = as_int(data.get("ProcessId")) or 0
     image = _cap(data.get("Image"), 1024) or ""
@@ -113,12 +132,80 @@ def map_sysmon(eid: int, when: datetime, host: str, data: dict[str, str], seq: i
     if eid == 11:  # FileCreate
         return TelemetryEvent(kind=EventKind.FILE_WRITE, process_guid=guid, pid=pid, image=image, user=user,
                               file_path=_cap(data.get("TargetFilename"), 1024), **common)
+    if eid in (23, 26):  # FileDelete (archived) / FileDeleteDetected
+        return TelemetryEvent(kind=EventKind.FILE_DELETE, process_guid=guid, pid=pid, image=image, user=user,
+                              file_path=_cap(data.get("TargetFilename"), 1024), **common)
+    if eid == 22:  # DnsQuery
+        return TelemetryEvent(
+            kind=EventKind.DNS_QUERY, process_guid=guid, pid=pid, image=image, user=user,
+            dns_query=_cap(data.get("QueryName"), 1024),
+            details=_some({"query_status": data.get("QueryStatus"), "query_results": _cap(data.get("QueryResults"), 2048)}),
+            **common,
+        )
     if eid == 7:  # ImageLoad
         return TelemetryEvent(kind=EventKind.IMAGE_LOAD, process_guid=guid, pid=pid, image=image, user=user,
                               file_path=_cap(data.get("ImageLoaded"), 1024),
                               details=_some({"signed": data.get("Signed"), "signature": data.get("Signature")}),
                               **common)
     return None
+
+
+def _first(data: dict[str, str], *names: str) -> str | None:
+    """Sysmon spells some fields inconsistently across versions (``SourceProcessGUID`` vs ``...Guid``)."""
+    for name in names:
+        if data.get(name):
+            return data[name]
+    return None
+
+
+def parse_access_mask(raw: str | None) -> int | None:
+    """``GrantedAccess`` is rendered as hex (``0x1410``); recover the integer so rules can test its bits."""
+    if not raw:
+        return None
+    try:
+        return int(raw.strip(), 16)
+    except ValueError:
+        return None
+
+
+def _map_cross_process(eid: int, data: dict[str, str], common: dict[str, object]) -> TelemetryEvent | None:
+    guid = strip_guid(_first(data, "SourceProcessGuid", "SourceProcessGUID"))
+    if not guid:
+        return None
+    target = {
+        "target_image": _cap(data.get("TargetImage"), 1024),
+        "target_guid": strip_guid(_first(data, "TargetProcessGuid", "TargetProcessGUID")) or None,
+    }
+    actor = {
+        "process_guid": guid, "pid": as_int(data.get("SourceProcessId")) or 0,
+        "image": _cap(data.get("SourceImage"), 1024) or "", "user": _cap(data.get("SourceUser"), 256),
+    }
+    if eid == 10:  # ProcessAccess
+        details: dict[str, object] = _some({"call_trace": _cap(data.get("CallTrace"), 2048)})
+        mask = parse_access_mask(data.get("GrantedAccess"))
+        if mask is not None:
+            details["granted_access"] = mask
+        return TelemetryEvent(kind=EventKind.PROCESS_ACCESS, details=details, **actor, **target, **common)  # type: ignore[arg-type]
+    return TelemetryEvent(  # 8: CreateRemoteThread
+        kind=EventKind.REMOTE_THREAD,
+        details=_some({"start_module": data.get("StartModule"), "start_function": data.get("StartFunction"),
+                       "start_address": data.get("StartAddress")}),
+        **actor, **target, **common,  # type: ignore[arg-type]
+    )
+
+
+def _map_wmi(eid: int, data: dict[str, str], common: dict[str, object]) -> TelemetryEvent:
+    return TelemetryEvent(
+        kind=EventKind.WMI_SUBSCRIPTION, process_guid=WMI_PLACEHOLDER_GUID, pid=0, image="",
+        user=_cap(data.get("User"), 256),
+        details=_some({
+            "stage": _WMI_STAGE[eid], "operation": data.get("Operation"), "name": _cap(data.get("Name"), 512),
+            "namespace": data.get("EventNamespace"), "query": _cap(data.get("Query"), 2048),
+            "consumer_type": data.get("Type"), "destination": _cap(data.get("Destination"), 4096),
+            "consumer": _cap(data.get("Consumer"), 512), "filter": _cap(data.get("Filter"), 512),
+        }),
+        **common,  # type: ignore[arg-type]
+    )
 
 
 def _some(d: dict[str, str | None]) -> dict[str, object]:

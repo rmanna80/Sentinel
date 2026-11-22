@@ -78,3 +78,32 @@ describe("processAncestry and detectionEvents", () => {
     expect(detectionEvents(null)).toEqual([]);
   });
 });
+
+describe("eventSummary for cross-process, DNS and WMI events", () => {
+  it("names the target and access rights of a process_access", () => {
+    expect(
+      eventSummary({
+        kind: "process_access",
+        image: "C:\\Temp\\d.exe",
+        target_image: "C:\\Windows\\System32\\lsass.exe",
+        details: { granted_access: 0x1410 },
+      }),
+    ).toBe("d.exe opened lsass.exe (access 0x1410)");
+  });
+
+  it("summarises a remote_thread and a dns_query", () => {
+    expect(eventSummary({ kind: "remote_thread", image: "C:\\a\\powershell.exe", target_image: "C:\\b\\notepad.exe" })).toBe(
+      "powershell.exe started a thread in notepad.exe",
+    );
+    expect(eventSummary({ kind: "dns_query", image: "C:\\a\\x.exe", dns_query: "c2.example.invalid" })).toBe(
+      "x.exe looked up c2.example.invalid",
+    );
+  });
+
+  it("shows what a WMI consumer runs, and survives missing details", () => {
+    expect(
+      eventSummary({ kind: "wmi_subscription", details: { stage: "consumer", name: "Upd", destination: "cmd /c a.exe" } }),
+    ).toBe("WMI consumer Upd · cmd /c a.exe");
+    expect(eventSummary({ kind: "wmi_subscription" })).toBe("WMI subscription (unnamed)");
+  });
+});

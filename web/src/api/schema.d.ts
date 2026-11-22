@@ -3000,7 +3000,7 @@ export interface components {
          * EventKind
          * @enum {string}
          */
-        EventKind: "process_create" | "process_exit" | "network_connect" | "file_write" | "file_delete" | "registry_set" | "image_load";
+        EventKind: "process_create" | "process_exit" | "network_connect" | "file_write" | "file_delete" | "registry_set" | "image_load" | "process_access" | "remote_thread" | "dns_query" | "wmi_subscription";
         /**
          * Evidence
          * @description What a check actually observed. Stored verbatim (after redaction) as proof.
@@ -5004,6 +5004,12 @@ export interface components {
             registry_path?: string | null;
             /** Registry Value */
             registry_value?: string | null;
+            /** Target Image */
+            target_image?: string | null;
+            /** Target Guid */
+            target_guid?: string | null;
+            /** Dns Query */
+            dns_query?: string | null;
             /** Details */
             details?: {
                 [key: string]: unknown;
