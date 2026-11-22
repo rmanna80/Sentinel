@@ -93,3 +93,67 @@ describe("api client", () => {
     );
   });
 });
+
+describe("NdjsonParser", () => {
+  it("parses lines split across chunks and keeps a partial line until its newline arrives", async () => {
+    const { NdjsonParser } = await import("./client");
+    const parser = new NdjsonParser();
+    expect(parser.push('{"type":"round","round":1}\n{"type":"del')).toEqual([{ type: "round", round: 1 }]);
+    expect(parser.push('ta","text":"Hi"}\n\n')).toEqual([{ type: "delta", text: "Hi" }]);
+    expect(parser.push('{"type":"done"}')).toEqual([]);
+    expect(parser.flush()).toEqual([{ type: "done" }]);
+    expect(parser.flush()).toEqual([]);
+  });
+
+  it("drops a damaged line and keeps the ones around it", async () => {
+    const { NdjsonParser } = await import("./client");
+    const parser = new NdjsonParser();
+    expect(parser.push('{"a":1}\n{broken\n{"b":2}\n')).toEqual([{ a: 1 }, { b: 2 }]);
+  });
+});
+
+describe("apiStream", () => {
+  const fetchMock = vi.fn<typeof fetch>();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+    setCsrfToken("csrf-abc");
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    setCsrfToken(null);
+  });
+
+  it("delivers events in order as they arrive and sends the CSRF header", async () => {
+    const { apiStream } = await import("./client");
+    const encoder = new TextEncoder();
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode('{"type":"delta","text":"He'));
+        controller.enqueue(encoder.encode('llo"}\n{"type":"done","reply":{"rounds":1}}\n'));
+        controller.close();
+      },
+    });
+    fetchMock.mockResolvedValue(new Response(body, { status: 200 }));
+    const events: unknown[] = [];
+    await apiStream("/api/x/stream", { content: "hi" }, (e) => events.push(e));
+    expect(events).toEqual([
+      { type: "delta", text: "Hello" },
+      { type: "done", reply: { rounds: 1 } },
+    ]);
+    const init = fetchMock.mock.calls[0][1];
+    expect(new Headers(init?.headers).get("X-CSRF-Token")).toBe("csrf-abc");
+    expect(init?.method).toBe("POST");
+  });
+
+  it("turns a refusal before the stream starts into an ApiError with the server's detail", async () => {
+    const { apiStream } = await import("./client");
+    fetchMock.mockResolvedValue(jsonResponse(503, { detail: "The AI assistant is unavailable: it is turned off." }));
+    await expect(apiStream("/api/x/stream", {}, () => undefined)).rejects.toMatchObject({
+      status: 503,
+      message: "The AI assistant is unavailable: it is turned off.",
+    });
+  });
+});

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -18,18 +19,20 @@ from urllib.parse import urlsplit
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Engine, func, select
 from sqlalchemy.orm import Session
 
 from .. import audit
 from ..config import Settings
-from ..db import get_db
+from ..db import get_db, session_scope
 from ..deps import AuthContext, current_auth, settings_dep
 from ..models import AssistantConversation, AssistantMessage, FindingRecord, Scan, now
 from ..services.app_settings import get_setting
 from ..services.assistant_tools import (
     check_citations,
+    check_claims,
     explain_cvss_vector,
     explain_finding,
     ollama_tool_definitions,
@@ -97,6 +100,10 @@ OFFLINE_FEATURES = [
 
 class OllamaUnavailable(Exception):
     pass
+
+
+class OllamaTimeout(OllamaUnavailable):
+    """Ollama is there but did not answer in time: the one failure a deterministic fallback can stand in for."""
 
 
 @dataclass
@@ -179,14 +186,10 @@ def ollama_chat(cfg: OllamaConfig, messages: list[dict[str, Any]], tools: list[d
         with _client(cfg, CHAT_TIMEOUT) as client:
             resp = client.post("/api/chat", json=body)
     except httpx.TimeoutException as exc:
-        raise OllamaUnavailable(f"Ollama at {cfg.url} did not answer within {int(CHAT_TIMEOUT)} seconds") from exc
+        raise OllamaTimeout(f"Ollama at {cfg.url} did not answer within {int(CHAT_TIMEOUT)} seconds") from exc
     except httpx.HTTPError as exc:
         raise OllamaUnavailable(f"Ollama is not reachable at {cfg.url} ({type(exc).__name__})") from exc
-    if resp.status_code == 404:
-        raise OllamaUnavailable(f"the model '{cfg.model}' is not installed in Ollama ({_error_text(resp)}); "
-                                f"run `ollama pull {cfg.model}`")
-    if resp.status_code != 200:
-        raise OllamaUnavailable(f"Ollama returned HTTP {resp.status_code}: {_error_text(resp)}")
+    _raise_for_status(cfg, resp.status_code, lambda: _error_text(resp))
     try:
         data = resp.json()
     except ValueError as exc:
@@ -195,6 +198,69 @@ def ollama_chat(cfg: OllamaConfig, messages: list[dict[str, Any]], tools: list[d
     if not isinstance(message, dict):
         raise OllamaUnavailable("Ollama returned a response without a message")
     return message
+
+
+def _raise_for_status(cfg: OllamaConfig, code: int, error_text: Callable[[], str]) -> None:
+    if code == 404:
+        raise OllamaUnavailable(f"the model '{cfg.model}' is not installed in Ollama ({error_text()}); "
+                                f"run `ollama pull {cfg.model}`")
+    if code != 200:
+        raise OllamaUnavailable(f"Ollama returned HTTP {code}: {error_text()}")
+
+
+def ollama_chat_stream(cfg: OllamaConfig, messages: list[dict[str, Any]],
+                       tools: list[dict[str, Any]] | None) -> Iterator[tuple[str, Any]]:
+    """One streaming POST /api/chat. Yields ``("delta", text)`` as text arrives, then ``("message", message)``.
+
+    Ollama streams one JSON object per line, each carrying the next piece of ``message.content``; tool calls
+    arrive whole in one of those objects. The pieces are joined here so the caller gets the same ``message``
+    shape :func:`ollama_chat` returns. The read timeout applies between chunks, not to the whole answer, so a
+    slow model that is still producing text is never cut off.
+    """
+    if cfg.url_error:
+        raise OllamaUnavailable(cfg.url_error)
+    body: dict[str, Any] = {"model": cfg.model, "messages": messages, "stream": True,
+                            "options": {"temperature": TEMPERATURE, "num_ctx": NUM_CTX}}
+    if tools:
+        body["tools"] = tools
+    content: list[str] = []
+    calls: list[Any] = []
+    got_any = False
+    try:
+        with _client(cfg, CHAT_TIMEOUT) as client, client.stream("POST", "/api/chat", json=body) as resp:
+            if resp.status_code != 200:
+                resp.read()
+            _raise_for_status(cfg, resp.status_code, lambda: _error_text(resp))
+            for line in resp.iter_lines():
+                if not line.strip():
+                    continue
+                try:
+                    chunk = json.loads(line)
+                except ValueError as exc:
+                    raise OllamaUnavailable("Ollama returned a response that is not JSON") from exc
+                if isinstance(chunk, dict) and chunk.get("error"):
+                    raise OllamaUnavailable(f"Ollama reported an error: {str(chunk['error'])[:300]}")
+                message = chunk.get("message") if isinstance(chunk, dict) else None
+                if isinstance(message, dict):
+                    got_any = True
+                    piece = message.get("content")
+                    if isinstance(piece, str) and piece:
+                        content.append(piece)
+                        yield "delta", piece
+                    if isinstance(message.get("tool_calls"), list):
+                        calls.extend(message["tool_calls"])
+                if isinstance(chunk, dict) and chunk.get("done"):
+                    break
+    except httpx.TimeoutException as exc:
+        raise OllamaTimeout(f"Ollama at {cfg.url} stopped answering for {int(CHAT_TIMEOUT)} seconds") from exc
+    except httpx.HTTPError as exc:
+        raise OllamaUnavailable(f"Ollama is not reachable at {cfg.url} ({type(exc).__name__})") from exc
+    if not got_any:
+        raise OllamaUnavailable("Ollama returned a response without a message")
+    message = {"role": "assistant", "content": "".join(content)}
+    if calls:
+        message["tool_calls"] = calls
+    yield "message", message
 
 
 def unavailable_detail(reason: str) -> str:
@@ -224,10 +290,15 @@ def _parse_call(call: Any) -> tuple[Any, Any]:
     return fn.get("name"), fn.get("arguments")
 
 
-def run_conversation(engine: Engine, cfg: OllamaConfig, history: list[dict[str, Any]], user_text: str) -> LoopResult:
-    """Ask the model, run the read-only tools it requests, and return its final answer.
+def iter_conversation(engine: Engine, cfg: OllamaConfig, history: list[dict[str, Any]], user_text: str,
+                      stream: bool = False) -> Iterator[dict[str, Any]]:
+    """Ask the model, run the read-only tools it requests, and yield progress events as it goes.
 
-    Up to MAX_ROUNDS model calls. The last call offers no tools, so the model has to answer.
+    Up to MAX_ROUNDS model calls. The last call offers no tools, so the model has to answer. Events, in order:
+    ``{"type": "round", "round": n}``, then ``{"type": "delta", "text": ...}`` while text streams (only when
+    ``stream`` is set), ``{"type": "tool", "name": ..., "ok": ...}`` for each tool run, ``{"type": "reset"}``
+    when streamed text turned out to precede tool calls and should be discarded, and finally
+    ``{"type": "result", "result": LoopResult}``.
     """
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": SYSTEM_PROMPT.format(now=now().strftime("%Y-%m-%d %H:%M"))},
@@ -239,7 +310,18 @@ def run_conversation(engine: Engine, cfg: OllamaConfig, history: list[dict[str, 
     for round_no in range(1, MAX_ROUNDS + 1):
         out.rounds = round_no
         last = round_no == MAX_ROUNDS
-        reply = ollama_chat(cfg, messages, None if last else tools)
+        yield {"type": "round", "round": round_no}
+        streamed = False
+        if stream:
+            reply: dict[str, Any] = {}
+            for kind, value in ollama_chat_stream(cfg, messages, None if last else tools):
+                if kind == "delta":
+                    streamed = True
+                    yield {"type": "delta", "text": value}
+                else:
+                    reply = value
+        else:
+            reply = ollama_chat(cfg, messages, None if last else tools)
         content = reply.get("content") if isinstance(reply.get("content"), str) else ""
         calls = reply.get("tool_calls") if isinstance(reply.get("tool_calls"), list) else []
         if not calls or last:
@@ -248,7 +330,10 @@ def run_conversation(engine: Engine, cfg: OllamaConfig, history: list[dict[str, 
                 out.answer = ("I could not produce an answer from the stored data within the tool-call limit. "
                               "Try a narrower question.")
             out.stopped_early = bool(calls)
-            return out
+            yield {"type": "result", "result": out}
+            return
+        if streamed:
+            yield {"type": "reset"}  # that text was the model thinking aloud before calling tools
         messages.append({"role": "assistant", "content": content, "tool_calls": calls})
         out.new_messages.append({"role": "assistant", "content": content, "tool_calls": [
             {"name": str(n)[:64], "arguments": a} for n, a in (_parse_call(c) for c in calls)]})
@@ -265,7 +350,30 @@ def run_conversation(engine: Engine, cfg: OllamaConfig, history: list[dict[str, 
             out.new_messages.append({"role": "tool", "content": wrapped,
                                      "tool_calls": [{"name": shown_name, "arguments": _jsonable(args), "ok": ok}]})
             out.tools_used.append(shown_name)
-    return out  # pragma: no cover - the loop always returns on its last round
+            yield {"type": "tool", "name": shown_name, "ok": ok}
+
+
+def run_conversation(engine: Engine, cfg: OllamaConfig, history: list[dict[str, Any]], user_text: str) -> LoopResult:
+    """The tool loop without streaming: run it to the end and return the result."""
+    for event in iter_conversation(engine, cfg, history, user_text):
+        if event["type"] == "result":
+            return event["result"]
+    raise OllamaUnavailable("the conversation ended without an answer")  # pragma: no cover
+
+
+def fallback_answer(db: Session, reason: str, min_coverage: float) -> str:
+    """What to say when the model timed out: the deterministic summary of the latest scan, labelled as such."""
+    lead = (f"The local AI model did not answer in time ({reason}). This is Sentinel's built-in summary of your "
+            "latest scan instead. It is generated from stored data without the model, so it does not address "
+            "your question directly.")
+    scan = db.execute(
+        select(Scan).where(Scan.status.notin_(("queued", "running"))).order_by(Scan.id.desc()).limit(1)
+    ).scalar_one_or_none()
+    if scan is None:
+        return f"{lead}\n\nNo finished scan is stored yet. Run a scan from Security Scans, then ask again."
+    summary = summarize_scan(db, scan, min_coverage)
+    return (f"{lead}\n\n{summary['text']}\n\nSource: [scan:{scan.id}]. Ask again for an answer from the model; "
+            "a smaller model or a shorter question answers faster.")
 
 
 def _jsonable(value: Any) -> Any:
@@ -328,6 +436,10 @@ class AssistantReply(BaseModel):
     messages: list[MessageOut]  # everything stored for this turn, in order
     answer: MessageOut
     unverified_citations: list[dict[str, Any]]
+    claim_mismatches: list[dict[str, Any]] = Field(
+        default_factory=list, description="Severity or status the answer stated that differs from the cited record")
+    fallback: bool = Field(False, description="True when the model timed out and the built-in summary was returned")
+    fallback_reason: str | None = None
 
 
 class CheckLine(BaseModel):
@@ -520,9 +632,9 @@ def _history(db: Session, conversation_id: int) -> list[dict[str, Any]]:
     return [{"role": m.role, "content": m.content} for m in reversed(kept)]
 
 
-@router.post("/conversations/{conversation_id}/messages", response_model=AssistantReply)
-def post_message(conversation_id: int, body: MessageIn, auth: AuthContext = Depends(current_auth),
-                 db: Session = Depends(get_db)) -> AssistantReply:
+def _preflight(db: Session, auth: AuthContext, conversation_id: int, body: MessageIn) -> tuple[
+        AssistantConversation, str, OllamaConfig, list[dict[str, Any]]]:
+    """Everything that can be refused before the model is asked: ownership, an empty message, configuration."""
     conv = _own(db, auth, conversation_id)
     text = body.content.strip()
     if not text:
@@ -535,24 +647,34 @@ def post_message(conversation_id: int, body: MessageIn, auth: AuthContext = Depe
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, unavailable_detail(cfg.url_error))
     history = _history(db, conv.id)
     db.commit()  # hold no transaction open while the model thinks
-    try:
-        result = run_conversation(db.get_bind(), cfg, history, text)  # type: ignore[arg-type]
-    except OllamaUnavailable as exc:
-        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, unavailable_detail(str(exc))) from exc
+    return conv, text, cfg, history
 
+
+def _store_turn(db: Session, conversation_id: int, actor: str, text: str, cfg: OllamaConfig, result: LoopResult,
+                fallback_reason: str | None = None) -> AssistantReply:
+    """Check the answer against the database, store the whole turn, and build the reply."""
+    conv = db.get(AssistantConversation, conversation_id)
+    if conv is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No such conversation")
     citations = check_citations(db, result.answer)
     invalid = [c for c in citations if not c["valid"]]
+    mismatches = check_claims(db, result.answer)
     answer = result.answer
     if invalid:
         refs = ", ".join(f"[{c['type']}:{c['id']}]" for c in invalid)
         answer += f"\n\nUnverified references: {refs} (not found in Sentinel's database; treat these claims with care)."
+    if mismatches:
+        notes = "; ".join(f"[{m['type']}:{m['id']}] is stored with {m['claim']} {m['actual']}, not {m['said']}"
+                          for m in mismatches)
+        answer += f"\n\nCorrections from Sentinel's database: {notes}."
 
+    model = None if fallback_reason else cfg.model
     stored: list[AssistantMessage] = [AssistantMessage(conversation_id=conv.id, role="user", content=text)]
     stored += [AssistantMessage(conversation_id=conv.id, role=m["role"], content=m["content"],
                                 tool_calls=m["tool_calls"], model=cfg.model if m["role"] == "assistant" else None)
                for m in result.new_messages]
     final = AssistantMessage(conversation_id=conv.id, role="assistant", content=answer, citations=citations,
-                             model=cfg.model)
+                             model=model)
     stored.append(final)
     for m in stored:
         db.add(m)
@@ -560,13 +682,80 @@ def post_message(conversation_id: int, body: MessageIn, auth: AuthContext = Depe
     conv.updated_at = now()
     if conv.title == DEFAULT_TITLE:
         conv.title = text[:80] + ("..." if len(text) > 80 else "")
-    audit.record(db, auth.actor, "assistant.message", "conversation", conv.id,
+    audit.record(db, actor, "assistant.message", "conversation", conv.id,
                  {"rounds": result.rounds, "tools": result.tools_used[:30], "citations": len(citations),
-                  "unverified_citations": len(invalid), "model": cfg.model})
+                  "unverified_citations": len(invalid), "claim_mismatches": len(mismatches), "model": cfg.model,
+                  "fallback": bool(fallback_reason)})
     db.commit()
     out = [MessageOut.model_validate(m) for m in stored]
     return AssistantReply(conversation_id=conv.id, rounds=result.rounds, messages=out, answer=out[-1],
-                          unverified_citations=invalid)
+                          unverified_citations=invalid, claim_mismatches=mismatches,
+                          fallback=bool(fallback_reason), fallback_reason=fallback_reason)
+
+
+@router.post("/conversations/{conversation_id}/messages", response_model=AssistantReply)
+def post_message(conversation_id: int, body: MessageIn, auth: AuthContext = Depends(current_auth),
+                 db: Session = Depends(get_db), settings: Settings = Depends(settings_dep)) -> AssistantReply:
+    conv, text, cfg, history = _preflight(db, auth, conversation_id, body)
+    reason: str | None = None
+    try:
+        result = run_conversation(db.get_bind(), cfg, history, text)  # type: ignore[arg-type]
+    except OllamaTimeout as exc:
+        reason = str(exc)
+        result = LoopResult(answer=fallback_answer(db, reason, settings.min_score_coverage))
+    except OllamaUnavailable as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, unavailable_detail(str(exc))) from exc
+    return _store_turn(db, conv.id, auth.actor, text, cfg, result, reason)
+
+
+@router.post("/conversations/{conversation_id}/messages/stream")
+def post_message_stream(conversation_id: int, body: MessageIn, auth: AuthContext = Depends(current_auth),
+                        db: Session = Depends(get_db),
+                        settings: Settings = Depends(settings_dep)) -> StreamingResponse:
+    """The same turn as ``/messages``, sent as it happens.
+
+    The response is newline-delimited JSON, one event per line: ``round``, ``delta`` (the next piece of the
+    answer), ``tool`` (a read-only tool ran), ``reset`` (discard the text shown so far), then exactly one of
+    ``done`` (with the stored reply, identical to what ``/messages`` returns) or ``error``. Anything that can
+    be refused up front - a wrong conversation, a disabled assistant - is refused with a normal HTTP status
+    before the stream starts.
+    """
+    conv, text, cfg, history = _preflight(db, auth, conversation_id, body)
+    conv_id, actor, engine, min_coverage = conv.id, auth.actor, db.get_bind(), settings.min_score_coverage
+
+    def events() -> Iterator[str]:
+        def line(event: dict[str, Any]) -> str:
+            return json.dumps(event, default=str) + "\n"
+
+        result: LoopResult | None = None
+        reason: str | None = None
+        try:
+            for event in iter_conversation(engine, cfg, history, text, stream=True):  # type: ignore[arg-type]
+                if event["type"] == "result":
+                    result = event["result"]
+                else:
+                    yield line(event)
+        except OllamaTimeout as exc:
+            reason = str(exc)
+            yield line({"type": "reset"})
+        except OllamaUnavailable as exc:
+            yield line({"type": "error", "detail": unavailable_detail(str(exc))})
+            return
+        # The request's own session may be closed by now; the turn is stored through a fresh one.
+        try:
+            with session_scope() as fresh:
+                if result is None:
+                    result = LoopResult(answer=fallback_answer(fresh, reason or "no answer", min_coverage))
+                reply = _store_turn(fresh, conv_id, actor, text, cfg, result, reason)
+                payload = reply.model_dump(mode="json")
+        except Exception:
+            log.exception("assistant: could not store the streamed turn")
+            yield line({"type": "error", "detail": "The answer could not be saved. Nothing was stored; ask again."})
+            return
+        yield line({"type": "done", "reply": payload})
+
+    return StreamingResponse(events(), media_type="application/x-ndjson",
+                             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
 
 
 # =========================================================================== routes: deterministic, offline

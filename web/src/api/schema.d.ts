@@ -1424,6 +1424,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/assistant/conversations/{conversation_id}/messages/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Message Stream
+         * @description The same turn as ``/messages``, sent as it happens.
+         *
+         *     The response is newline-delimited JSON, one event per line: ``round``, ``delta`` (the next piece of the
+         *     answer), ``tool`` (a read-only tool ran), ``reset`` (discard the text shown so far), then exactly one of
+         *     ``done`` (with the stored reply, identical to what ``/messages`` returns) or ``error``. Anything that can
+         *     be refused up front - a wrong conversation, a disabled assistant - is refused with a normal HTTP status
+         *     before the stream starts.
+         */
+        post: operations["post_message_stream_api_assistant_conversations__conversation_id__messages_stream_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/assistant/summarize-scan/{scan_id}": {
         parameters: {
             query?: never;
@@ -2098,6 +2124,21 @@ export interface components {
             unverified_citations: {
                 [key: string]: unknown;
             }[];
+            /**
+             * Claim Mismatches
+             * @description Severity or status the answer stated that differs from the cited record
+             */
+            claim_mismatches?: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Fallback
+             * @description True when the model timed out and the built-in summary was returned
+             * @default false
+             */
+            fallback: boolean;
+            /** Fallback Reason */
+            fallback_reason?: string | null;
         };
         /** AssistantStatus */
         AssistantStatus: {
@@ -8142,6 +8183,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssistantReply"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_message_stream_api_assistant_conversations__conversation_id__messages_stream_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

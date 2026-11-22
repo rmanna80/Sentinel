@@ -51,3 +51,23 @@ Restore: stop the server, replace `sentinel.db` in the data folder with the back
 - Check the audit chain: `uv run sentinel-server verify-audit`.
 - Agent rejected (401): enroll again from Devices > Enroll a device.
 - Start fresh: stop the server and delete the data folder.
+
+## The AI assistant
+
+- Answers arrive as they are written. If the model stops responding for two minutes, the reply is Sentinel's
+  built-in summary of the latest scan, labelled as such, so a question never ends in a bare error.
+- Every answer is checked before it is stored: cited records must exist, and a severity or status stated
+  about a cited finding or alert must match the record. Mismatches are corrected at the end of the answer.
+- Measure a model before trusting it:
+
+  ```powershell
+  uv run sentinel-server eval-assistant                       # the configured model
+  uv run sentinel-server eval-assistant --model qwen2.5:14b   # compare another installed model
+  uv run sentinel-server eval-assistant --only scope --json eval.json
+  ```
+
+  It asks about thirty questions built from your own database, each with an answer computed in advance
+  (counts, severities, records that must be cited, requests that must be declined, injected instructions that
+  must be ignored), and prints a pass rate by group plus the time per answer. A pass means the expected fact
+  is present and nothing checkable is wrong; it does not grade the writing, so read a few answers in the JSON
+  report as well. Run it after a scan, so there is data to ask about.

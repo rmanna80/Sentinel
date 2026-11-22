@@ -170,7 +170,7 @@ function Thread({ id, ready }: { id: number; ready: boolean }) {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [conv.data?.messages.length, pendingText]);
+  }, [conv.data?.messages.length, pendingText, send.progress.text]);
 
   const submit = (e?: FormEvent) => {
     e?.preventDefault();
@@ -210,9 +210,21 @@ function Thread({ id, ready }: { id: number; ready: boolean }) {
               <div className={classes.msg} data-role="user">
                 <div className={classes.msgBody}>{pendingText}</div>
               </div>
+              {send.progress.text ? (
+                <div className={classes.msg} data-role="assistant">
+                  <div className={classes.msgMeta}>Assistant, writing</div>
+                  <div className={classes.msgBody}>{send.progress.text}</div>
+                </div>
+              ) : null}
               <Group gap="xs" c="dimmed">
                 <Loader size="xs" />
-                <Text size="sm">Reading your data and writing an answer. Local models can take a minute.</Text>
+                <Text size="sm">
+                  {send.progress.text
+                    ? "Writing the answer. References are checked against your data when it finishes."
+                    : send.progress.tools.length
+                      ? `Reading your data (${send.progress.tools.length} lookup${send.progress.tools.length === 1 ? "" : "s"} so far).`
+                      : "Reading your data and writing an answer. Local models can take a minute to start."}
+                </Text>
               </Group>
             </>
           ) : null}

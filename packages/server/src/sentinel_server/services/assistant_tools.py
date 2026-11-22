@@ -651,6 +651,58 @@ def check_citations(db: Session, text: str) -> list[dict[str, Any]]:
     return [{"type": k, "id": i, "valid": citation_exists(db, k, i)} for k, i in extract_citations(text)]
 
 
+# A severity is only read as a claim when the word sits next to "severity" - "high" alone is ordinary prose.
+_SEVERITY_WORDS = "critical|high|medium|low|info|informational"
+_SEVERITY_CLAIM = re.compile(
+    rf"\b({_SEVERITY_WORDS})[- ]severity\b|\bseverity\W{{0,12}}(?:is|of|was|:)?\W{{0,6}}({_SEVERITY_WORDS})\b",
+    re.IGNORECASE)
+_STATUS_WORDS = ("new", "open", "confirmed", "reopened", "acknowledged", "investigating", "in progress",
+                 "resolved", "fixed", "closed",
+                 "false positive", "accepted", "accepted risk", "suppressed")
+_STATUS_CLAIM = re.compile(
+    r"\bstatus\W{0,12}(?:is|of|was|:)?\W{0,6}(" + "|".join(_STATUS_WORDS) + r")\b"
+    r"|\b(?:is|was|been|marked(?: as)?)\s+(resolved|fixed|closed|acknowledged)\b", re.IGNORECASE)
+_STATUS_ALIASES = {"fixed": "resolved", "in progress": "in_progress", "false positive": "false_positive",
+                   "accepted risk": "accepted_risk", "informational": "info"}
+
+
+def _canonical(word: str) -> str:
+    word = " ".join(word.lower().split())
+    return _STATUS_ALIASES.get(word, word.replace(" ", "_"))
+
+
+def check_claims(db: Session, text: str) -> list[dict[str, Any]]:
+    """Compare what an answer says about a cited finding or alert with what is stored.
+
+    ``check_citations`` proves a cited record exists; this checks the sentence around it. It is deliberately
+    narrow, because a wrong correction is worse than none: a line is only examined when it cites exactly one
+    finding or alert, and only an explicit "<word> severity" / "severity: <word>" / "status is <word>" phrase
+    counts as a claim. A mismatch means the model stated a severity or status the record does not have.
+    """
+    out: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+    for line in re.split(r"\n+|(?<=[.!?])\s+(?=[A-Z\[])", text):
+        cited = [(k, i) for k, i in extract_citations(line) if k in ("finding", "alert") and i.isdigit() and len(i) <= 18]
+        if len(cited) != 1:
+            continue
+        kind, ident = cited[0]
+        record = db.get(FindingRecord if kind == "finding" else Alert, int(ident))
+        if record is None:
+            continue
+        claims = [("severity", m.group(1) or m.group(2)) for m in _SEVERITY_CLAIM.finditer(line)]
+        claims += [("status", m.group(1) or m.group(2)) for m in _STATUS_CLAIM.finditer(line)]
+        for field, said in claims:
+            actual = str(getattr(record, field) or "").lower()
+            if field == "status" and _canonical(said) in ("open", "closed"):
+                continue  # everyday words, not one of the stored status values
+            key = (kind, ident, field)
+            if not actual or _canonical(said) == actual or key in seen:
+                continue
+            seen.add(key)
+            out.append({"type": kind, "id": ident, "claim": field, "said": said.lower(), "actual": actual})
+    return out
+
+
 # =========================================================================== CVSS (deterministic, no scoring)
 
 
@@ -1025,7 +1077,7 @@ def explain_finding(db: Session, f: FindingRecord) -> dict[str, Any]:
 
 
 __all__ = [
-    "MAX_RESULT_CHARS", "SCORE_FORMULA", "TOOLS", "check_citations", "explain_cvss_vector", "explain_finding",
-    "extract_citations", "latest_posture_scan", "ollama_tool_definitions", "read_only_session", "run_tool",
-    "summarize_scan", "wrap_tool_result",
+    "MAX_RESULT_CHARS", "SCORE_FORMULA", "TOOLS", "check_citations", "check_claims", "explain_cvss_vector",
+    "explain_finding", "extract_citations", "latest_posture_scan", "ollama_tool_definitions", "read_only_session",
+    "run_tool", "summarize_scan", "wrap_tool_result",
 ]

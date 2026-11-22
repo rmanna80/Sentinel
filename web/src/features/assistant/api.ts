@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../api/client";
+import { useState } from "react";
+import { api, ApiError, apiStream } from "../../api/client";
 import type {
   AssistantReply,
   AssistantStatus,
@@ -57,16 +58,51 @@ export function useDeleteConversation() {
   });
 }
 
+/** What the assistant is doing right now, shown while an answer is still arriving. */
+export interface StreamProgress {
+  /** The answer so far. Empty while the model is still reading data. */
+  text: string;
+  /** Read-only tools the model has run for this answer, in order. */
+  tools: string[];
+}
+
+export const EMPTY_PROGRESS: StreamProgress = { text: "", tools: [] };
+
+/** Fold one server event into the progress shown on screen. Exported so the rules can be tested alone. */
+export function applyStreamEvent(progress: StreamProgress, event: unknown): StreamProgress {
+  if (typeof event !== "object" || event === null) return progress;
+  const e = event as { type?: unknown; text?: unknown; name?: unknown };
+  if (e.type === "delta" && typeof e.text === "string") return { ...progress, text: progress.text + e.text };
+  if (e.type === "reset") return { ...progress, text: "" }; // the model was thinking aloud before using a tool
+  if (e.type === "tool" && typeof e.name === "string") return { ...progress, tools: [...progress.tools, e.name] };
+  return progress;
+}
+
 export function useSendMessage(conversationId: number) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (content: string) =>
-      api.post<AssistantReply>(`/api/assistant/conversations/${conversationId}/messages`, { content }),
+  const [progress, setProgress] = useState<StreamProgress>(EMPTY_PROGRESS);
+  const mutation = useMutation({
+    mutationFn: async (content: string) => {
+      setProgress(EMPTY_PROGRESS);
+      let reply: AssistantReply | null = null;
+      let failure: string | null = null;
+      await apiStream(`/api/assistant/conversations/${conversationId}/messages/stream`, { content }, (event) => {
+        const e = event as { type?: unknown; reply?: unknown; detail?: unknown };
+        if (e.type === "done") reply = e.reply as AssistantReply;
+        else if (e.type === "error") failure = typeof e.detail === "string" ? e.detail : "The assistant failed.";
+        else setProgress((p) => applyStreamEvent(p, event));
+      });
+      if (failure !== null) throw new ApiError(503, failure);
+      if (reply === null) throw new ApiError(0, "The answer stopped before it was complete. Ask again.");
+      return reply as AssistantReply;
+    },
     onSettled: () => {
+      setProgress(EMPTY_PROGRESS);
       void qc.invalidateQueries({ queryKey: assistantKeys.conversation(conversationId) });
       void qc.invalidateQueries({ queryKey: assistantKeys.conversations });
     },
   });
+  return { ...mutation, progress };
 }
 
 export function useSummarizeScan() {

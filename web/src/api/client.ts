@@ -149,6 +149,80 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
+/**
+ * Split newline-delimited JSON as it arrives. Network chunks end anywhere, so a line is only parsed once its
+ * newline has been seen; `flush` handles a final line the server did not terminate.
+ */
+export class NdjsonParser {
+  private buffer = "";
+
+  push(chunk: string): unknown[] {
+    this.buffer += chunk;
+    const lines = this.buffer.split("\n");
+    this.buffer = lines.pop() ?? "";
+    return lines.flatMap(NdjsonParser.parse);
+  }
+
+  flush(): unknown[] {
+    const rest = this.buffer;
+    this.buffer = "";
+    return NdjsonParser.parse(rest);
+  }
+
+  private static parse(line: string): unknown[] {
+    const text = line.trim();
+    if (!text) return [];
+    try {
+      return [JSON.parse(text)];
+    } catch {
+      return []; // a damaged line is dropped; the events around it still arrive
+    }
+  }
+}
+
+/**
+ * POST a request whose answer is a stream of newline-delimited JSON events, calling `onEvent` for each as it
+ * arrives. Refusals before the stream starts (4xx/5xx) become ApiError exactly as with `apiRequest`.
+ */
+export async function apiStream(
+  path: string,
+  body: unknown,
+  onEvent: (event: unknown) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const headers: Record<string, string> = { Accept: "application/x-ndjson", "Content-Type": "application/json" };
+  if (csrfToken) headers[CSRF_HEADER] = csrfToken;
+  let res: Response;
+  try {
+    res = await fetch(path, { method: "POST", headers, body: JSON.stringify(body), credentials: "same-origin", signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") throw err;
+    throw new ApiError(0, "Can't reach the Sentinel server. Check that it is running, then try again.");
+  }
+  if (res.status === 401) unauthorizedHandler?.();
+  if (!res.ok) throw await readError(res);
+  const parser = new NdjsonParser();
+  if (!res.body) {
+    parser.push(await res.text()).forEach(onEvent);
+    parser.flush().forEach(onEvent);
+    return;
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      parser.push(decoder.decode(value, { stream: true })).forEach(onEvent);
+    }
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") throw err;
+    throw new ApiError(0, "The connection to the Sentinel server dropped while the answer was arriving.");
+  }
+  parser.push(decoder.decode()).forEach(onEvent);
+  parser.flush().forEach(onEvent);
+}
+
 export const api = {
   get: <T>(path: string, query?: Query, signal?: AbortSignal) => apiRequest<T>(path, { query, signal }),
   post: <T>(path: string, body?: unknown, extra?: Omit<RequestOptions, "method" | "body">) =>
