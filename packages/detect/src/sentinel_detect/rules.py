@@ -398,7 +398,8 @@ def _basename_reg(path: str | None) -> str:
 
 def default_rules() -> list[Rule]:
     """The rules the engine runs by default. Order is irrelevant; each keeps its own state."""
-    from .rules_tradecraft import tradecraft_rules  # imported here: that module builds on this one
+    from .rules_linux import linux_rules  # imported here: these modules build on this one
+    from .rules_tradecraft import tradecraft_rules
 
     return [
         OfficeSpawnsInterpreter(),
@@ -406,4 +407,5 @@ def default_rules() -> list[Rule]:
         DefenseTamper(),
         SuspiciousExecChain(),
         *tradecraft_rules(),
+        *linux_rules(),
     ]

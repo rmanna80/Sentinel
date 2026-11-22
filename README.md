@@ -189,6 +189,12 @@ used to download or run code (certutil, mshta, bitsadmin, rundll32, regsvr32), r
 backups or recovery destroyed, and bulk file encryption. The collector reads Sysmon events 1, 3, 5, 7, 8, 10,
 11, 13, 19-23 and 26; a rule only fires if your Sysmon configuration logs the event it needs.
 
+**Linux.** On Linux the same engine reads kernel audit records instead of Sysmon, with rules for reverse
+shells and download-and-run, programs run from temporary folders, a web server starting a shell, files written
+to persistence locations (cron, systemd units, SSH keys, `ld.so.preload`), and logging or firewalls being
+switched off. It needs audit rules loaded once as root; see
+[docs/operations.md](docs/operations.md#behavioural-detection-on-linux).
+
 **Sigma rules.** Sentinel X can also run community [Sigma](https://github.com/SigmaHQ/sigma) rules:
 
 ```powershell
@@ -222,10 +228,13 @@ The design and reasoning are written up chapter by chapter in
 
 ## Future work
 
-- Mutual TLS so the Pi's agent can report to the Windows server.
+- Mutual TLS so the Pi's agent can report to the Windows server. This is a design change, not a feature
+  flag: today the server refuses to listen on anything but 127.0.0.1, and that guarantee is what most of the
+  security model rests on.
 - macOS adapter (FileVault, Gatekeeper, SIP, firewall, softwareupdate).
 - Configurable detection thresholds; Sigma aggregation and correlation rules.
-- Signed releases and a Windows installer; the agent as a Windows service.
+- A Windows installer, and the agent as a Windows service (releases are already signed; see
+  [docs/operations.md](docs/operations.md#releases)).
 - Android companion app for device settings exposed through public APIs.
 
 ## License

@@ -22,6 +22,7 @@ from sentinel_core.models import (
     DataMode,
     HostInfo,
     MetricSample,
+    Platform,
     ScanStatus,
     ScanType,
     utcnow,
@@ -226,7 +227,7 @@ def _metrics() -> list[MetricSample]:
     return samples
 
 
-def _detection_engine(config: AgentConfig, extra_sigma: list[str] | None = None) -> Any:
+def _detection_engine(config: AgentConfig, extra_sigma: list[str] | None = None, product: str | None = None) -> Any:
     """The Sentinel X engine: built-in rules, plus Sigma rules from the configured folders when there are any."""
     from sentinel_detect import Engine
 
@@ -235,22 +236,32 @@ def _detection_engine(config: AgentConfig, extra_sigma: list[str] | None = None)
         return Engine()
     from sentinel_detect.sigma import engine_with_sigma, level_from_name
 
-    engine, imported = engine_with_sigma(paths, level_from_name(config.sigma_min_level))
+    product = product or ("windows" if sys.platform == "win32" else "linux")
+    engine, imported = engine_with_sigma(paths, level_from_name(config.sigma_min_level), product)
     log.info("Sigma: %d rules imported from %d folder(s), %d skipped (run `sentinel-sigma` for the reasons)",
              len(imported.rules), len(paths), len(imported.skipped))
     return engine
 
 
-def _telemetry_step(client: Any, engine: Any, host: HostInfo, config: AgentConfig) -> None:
-    """One Sentinel X cycle inside the run loop: read Sysmon, correlate, ship detections. Never fatal."""
-    from .telemetry.collector import CollectorError, SysmonCollector
-    from .telemetry.pump import run_cycle
+def _live_collector(host: HostInfo, config: AgentConfig, audit_state: Any = None) -> tuple[Any, StagedState]:
+    """The telemetry source for this machine: Sysmon on Windows, the kernel audit journal on Linux."""
+    from .telemetry.collector import AuditdCollector, SysmonCollector
 
-    runner = SafeCommandRunner(SysmonCollector.commands, cancelled=lambda: False)
+    kind = AuditdCollector if host.os_family is Platform.LINUX else SysmonCollector
+    runner = SafeCommandRunner(kind.commands, cancelled=lambda: False)
     state = StagedState(FileState())
     ctx = LiveContext(host, runner, state, config.as_mapping(), lambda: False, None, None)
+    return (AuditdCollector(ctx, audit_state) if kind is AuditdCollector else SysmonCollector(ctx)), state
+
+
+def _telemetry_step(client: Any, engine: Any, host: HostInfo, config: AgentConfig, audit_state: Any = None) -> None:
+    """One Sentinel X cycle inside the run loop: read telemetry, correlate, ship detections. Never fatal."""
+    from .telemetry.collector import CollectorError
+    from .telemetry.pump import run_cycle
+
+    collector, state = _live_collector(host, config, audit_state)
     try:
-        detections = run_cycle(SysmonCollector(ctx), engine, client)
+        detections = run_cycle(collector, engine, client)
         state.commit()  # advance the telemetry cursor only after a clean cycle
         if detections:
             log.info("shipped %d behavioural detection(s)", len(detections))
@@ -303,9 +314,14 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
     log.info("agent %s polling %s (%s)", __version__, config.server_url, "elevated" if host.is_elevated else "standard")
     telemetry_on = (args.telemetry or config.telemetry_enabled) and not args.fixtures and not args.elevated
     engine = None
+    audit_state = None
     if telemetry_on:
-        engine = _detection_engine(config)
-        log.info("Sentinel X telemetry enabled (reading Sysmon, shipping behavioural detections)")
+        from .telemetry.auditd import AuditState
+
+        engine = _detection_engine(config, product=host.os_family.value)
+        audit_state = AuditState()  # which process each PID currently is; must outlive a single cycle
+        source = "the kernel audit journal" if host.os_family is Platform.LINUX else "Sysmon"
+        log.info("Sentinel X telemetry enabled (reading %s, shipping behavioural detections)", source)
     last_metrics = 0.0
     last_telemetry = 0.0
     idle_deadline = time.monotonic() + args.idle_exit if args.idle_exit else None
@@ -317,7 +333,7 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
                 client.send_metrics(_metrics())
             if engine is not None and time.monotonic() - last_telemetry >= max(config.poll_interval_seconds, 15.0):
                 last_telemetry = time.monotonic()
-                _telemetry_step(client, engine, host, config)
+                _telemetry_step(client, engine, host, config, audit_state)
             job = client.next_job(elevated=args.elevated)
             job_host, job_factory = host, factory
             if job is None and demo_elevated is not None and not args.elevated:
@@ -362,26 +378,28 @@ def cmd_telemetry(args: argparse.Namespace, registry: CheckRegistry) -> int:
     """Run Sentinel X behavioural detection over Sysmon telemetry (live, or a saved export)."""
     from sentinel_detect.replay import _format
 
-    from .telemetry.collector import CollectorError, ExportCollector, SysmonCollector
+    from .telemetry.collector import AuditExportCollector, CollectorError, ExportCollector
 
+    product = None
     try:
         if args.export:
-            events = ExportCollector(args.export).collect()
+            linux_export = str(args.export).lower().endswith(".log")  # audit.log; Sysmon exports are XML
+            product = "linux" if linux_export else "windows"
+            events = (AuditExportCollector(args.export) if linux_export else ExportCollector(args.export)).collect()
             source = f"export {args.export}"
         else:
             config = AgentConfig.load()
             host = current_host()
-            runner = SafeCommandRunner(SysmonCollector.commands, cancelled=lambda: False)
-            state = StagedState(FileState())
-            ctx = LiveContext(host, runner, state, config.as_mapping(), lambda: False, None, None)
-            events = SysmonCollector(ctx).collect()
+            product = host.os_family.value
+            collector, state = _live_collector(host, config)
+            events = collector.collect()
             state.commit()  # advance the cursor only after a clean read
-            source = f"live Sysmon log on {host.hostname}"
+            source = f"live {'audit journal' if host.os_family is Platform.LINUX else 'Sysmon log'} on {host.hostname}"
     except CollectorError as exc:
         print(f"Telemetry unavailable: {exc}", file=sys.stderr)
         return 2
 
-    detections = _detection_engine(AgentConfig.load(), args.sigma).feed_stream(events)
+    detections = _detection_engine(AgentConfig.load(), args.sigma, product).feed_stream(events)
     if args.json:
         print(json.dumps({"source": source, "events": len(events),
                           "detections": [d.model_dump(mode="json") for d in detections]}, indent=2, default=str))
@@ -454,8 +472,9 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--elevated", action="store_true", help="only take elevated scans (admin shell)")
     r.add_argument("--fixtures", metavar="FILE", help="DEMO MODE: answer jobs from a fixture file")
     r.add_argument("--idle-exit", type=float, default=0, help="exit after this many idle seconds")
-    t = sub.add_parser("telemetry", help="run Sentinel X behavioural detection over Sysmon telemetry")
-    t.add_argument("--export", metavar="FILE", help="analyze a saved Sysmon log export (XML) instead of the live log")
+    t = sub.add_parser("telemetry", help="run Sentinel X behavioural detection over Sysmon or Linux audit telemetry")
+    t.add_argument("--export", metavar="FILE",
+                   help="analyze a saved export instead of the live log: a Sysmon XML export, or a Linux audit.log")
     t.add_argument("--json", action="store_true")
     t.add_argument("--sigma", metavar="DIR", action="append", help="also run the Sigma rules in this folder")
     sub.add_parser("status", help="show agent configuration")

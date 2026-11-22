@@ -9,7 +9,9 @@ What is supported, deliberately stated because a detection you only think you ha
 
 * **Log sources** - Windows rules whose ``category`` is one our Sysmon collector produces (process creation,
   network connection, registry set, file create/delete, image load, process access, remote thread, DNS query,
-  WMI). Rules for other products, or for Windows channels we do not collect, are skipped.
+  WMI), and Linux rules for the categories the audit collector produces (process creation, network
+  connection, file events). One product is imported at a time: the one the machine runs. Rules for other
+  products, or for log channels we do not collect, are skipped.
 * **Fields** - the Sysmon field names listed in ``FIELDS``. A rule that tests a field we do not capture is
   skipped whole, because evaluating it would silently never match.
 * **Matching** - plain values with ``*``/``?`` wildcards, lists (any-of), and the modifiers ``contains``,
@@ -426,18 +428,25 @@ class SigmaRule:
     source: str = ""
 
 
-def parse_sigma_rule(document: dict[str, Any], source: str = "") -> SigmaRule:
-    """Compile one parsed Sigma document. Raises :class:`SigmaUnsupported` with the reason when it cannot."""
+# What each product's collector can produce. A category outside this set is skipped for that product.
+PRODUCT_CATEGORIES: dict[str, frozenset[str]] = {
+    "windows": frozenset(CATEGORIES),
+    "linux": frozenset({"process_creation", "network_connection", "file_event", "file_delete"}),
+}
+
+
+def parse_sigma_rule(document: dict[str, Any], source: str = "", product: str = "windows") -> SigmaRule:
+    """Compile one parsed Sigma document for ``product``. Raises :class:`SigmaUnsupported` with the reason."""
     if not isinstance(document, dict) or "detection" not in document:
         raise SigmaUnsupported("not a detection rule")
     if document.get("correlation") or "action" in document:
         raise SigmaUnsupported("correlation and multi-part rules are not supported")
     logsource = document.get("logsource") or {}
-    product = str(logsource.get("product") or "windows").lower()
-    if product != "windows":
-        raise SigmaUnsupported(f"product '{product}' is not collected")
+    rule_product = str(logsource.get("product") or product).lower()
+    if rule_product != product:
+        raise SigmaUnsupported(f"product '{rule_product}' is not collected")
     category = str(logsource.get("category") or "").lower()
-    if category not in CATEGORIES:
+    if category not in PRODUCT_CATEGORIES.get(product, frozenset()):
         described = category or f"service '{logsource.get('service')}'"
         raise SigmaUnsupported(f"log source {described} is not collected")
 
@@ -489,7 +498,8 @@ class SigmaImport:
         return dict(sorted(counts.items(), key=lambda kv: -kv[1]))
 
 
-def load_sigma_rules(paths: Iterable[str | Path], min_level: Severity = Severity.MEDIUM) -> SigmaImport:
+def load_sigma_rules(paths: Iterable[str | Path], min_level: Severity = Severity.MEDIUM,
+                     product: str = "windows") -> SigmaImport:
     """Import every ``.yml``/``.yaml`` file under ``paths``. Nothing here raises for a bad rule; it is recorded.
 
     Rules below ``min_level`` are skipped by default: Sigma's ``low`` and ``informational`` rules describe
@@ -508,7 +518,7 @@ def load_sigma_rules(paths: Iterable[str | Path], min_level: Severity = Severity
                 documents = [d for d in yaml.safe_load_all(file.read_text(encoding="utf-8")) if d]
                 if len(documents) != 1:
                     raise SigmaUnsupported("correlation and multi-part rules are not supported")
-                rule = parse_sigma_rule(documents[0], source=name)
+                rule = parse_sigma_rule(documents[0], source=name, product=product)
                 if SEVERITY_RANK[rule.severity] < SEVERITY_RANK[min_level]:
                     raise SigmaUnsupported(f"level '{rule.severity.value}' is below the import threshold")
                 if rule.rule_id in seen:
@@ -564,9 +574,10 @@ class SigmaRuleSet(Rule):
         return detection.model_copy(update={"rule_id": rule.rule_id, "title": rule.title})
 
 
-def sigma_ruleset(paths: Iterable[str | Path], min_level: Severity = Severity.MEDIUM) -> tuple[SigmaRuleSet, SigmaImport]:
+def sigma_ruleset(paths: Iterable[str | Path], min_level: Severity = Severity.MEDIUM,
+                  product: str = "windows") -> tuple[SigmaRuleSet, SigmaImport]:
     """Convenience for callers that want an engine rule plus the import report."""
-    imported = load_sigma_rules(paths, min_level)
+    imported = load_sigma_rules(paths, min_level, product)
     return SigmaRuleSet(imported.rules), imported
 
 
@@ -574,7 +585,8 @@ def level_from_name(name: str | None, default: Severity = Severity.HIGH) -> Seve
     return _LEVELS.get(str(name or "").lower(), default)
 
 
-def engine_with_sigma(paths: Iterable[str | Path], min_level: Severity = Severity.HIGH) -> tuple[Engine, SigmaImport]:
+def engine_with_sigma(paths: Iterable[str | Path], min_level: Severity = Severity.HIGH,
+                      product: str = "windows") -> tuple[Engine, SigmaImport]:
     """An engine running the built-in rules plus every importable Sigma rule under ``paths``.
 
     The default threshold here is ``high``: measured against the lab's benign scenarios, Sigma's ``medium``
@@ -582,7 +594,7 @@ def engine_with_sigma(paths: Iterable[str | Path], min_level: Severity = Severit
     """
     from .rules import default_rules
 
-    imported = load_sigma_rules(paths, min_level)
+    imported = load_sigma_rules(paths, min_level, product)
     rules = default_rules()
     if imported.rules:
         rules.append(SigmaRuleSet(imported.rules))
@@ -597,9 +609,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("paths", nargs="+", type=Path, help="Sigma rule files or folders")
     parser.add_argument("--min-level", default="medium", choices=list(_LEVELS), help="lowest level to import")
     parser.add_argument("--list-skipped", action="store_true", help="print every skipped file with its reason")
+    parser.add_argument("--product", default="windows", choices=sorted(PRODUCT_CATEGORIES),
+                        help="which operating system's rules to import (default: windows)")
     args = parser.parse_args(argv)
 
-    imported = load_sigma_rules(args.paths, _LEVELS[args.min_level])
+    imported = load_sigma_rules(args.paths, _LEVELS[args.min_level], args.product)
     total = len(imported.rules) + len(imported.skipped)
     print(f"{len(imported.rules)} of {total} rule files imported.")
     by_kind: dict[str, int] = {}

@@ -106,10 +106,12 @@ def _legit_autorun() -> Scenario:
 
 
 def default_corpus() -> list[Scenario]:
-    from .corpus_tradecraft import tradecraft_corpus  # imported here: that module shares this one's helpers
+    from .corpus_linux import linux_corpus  # imported here: these modules share this one's helpers
+    from .corpus_tradecraft import tradecraft_corpus
 
     return [
         _macro_to_shell(), _exec_chain(), _defender_disabled(), _autorun_from_temp(),
         _admin_powershell(), _dev_build(), _browser_download(), _legit_autorun(),
         *tradecraft_corpus(),
+        *linux_corpus(),
     ]

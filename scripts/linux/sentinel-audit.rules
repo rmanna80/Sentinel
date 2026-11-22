@@ -1,0 +1,34 @@
+# Sentinel X - Linux audit rules.
+#
+# These tell the kernel to record the events Sentinel's behavioural detection reads: every program that
+# starts, every outbound connection, and changes to the places attackers use to persist. They only record;
+# nothing is blocked. Install once (needs root), then the unprivileged agent reads the records from the journal:
+#
+#   sudo apt install auditd
+#   sudo cp scripts/linux/sentinel-audit.rules /etc/audit/rules.d/sentinel.rules
+#   sudo augenrules --load
+#   sudo auditctl -l            # the rules below should be listed
+#
+# On a 32-bit ARM system (older Raspberry Pi OS) change arch=b64 to arch=b32 and remove the duplicate lines.
+
+# Every program execution.
+-a always,exit -F arch=b64 -S execve,execveat -k sentinel_exec
+-a always,exit -F arch=b32 -S execve,execveat -k sentinel_exec
+
+# Outbound connections that succeeded or are in progress. Loopback and local sockets are filtered by the rules
+# engine, not here.
+-a always,exit -F arch=b64 -S connect -F success=1 -k sentinel_net
+-a always,exit -F arch=b64 -S connect -F exit=-EINPROGRESS -k sentinel_net
+
+# Persistence locations: scheduled jobs, services, startup scripts, SSH keys, the dynamic loader.
+-w /etc/cron.d/ -p wa -k sentinel_persist
+-w /etc/cron.daily/ -p wa -k sentinel_persist
+-w /etc/cron.hourly/ -p wa -k sentinel_persist
+-w /etc/crontab -p wa -k sentinel_persist
+-w /var/spool/cron/ -p wa -k sentinel_persist
+-w /etc/systemd/system/ -p wa -k sentinel_persist
+-w /usr/lib/systemd/system/ -p wa -k sentinel_persist
+-w /etc/rc.local -p wa -k sentinel_persist
+-w /etc/ld.so.preload -p wa -k sentinel_persist
+-w /etc/profile.d/ -p wa -k sentinel_persist
+-w /root/.ssh/ -p wa -k sentinel_persist

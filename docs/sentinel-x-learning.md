@@ -18,7 +18,9 @@ we are and why each piece exists.
 - **Chapter 4 — The measurement lab (done).** Scoring the engine against documented attacks: true/false
   positives, technique coverage, detection latency, and overhead.
 - **Chapter 5 — Breadth, and evidence you did not write (done).** Seven tradecraft rules, eight more Sysmon
-  event types, Sigma rule import, and replaying recordings made by other people. ← *you are here*
+  event types, Sigma rule import, and replaying recordings made by other people.
+- **Chapter 6 — A second operating system (done).** The same engine reading Linux kernel audit records.
+  ← *you are here*
 
 ---
 
@@ -694,3 +696,58 @@ machine's Sysmon log, where every detection is a false positive or something you
    skipping the rule better than running it? (Lesson 23.)
 3. The regression run says 100%. The dataset replay says 7.2%. Both are true. What does each one measure?
    (Lesson 24.)
+
+---
+
+## Chapter 6 — A second operating system
+
+The engine was written against a schema, not against Windows. This chapter is the test of that claim: a Linux
+collector feeding the same engine, with no change to the engine at all.
+
+### Lesson 25: The same shape from a different source
+
+`telemetry/auditd.py` does for Linux what `telemetry/sysmon.py` does for Windows. The kernel audit subsystem
+describes one event as several records that share a serial number: a `SYSCALL` record for who did it, an
+`EXECVE` record for the arguments, a `SOCKADDR` for where a connection went, `PATH` records for the files
+touched. The collector groups them and emits the same `TelemetryEvent` the Sysmon collector does.
+
+Three things had to be solved in the collector so the rules would not have to know:
+
+- **No process GUID.** Linux reuses PIDs and offers nothing like Sysmon's ProcessGuid, so a process is named
+  `lx:<pid>:<serial of its exec>`. An `AuditState` object remembers which name each live PID has, and it is
+  kept across batches, because a child is often logged in a later batch than its parent.
+- **Hex-encoded text.** A value containing a space arrives as bare hexadecimal. `a2="-c"` is text;
+  `a2=6375726C...` is the same kind of thing, encoded. Only unquoted values are decoded.
+- **Syscall numbers differ by architecture.** `connect` is 42 on x86-64 and 203 on a Raspberry Pi. Process
+  creation is recognised by the presence of an `EXECVE` record instead, which is the same everywhere.
+
+> **Q:** The Linux rules live in the same engine as the Windows ones. Why don't they fire on each other's
+> events?
+>
+> **A:** Nothing stops them except what they look for. Windows rules match `powershell.exe` and registry
+> paths; Linux rules match `/usr/bin/bash` and `/etc/cron.d/`. A test (`test_windows_and_linux_rules_do_not_cross_fire`)
+> runs every scenario in the corpus and fails if a rule ever fires on the other platform's scenario.
+
+### Lesson 26: A false positive the lab caught before you did
+
+The first version of the "defences disabled" rule looked for `history -c` anywhere in a command line. The
+benign scenario written beside it included `git commit -m 'history -c fix'`, and the lab reported 95%
+precision. The fix was not a cleverer pattern. It was asking *which program can perform this action*:
+`history -c` is a shell built-in, so it only counts inside a shell's command line; `ufw disable` only counts
+when the program is `ufw` or a shell. Each pattern in `rules_linux.py` now carries the programs it applies to.
+The same thing happened with `/etc/cron.d.bak/` matching a pattern meant for `/etc/cron.d/`.
+
+Both were found by a benign case written *before* the rule was trusted. That is the habit to keep.
+
+### What has not been proven
+
+Everything in this chapter was tested against recorded and synthetic audit records, including both shapes
+the journal stores them in. It has not been run against a live Linux machine. The first thing to do on the
+Raspberry Pi is `sentinel-agent telemetry`, and to compare what it prints with `journalctl _TRANSPORT=audit`.
+
+### Check your understanding
+
+1. Why does `AuditState` have to outlive a single call to the collector? (Lesson 25.)
+2. A rule for `systemctl stop auditd` fires on `grep -r "systemctl stop auditd" /etc`. What is the general
+   fix, and where is it implemented? (Lesson 26.)
+

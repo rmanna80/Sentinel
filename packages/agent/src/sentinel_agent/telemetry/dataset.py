@@ -4,7 +4,8 @@ Three formats cover what you will meet in practice:
 
 * ``.jsonl`` - Sentinel X's own stream format (one :class:`TelemetryEvent` per line);
 * ``.xml`` - a Sysmon log exported from a Windows machine with ``wevtutil qe`` or ``Get-WinEvent``;
-* ``.json`` - EVTX converted to JSON, which is how public attack datasets are usually published.
+* ``.json`` - EVTX converted to JSON, which is how public attack datasets are usually published;
+* ``.log`` - a Linux ``audit.log`` (or ``ausearch --raw`` output).
 
 Binary ``.evtx`` files are not read directly; convert them first (``evtx_dump --format json`` from the
 `evtx <https://github.com/omerbenamram/evtx>`_ project, or ``wevtutil qe file.evtx /lf:true /f:xml``).
@@ -16,9 +17,10 @@ from pathlib import Path
 
 from sentinel_core.telemetry import TelemetryEvent
 
+from .auditd import parse_audit_log
 from .sysmon import parse_evtx_json, parse_sysmon_log
 
-SUFFIXES = (".jsonl", ".xml", ".json")
+SUFFIXES = (".jsonl", ".xml", ".json", ".log")
 
 
 def load_recording(path: str | Path) -> list[TelemetryEvent]:
@@ -34,6 +36,8 @@ def load_recording(path: str | Path) -> list[TelemetryEvent]:
         return parse_sysmon_log(text)
     if suffix == ".json":
         return parse_evtx_json(text)
+    if suffix == ".log":
+        return parse_audit_log(text)
     from sentinel_detect.replay import load_stream
 
     return load_stream(file)

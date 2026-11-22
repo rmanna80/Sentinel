@@ -72,6 +72,47 @@ To build the same zip by hand: `scripts/build-web.sh`, then `scripts/package-rel
 - Agent rejected (401): enroll again from Devices > Enroll a device.
 - Start fresh: stop the server and delete the data folder.
 
+## Behavioural detection on Linux
+
+Sentinel X on Linux reads the kernel's audit records. Three things have to be true, and each can be checked:
+
+1. **The audit rules are loaded** (once, as root). They only record; nothing is blocked.
+
+   ```bash
+   sudo apt install auditd
+   sudo cp scripts/linux/sentinel-audit.rules /etc/audit/rules.d/sentinel.rules
+   sudo augenrules --load
+   sudo auditctl -l | grep sentinel        # the rules should be listed
+   ```
+
+2. **The records reach the journal**, where the unprivileged agent can read them.
+
+   ```bash
+   journalctl _TRANSPORT=audit -n 5        # should print recent audit records
+   ```
+
+   If that prints nothing, turn on the journal's audit input and try again:
+
+   ```bash
+   sudo systemctl enable --now systemd-journald-audit.socket && sudo systemctl restart systemd-journald
+   ```
+
+3. **The agent's account can read the journal**: `sudo usermod -aG systemd-journal "$USER"`, then sign in again.
+
+Then:
+
+```bash
+uv run sentinel-agent telemetry              # read what is there now and print any detections
+uv run sentinel-agent run --telemetry        # keep reading and send detections to the server
+```
+
+If the journal route does not work on your distribution, a saved log can still be analysed:
+`sudo cat /var/log/audit/audit.log > audit.log`, then `uv run sentinel-agent telemetry --export audit.log`.
+
+What to expect: execve auditing is busy on a machine that builds software, and the "program run from a
+temporary folder" rule is low confidence on purpose. Use `scripts/replay_dataset.py audit.log --label benign`
+on a day of your own log to see the false positives per day before you rely on it.
+
 ## The AI assistant
 
 - Answers arrive as they are written. If the model stops responding for two minutes, the reply is Sentinel's
