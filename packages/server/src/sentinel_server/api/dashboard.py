@@ -121,7 +121,7 @@ def overview(device_id: int | None = None, days: int = Query(30, ge=1, le=365),
     for s in db.execute(select(Scan).where(Scan.device_id.in_(ids), Scan.completed_at.is_not(None))
                         .order_by(Scan.completed_at.desc()).limit(5)).scalars():
         sev = "info" if s.status == "completed" else "medium"
-        recent.append(RecentEvent(kind="scan", ts=s.completed_at, severity=sev,  # type: ignore[arg-type]
+        recent.append(RecentEvent(kind="scan", ts=s.completed_at, severity=sev,
                                   title=f"{s.scan_type.title()} scan {s.status}", device_id=s.device_id,
                                   link=f"/scans/{s.id}"))
     recent.sort(key=lambda r: r.ts, reverse=True)

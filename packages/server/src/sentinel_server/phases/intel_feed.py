@@ -239,8 +239,8 @@ def list_advisories(status_filter: str | None = Query(None, alias="status"), mat
         like = f"%{q}%"
         stmt = stmt.where(or_(Advisory.title.ilike(like), Advisory.summary.ilike(like)))
     total = db.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
-    order = [Advisory.matched.desc(), Advisory.published_at.desc().nulls_last()]
-    items = db.execute(stmt.order_by(*order).limit(limit).offset(offset)).scalars().all()
+    ordered = stmt.order_by(Advisory.matched.desc(), Advisory.published_at.desc().nulls_last())
+    items = db.execute(ordered.limit(limit).offset(offset)).scalars().all()
     return {"items": items, "total": total}
 
 

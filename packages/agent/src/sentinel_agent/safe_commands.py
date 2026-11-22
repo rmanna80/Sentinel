@@ -81,7 +81,7 @@ class SafeCommandRunner:
         argv = [exe, *spec.render(params)]
         creationflags = 0
         if sys.platform == "win32":
-            creationflags = subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined]
+            creationflags = subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined, unused-ignore]
         env = _minimal_env()
         start = time.monotonic()
         proc = subprocess.Popen(

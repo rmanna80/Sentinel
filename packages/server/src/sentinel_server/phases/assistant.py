@@ -322,8 +322,9 @@ def iter_conversation(engine: Engine, cfg: OllamaConfig, history: list[dict[str,
                     reply = value
         else:
             reply = ollama_chat(cfg, messages, None if last else tools)
-        content = reply.get("content") if isinstance(reply.get("content"), str) else ""
-        calls = reply.get("tool_calls") if isinstance(reply.get("tool_calls"), list) else []
+        raw_content, raw_calls = reply.get("content"), reply.get("tool_calls")
+        content: str = raw_content if isinstance(raw_content, str) else ""
+        calls: list[Any] = raw_calls if isinstance(raw_calls, list) else []
         if not calls or last:
             out.answer = content.strip()
             if not out.answer:

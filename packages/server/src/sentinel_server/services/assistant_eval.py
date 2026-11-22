@@ -210,10 +210,15 @@ def build_cases(db: Session) -> list[EvalCase]:
         add("citations.latest_scan", "citations", "What did the most recent scan find? Cite the scan.",
             _cites("scan", [s.id for s in scans], what="a stored scan"), "a citation of a recent scan")
         if latest.score is not None:
+            score = latest.score
+
+            def states_score(answer: str, _citations: list[dict[str, Any]]) -> str | None:
+                if mentions_number(answer, score) or re.search("incomplete", answer, re.IGNORECASE):
+                    return None
+                return f"did not state the score {score} or that it is incomplete"
+
             add("facts.latest_score", "facts", "What was the security score of the most recent scan?",
-                lambda a, _c, s=latest.score: None if (mentions_number(a, s) or re.search("incomplete", a, re.I))
-                else f"did not state the score {s} or that it is incomplete",
-                f"the score {latest.score}, or that the score is incomplete")
+                states_score, f"the score {score}, or that the score is incomplete")
     if len(scans) >= 2:
         add("citations.compare_scans", "citations", "What changed between the last two scans?",
             _cites("scan", [s.id for s in scans], what="either scan"), "a citation of at least one of the two scans")
@@ -288,7 +293,9 @@ def run_eval(engine: Engine, model: str, cases: list[EvalCase], ask: Ask,
     report = EvalReport(model=model)
     for case in cases:
         started = time.perf_counter()
-        answer, rounds, tools, error = "", 0, [], None
+        answer, rounds, error = "", 0, None
+        tools: list[str] = []
+        citations: list[dict[str, Any]] = []
         try:
             answer, rounds, tools = ask(case.question)
         except Exception as exc:  # a model that cannot be reached fails the case; it does not stop the run

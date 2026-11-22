@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 from datetime import timedelta
+from typing import Any, cast
 
 from sentinel_core.models import (
     COMPLETED_CHECK_STATUSES,
@@ -19,7 +20,7 @@ from sentinel_core.models import (
     Severity,
 )
 from sentinel_core.redaction import redact
-from sqlalchemy import select
+from sqlalchemy import CursorResult, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
@@ -156,7 +157,7 @@ def _store_events(db: Session, device: Device, scan: Scan, result: CheckRunResul
             )
             .on_conflict_do_nothing(index_elements=["device_id", "source", "record_id"])
         )
-        res = db.execute(stmt)
+        res = cast("CursorResult[Any]", db.execute(stmt))  # an INSERT always returns a cursor result
         if res.rowcount:
             rec = db.execute(
                 select(LogEventRecord).where(LogEventRecord.device_id == device.id,

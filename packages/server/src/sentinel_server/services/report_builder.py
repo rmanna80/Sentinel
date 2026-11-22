@@ -132,10 +132,10 @@ def evidence_sources(db: Session, findings: list[FindingRecord]) -> dict[int, st
             sources[ev_id] = src
     out: dict[int, str | None] = {}
     for f in findings:
-        src = sources.get(first_ev.get(f.id, -1))
-        if src is None and f.source == "vuln_matcher":
-            src = "vulnerability matching" + (f" ({f.cvss_source})" if f.cvss_source else "")
-        out[f.id] = src
+        origin = sources.get(first_ev.get(f.id, -1))
+        if origin is None and f.source == "vuln_matcher":
+            origin = "vulnerability matching" + (f" ({f.cvss_source})" if f.cvss_source else "")
+        out[f.id] = origin
     return out
 
 

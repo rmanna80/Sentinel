@@ -62,9 +62,16 @@ class CheckContext(Protocol):
 
     host: HostInfo
     params: BaseModel | None
-    state: AgentState
-    config: Mapping[str, Any]
-    system: SystemProbe
+
+    # Read-only here, so an implementation may hold a more specific type (a real probe, an in-memory state).
+    @property
+    def state(self) -> AgentState: ...
+
+    @property
+    def config(self) -> Mapping[str, Any]: ...
+
+    @property
+    def system(self) -> SystemProbe: ...
 
     def cancelled(self) -> bool: ...
 

@@ -33,13 +33,15 @@ def is_elevated() -> bool:
         try:
             import ctypes
 
-            return bool(ctypes.windll.shell32.IsUserAnAdmin())  # type: ignore[attr-defined]
+            return bool(ctypes.windll.shell32.IsUserAnAdmin())  # type: ignore[attr-defined, unused-ignore]
         except Exception:
             return False
     return hasattr(os, "geteuid") and os.geteuid() == 0
 
 
 def _windows_host() -> HostInfo:
+    if sys.platform != "win32":  # also tells the type checker the registry API below is Windows-only
+        raise ImportError("winreg is only available on Windows")
     import winreg
 
     def val(name: str) -> object | None:

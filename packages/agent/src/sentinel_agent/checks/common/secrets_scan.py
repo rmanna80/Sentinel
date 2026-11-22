@@ -73,7 +73,7 @@ def _is_placeholder(value: str) -> bool:
 
 def _match_generic(line: str) -> bool:
     m = _GENERIC_SECRET.search(line)
-    return bool(m) and not _is_placeholder(m.group(2))
+    return m is not None and not _is_placeholder(m.group(2))
 
 
 # Each matcher takes a line and returns whether that line matches the rule. Order matters only for output.
@@ -205,7 +205,7 @@ def _looks_like_prod_config(name: str) -> bool:
 def _rules_for(name: str) -> tuple[str, ...]:
     if _ext(name) in (".md", ".txt"):
         return _HIGH_CONF_RULES
-    rules = _LINE_RULES_FULL
+    rules: tuple[str, ...] = _LINE_RULES_FULL
     if _looks_like_prod_config(name):
         rules = (*rules, "debug_enabled")
     return rules

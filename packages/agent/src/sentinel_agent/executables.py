@@ -35,14 +35,14 @@ def _system_windows_directory() -> str:
     import ctypes
     from ctypes import wintypes
 
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)  # type: ignore[attr-defined]
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)  # type: ignore[attr-defined, unused-ignore]
     fn = kernel32.GetSystemWindowsDirectoryW
     fn.argtypes = [wintypes.LPWSTR, wintypes.UINT]
     fn.restype = wintypes.UINT
     buf = ctypes.create_unicode_buffer(32768)
     n = fn(buf, len(buf))
     if n == 0 or n >= len(buf):
-        raise OSError(ctypes.get_last_error(), "GetSystemWindowsDirectoryW failed")  # type: ignore[attr-defined]
+        raise OSError(ctypes.get_last_error(), "GetSystemWindowsDirectoryW failed")  # type: ignore[attr-defined, unused-ignore]
     return buf.value
 
 
@@ -57,8 +57,8 @@ def _known_folder_path(folder_id: str) -> str:
                     ("Data4", ctypes.c_ubyte * 8)]
 
     guid = GUID.from_buffer_copy(uuid.UUID(folder_id).bytes_le)
-    shell32 = ctypes.WinDLL("shell32")  # type: ignore[attr-defined]
-    ole32 = ctypes.WinDLL("ole32")  # type: ignore[attr-defined]
+    shell32 = ctypes.WinDLL("shell32")  # type: ignore[attr-defined, unused-ignore]
+    ole32 = ctypes.WinDLL("ole32")  # type: ignore[attr-defined, unused-ignore]
     get_path = shell32.SHGetKnownFolderPath
     get_path.argtypes = [ctypes.POINTER(GUID), wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(ctypes.c_void_p)]
     get_path.restype = ctypes.c_long  # HRESULT

@@ -137,6 +137,8 @@ class LiveContext:
 
     # ------------------------------------------------------------------ registry (read-only)
     def _open(self, hive: str, path: str, view: str | None) -> Any:
+        if sys.platform != "win32":  # also tells the type checker the registry API below is Windows-only
+            raise ImportError("winreg is only available on Windows")
         import winreg
 
         roots = {"HKLM": winreg.HKEY_LOCAL_MACHINE, "HKCU": winreg.HKEY_CURRENT_USER, "HKU": winreg.HKEY_USERS}
@@ -167,19 +169,21 @@ class LiveContext:
             return None
         import winreg
 
+        out: dict[str, Any] | None = {}
         try:
             with self._open(hive, path, view) as key:
-                out: dict[str, Any] = {}
+                found: dict[str, Any] = {}
                 i = 0
                 while True:
                     try:
                         name, value, _ = winreg.EnumValue(key, i)
                     except OSError:
                         break
-                    out[name] = _registry_value(value)
+                    found[name] = _registry_value(value)
                     i += 1
+                out = found
         except OSError:
-            out = None  # type: ignore[assignment]
+            out = None
         if self._recorder:
             self._recorder.registry_read(registry_key(hive, path, "*", view), out)
         return out

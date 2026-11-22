@@ -73,7 +73,7 @@ class SysmonCollector(Collector):
             when = parse_iso(row.get("Time")) or parse_iso(system.get("TimeCreated"))
             if when is None:
                 continue
-            host = system.get("Computer") or getattr(self.ctx.host, "hostname", "")
+            host = str(system.get("Computer") or getattr(self.ctx.host, "hostname", "") or "")
             event = map_sysmon(eid, when, host, fields, self._seq)
             if event is not None:
                 events.append(event)

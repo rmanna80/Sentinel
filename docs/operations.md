@@ -43,6 +43,19 @@ Restore: stop the server, replace `sentinel.db` in the data folder with the back
 
 `git pull`, then `scripts\install.ps1`. Migrations run automatically at startup and with `sentinel-server migrate`.
 
+## Releases
+
+Pushing a tag such as `v0.2.0` runs `.github/workflows/release.yml`: it re-runs the checks, builds the dashboard,
+and publishes `sentinel-0.2.0.zip` (the source with the dashboard already built, so installing needs no
+Node.js), `SHA256SUMS.txt`, and a signed build-provenance attestation. To check a download:
+
+```powershell
+Get-FileHash sentinel-0.2.0.zip -Algorithm SHA256        # compare with SHA256SUMS.txt
+gh attestation verify sentinel-0.2.0.zip --repo rmanna80/Sentinel   # proves it was built by this repo's workflow
+```
+
+To build the same zip by hand: `scripts/build-web.sh`, then `scripts/package-release.sh 0.2.0`.
+
 ## Recovery
 
 - Forgot the password: `uv run sentinel-server reset-password <username>` (local machine only; signs out every session).

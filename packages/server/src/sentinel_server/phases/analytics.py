@@ -356,6 +356,8 @@ def analytics(
     else:
         sweeks: dict[date, dict[str, int]] = {w: dict.fromkeys(FINISHED, 0) for w in _weeks(since, until)}
         for st, ts in finished:
+            if ts is None:  # the query already excludes these; this is for the type checker
+                continue
             sweeks.setdefault(week_start(ts), dict.fromkeys(FINISHED, 0))[st] += 1
         scan_outcomes = [ScanWeek(week_start=w, **c) for w, c in sorted(sweeks.items())]
         success_rate = round(sum(1 for st, _ in finished if st == "completed") / len(finished), 4)
@@ -374,10 +376,11 @@ def analytics(
     if not health_days:
         unavailable["health_history"] = "No CPU, memory or disk samples were collected in this period."
     else:
-        def r(v: float | None) -> float | None:
+        def two_places(v: float | None) -> float | None:
             return None if v is None else round(float(v), 2)
 
-        health = [HealthDay(date=d, cpu_avg=r(cpu.get(d)), memory_avg=r(mem.get(d)), disk_max=r(disk.get(d)))
+        health = [HealthDay(date=d, cpu_avg=two_places(cpu.get(d)), memory_avg=two_places(mem.get(d)),
+                            disk_max=two_places(disk.get(d)))
                   for d in health_days]
 
     # ---- mean time to remediate

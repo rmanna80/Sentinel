@@ -17,8 +17,7 @@ jobs:
       - run: uv python install 3.12
       - run: uv sync --locked
       - run: uv run ruff check packages scripts
-      # Type-checked packages. agent and server still have open mypy errors; add them here once they are clean.
-      - run: uv run mypy packages/core/src packages/detect/src
+      - run: uv run mypy packages/core/src packages/detect/src packages/agent/src packages/server/src
       - run: uv run pytest --junitxml=report.xml --cov=packages --cov-report=term-missing:skip-covered --cov-report=xml
       - name: Coverage summary
         if: always() && hashFiles('coverage.xml') != ''

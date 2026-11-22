@@ -15,7 +15,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from sqlalchemy import Engine, String, case, cast, func, or_, select
@@ -510,14 +510,14 @@ TOOLS: dict[str, Tool] = {t.name: t for t in [
     Tool("get_overview", "Fleet and per-device posture: score (or Incomplete), coverage, threat level, open finding "
          "counts, open alerts and the latest scans.", _obj(), NoArgs, tool_get_overview),
     Tool("list_findings", "List findings (weaknesses found by checks or by vulnerability matching), most severe first.",
-         _obj({"status": {"type": "string", "enum": list(FindingStatusArg.__args__),
+         _obj({"status": {"type": "string", "enum": list(get_args(FindingStatusArg)),
                           "description": "open (default), all, or one status"},
-               "severity": {"type": "string", "enum": list(SeverityArg.__args__)},
+               "severity": {"type": "string", "enum": list(get_args(SeverityArg))},
                "limit": _LIMIT}), ListFindingsArgs, tool_list_findings),
     Tool("get_finding", "One finding in full: impact, remediation advice, vulnerability details, history and up to 3 "
          "evidence excerpts.", _obj({"id": _ID}, ["id"]), IdArgs, tool_get_finding),
     Tool("list_alerts", "List detection alerts from log analysis. kind=heuristic means suspicious but unconfirmed.",
-         _obj({"status": {"type": "string", "enum": list(AlertStatusArg.__args__),
+         _obj({"status": {"type": "string", "enum": list(get_args(AlertStatusArg)),
                           "description": "open (default), all, or one status"}, "limit": _LIMIT}),
          ListAlertsArgs, tool_list_alerts),
     Tool("get_alert", "One alert with description, evidence, investigation steps and up to 20 linked log events.",

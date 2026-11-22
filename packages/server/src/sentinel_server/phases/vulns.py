@@ -329,9 +329,11 @@ def intel_status(auth: AuthContext = Depends(current_auth), db: Session = Depend
     qdata = q.data if q is not None and isinstance(q.data, dict) else {}
     items = qdata.get("items") or []
     retrying = [e for e in items if e.get("attempts")]
-    kev_data = (rows["kev"].data if rows.get("kev") is not None else None) or {}
-    msrc_data = (rows["msrc"].data if rows.get("msrc") is not None else None) or {}
-    nvd_data = (rows["nvd"].data if rows.get("nvd") is not None else None) or {}
+    def data_of(source: str) -> dict[str, Any]:
+        row = rows.get(source)
+        return (row.data if row is not None else None) or {}
+
+    kev_data, msrc_data, nvd_data = data_of("kev"), data_of("msrc"), data_of("nvd")
     return IntelStatus(
         outbound_enabled=get_settings().outbound_enabled, sources=_source_statuses(db, rows),
         queue=QueueStatus(waiting=len(items), retrying=len(retrying),

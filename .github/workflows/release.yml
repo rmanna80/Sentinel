@@ -1,0 +1,42 @@
+name: release
+
+# Push a tag like v0.2.0 to publish a release: a zip of the source with the dashboard already built, a
+# checksum file, and a signed build-provenance attestation that ties the zip to this repository and commit.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write       # create the release
+  id-token: write       # sign the attestation
+  attestations: write   # store the attestation
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: uv python install 3.12
+      - run: uv sync --locked
+      # A release is never cut from a commit that fails its own checks.
+      - run: uv run ruff check packages scripts
+      - run: uv run mypy packages/core/src packages/detect/src packages/agent/src packages/server/src
+      - run: uv run pytest
+      - name: Build the dashboard
+        run: bash scripts/build-web.sh
+      - name: Package
+        run: bash scripts/package-release.sh "${GITHUB_REF_NAME#v}"
+      - name: Sign build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*.zip
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.zip dist/SHA256SUMS.txt --verify-tag --generate-notes
