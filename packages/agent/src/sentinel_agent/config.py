@@ -44,6 +44,9 @@ class AgentConfig:
     project_paths: list[str] = field(default_factory=list)
     # Sentinel X: when on, the run loop reads Sysmon telemetry each cycle and ships detections (off by default).
     telemetry_enabled: bool = False
+    # Sentinel X: folders of Sigma rules to run alongside the built-in ones, and the lowest level to import.
+    sigma_rule_paths: list[str] = field(default_factory=list)
+    sigma_min_level: str = "high"
 
     @classmethod
     def load(cls) -> AgentConfig:

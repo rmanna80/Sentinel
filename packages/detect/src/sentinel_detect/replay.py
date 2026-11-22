@@ -159,12 +159,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("stream", type=Path, help="path to a .jsonl event stream")
     parser.add_argument("--json", action="store_true", help="emit detections as JSON instead of text")
     parser.add_argument("--no-suppress", action="store_true", help="ignore the default suppression list")
+    parser.add_argument("--sigma", metavar="DIR", action="append", type=Path,
+                        help="also run the Sigma rules in this folder (repeatable)")
+    parser.add_argument("--sigma-level", default="high", help="lowest Sigma level to import (default: high)")
     args = parser.parse_args(argv)
 
     from .suppression import SuppressionList
 
     events = load_stream(args.stream)
     engine = Engine(suppressions=SuppressionList([]) if args.no_suppress else None)
+    if args.sigma:
+        from .sigma import SigmaRuleSet, level_from_name, load_sigma_rules
+
+        imported = load_sigma_rules(args.sigma, level_from_name(args.sigma_level))
+        engine.rules.append(SigmaRuleSet(imported.rules))
+        print(f"Sigma: {len(imported.rules)} rules imported, {len(imported.skipped)} skipped.", file=sys.stderr)
     detections = engine.feed_stream(events)
 
     if args.json:

@@ -226,6 +226,21 @@ def _metrics() -> list[MetricSample]:
     return samples
 
 
+def _detection_engine(config: AgentConfig, extra_sigma: list[str] | None = None) -> Any:
+    """The Sentinel X engine: built-in rules, plus Sigma rules from the configured folders when there are any."""
+    from sentinel_detect import Engine
+
+    paths = [*config.sigma_rule_paths, *(extra_sigma or [])]
+    if not paths:
+        return Engine()
+    from sentinel_detect.sigma import engine_with_sigma, level_from_name
+
+    engine, imported = engine_with_sigma(paths, level_from_name(config.sigma_min_level))
+    log.info("Sigma: %d rules imported from %d folder(s), %d skipped (run `sentinel-sigma` for the reasons)",
+             len(imported.rules), len(paths), len(imported.skipped))
+    return engine
+
+
 def _telemetry_step(client: Any, engine: Any, host: HostInfo, config: AgentConfig) -> None:
     """One Sentinel X cycle inside the run loop: read Sysmon, correlate, ship detections. Never fatal."""
     from .telemetry.collector import CollectorError, SysmonCollector
@@ -289,9 +304,7 @@ def cmd_run(args: argparse.Namespace, registry: CheckRegistry) -> int:
     telemetry_on = (args.telemetry or config.telemetry_enabled) and not args.fixtures and not args.elevated
     engine = None
     if telemetry_on:
-        from sentinel_detect import Engine
-
-        engine = Engine()
+        engine = _detection_engine(config)
         log.info("Sentinel X telemetry enabled (reading Sysmon, shipping behavioural detections)")
     last_metrics = 0.0
     last_telemetry = 0.0
@@ -347,7 +360,6 @@ def _run_job(client: Any, registry: CheckRegistry, host: HostInfo, factory: Cont
 
 def cmd_telemetry(args: argparse.Namespace, registry: CheckRegistry) -> int:
     """Run Sentinel X behavioural detection over Sysmon telemetry (live, or a saved export)."""
-    from sentinel_detect import Engine
     from sentinel_detect.replay import _format
 
     from .telemetry.collector import CollectorError, ExportCollector, SysmonCollector
@@ -369,7 +381,7 @@ def cmd_telemetry(args: argparse.Namespace, registry: CheckRegistry) -> int:
         print(f"Telemetry unavailable: {exc}", file=sys.stderr)
         return 2
 
-    detections = Engine().feed_stream(events)
+    detections = _detection_engine(AgentConfig.load(), args.sigma).feed_stream(events)
     if args.json:
         print(json.dumps({"source": source, "events": len(events),
                           "detections": [d.model_dump(mode="json") for d in detections]}, indent=2, default=str))
@@ -398,7 +410,8 @@ def cmd_status(args: argparse.Namespace, registry: CheckRegistry) -> int:
 def cmd_config(args: argparse.Namespace, registry: CheckRegistry) -> int:
     config = AgentConfig.load()
     changed = False
-    for attr, values in (("malware_scan_paths", args.add_malware_path), ("project_paths", args.add_project_path)):
+    for attr, values in (("malware_scan_paths", args.add_malware_path), ("project_paths", args.add_project_path),
+                         ("sigma_rule_paths", args.add_sigma_path)):
         for value in values or []:
             p = str(Path(value).resolve())
             if not Path(p).is_dir():
@@ -408,6 +421,9 @@ def cmd_config(args: argparse.Namespace, registry: CheckRegistry) -> int:
             if p not in lst:
                 lst.append(p)
                 changed = True
+    if args.sigma_level:
+        config.sigma_min_level = args.sigma_level
+        changed = True
     if changed:
         config.save()
     print(json.dumps(config.as_mapping(), indent=2))
@@ -441,10 +457,14 @@ def build_parser() -> argparse.ArgumentParser:
     t = sub.add_parser("telemetry", help="run Sentinel X behavioural detection over Sysmon telemetry")
     t.add_argument("--export", metavar="FILE", help="analyze a saved Sysmon log export (XML) instead of the live log")
     t.add_argument("--json", action="store_true")
+    t.add_argument("--sigma", metavar="DIR", action="append", help="also run the Sigma rules in this folder")
     sub.add_parser("status", help="show agent configuration")
     c = sub.add_parser("config", help="show or change agent configuration")
     c.add_argument("--add-malware-path", action="append")
     c.add_argument("--add-project-path", action="append")
+    c.add_argument("--add-sigma-path", action="append", help="a folder of Sigma rules for Sentinel X to run")
+    c.add_argument("--sigma-level", choices=["low", "medium", "high", "critical"],
+                   help="lowest Sigma rule level to import (default: high)")
     return p
 
 

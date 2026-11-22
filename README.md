@@ -183,6 +183,29 @@ uv run sentinel-agent run --telemetry                                          #
 uv run python scripts/run_detection_lab.py                                     # precision/recall/coverage/latency
 ```
 
+Built-in rules: Office spawning a script interpreter, autorun persistence, security tooling disabled, the
+suspicious execution chain, LSASS memory access, suspicious scheduled tasks, WMI persistence, Windows binaries
+used to download or run code (certutil, mshta, bitsadmin, rundll32, regsvr32), remote-thread injection,
+backups or recovery destroyed, and bulk file encryption. The collector reads Sysmon events 1, 3, 5, 7, 8, 10,
+11, 13, 19-23 and 26; a rule only fires if your Sysmon configuration logs the event it needs.
+
+**Sigma rules.** Sentinel X can also run community [Sigma](https://github.com/SigmaHQ/sigma) rules:
+
+```powershell
+git clone --depth 1 https://github.com/SigmaHQ/sigma C:\dev\sigma
+uv run sentinel-sigma C:\dev\sigma\rules\windows                              # what imports, and why the rest do not
+uv run sentinel-agent config --add-sigma-path C:\dev\sigma\rules\windows      # run them with the agent
+uv run python scripts/run_sigma_regression.py C:\dev\sigma                     # check against Sigma's recorded events
+```
+
+About 1,700 of the 2,400 Windows rules import; the rest are skipped with a stated reason rather than run
+half-evaluated. Import is off until you add a folder and defaults to `high`-level rules, because community
+rules are written for everyone and the `medium` ones are noisy. Expect to add suppressions.
+
+**Measuring it.** `scripts/replay_dataset.py` replays recorded telemetry (Sysmon XML exports, EVTX converted
+to JSON, or `.jsonl`): a public attack dataset with `--label malicious`, or an export of your own machine's
+log with `--label benign` to get false positives per day.
+
 Precision, recall, ATT&CK technique coverage, detection latency and engine throughput are reported by the lab.
 The design and reasoning are written up chapter by chapter in
 [docs/sentinel-x-learning.md](docs/sentinel-x-learning.md).
@@ -201,7 +224,7 @@ The design and reasoning are written up chapter by chapter in
 
 - Mutual TLS so the Pi's agent can report to the Windows server.
 - macOS adapter (FileVault, Gatekeeper, SIP, firewall, softwareupdate).
-- Configurable detection thresholds and Sigma-style rule import.
+- Configurable detection thresholds; Sigma aggregation and correlation rules.
 - Signed releases and a Windows installer; the agent as a Windows service.
 - Android companion app for device settings exposed through public APIs.
 

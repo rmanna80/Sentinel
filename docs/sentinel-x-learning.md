@@ -16,7 +16,9 @@ we are and why each piece exists.
 - **Chapter 3 — Surfacing detections (done).** Storing detections on the server and showing them in the
   dashboard — conclusions only, never the firehose.
 - **Chapter 4 — The measurement lab (done).** Scoring the engine against documented attacks: true/false
-  positives, technique coverage, detection latency, and overhead. ← *you are here*
+  positives, technique coverage, detection latency, and overhead.
+- **Chapter 5 — Breadth, and evidence you did not write (done).** Seven tradecraft rules, eight more Sysmon
+  event types, Sigma rule import, and replaying recordings made by other people. ← *you are here*
 
 ---
 
@@ -526,10 +528,10 @@ uv run python scripts/run_detection_lab.py
 ```
 
 ```
-  precision 100%   recall 100%   (TP 4  FP 0  FN 0  TN 4)
-  ATT&CK techniques covered: 5/5
-  detection latency (s): min 1  median 1  max 1
-  throughput: ~279,000 events/s  (3.6 us/event)
+  precision 100%   recall 100%   (TP 14  FP 0  FN 0  TN 11)
+  ATT&CK techniques covered: 14/14
+  detection latency (s): min 0  median 1  max 4
+  throughput: ~170,000 events/s  (5.9 us/event)
 ```
 
 - **Recall** (TP / (TP+FN)) — of the malicious scenarios, how many we caught. A miss is a false negative: the
@@ -579,3 +581,116 @@ meaningful: the engine's cost is a property of the events, not of a particular r
 conclusions a home, and Chapter 4 gave you the instruments to measure them. From here the work is iterative —
 grow the corpus, add rules judged against it, and, when a stream Sysmon can't give you matters, write the raw
 ETW consumer for that one source (Chapter 2, Lesson 9). The platform is built; what remains is the craft.*
+
+---
+
+## Chapter 5 — Breadth, and evidence you did not write
+
+Four chapters built a careful engine with four rules. This one makes it broad, and then does the thing
+Chapter 4 said was missing: it measures the engine against events that somebody else recorded.
+
+### Lesson 21: More senses before more rules
+
+A rule can only reason about events the collector hands it. The collector in `telemetry/sysmon.py` now maps
+eight more Sysmon event ids:
+
+| ID | What it records | Why it matters |
+| --- | --- | --- |
+| 8 | One process starting a thread inside another | Process injection |
+| 10 | One process opening a handle to another | Reading LSASS memory to steal credentials |
+| 19, 20, 21 | WMI filter, consumer and binding registered | Fileless persistence |
+| 22 | A DNS lookup, with the process that made it | Which program contacted which name |
+| 23, 26 | A file deleted | The other half of "rewrite every document" |
+
+Two of these needed a decision. Events 8 and 10 involve *two* processes, so the event schema gained
+`target_image` and `target_guid`; the actor stays where it always was. WMI events name no process at all, so
+they are anchored to a fixed placeholder GUID rather than pretending one exists.
+
+> **Q:** Sysmon only writes event 10 if its configuration asks for it. What does a missing event mean?
+>
+> **A:** Nothing. Absence of telemetry is not evidence of absence. A machine whose Sysmon configuration does
+> not log process access will never fire the LSASS rule, however many times LSASS is dumped. Coverage is a
+> property of the rule *and* the configuration feeding it.
+
+### Lesson 22: Seven rules about what was done
+
+`rules_tradecraft.py` holds rules for single recognisable actions: LSASS memory access, a suspicious scheduled
+task, a WMI consumer that runs code, a Windows binary used as a downloader, a thread injected by a script
+host, backups destroyed, and files encrypted in bulk. Read `LsassAccess` first. Its whole job is narrowing:
+it ignores handles without the memory-read right, and it trusts Windows components by *full path*, so a file
+named `svchost.exe` in a temp folder is not trusted.
+
+`MassFileEncryption` is the second stateful rule and worth comparing with `SuspiciousExecChain`. That one
+correlates *different* events through lineage. This one counts *one* kind of event per process in a sliding
+window and fires only when the files share one appended extension. The shared extension is the discriminator:
+a compiler writes many files too.
+
+Every one of these rules is paired in `corpus_tradecraft.py` with a benign look-alike that must stay silent:
+Defender reading LSASS, an administrator scheduling a backup, `vssadmin list shadows`, an archiver writing
+thirty `.docx.zip` files.
+
+### Lesson 23: Borrowing other people's rules
+
+Hand-writing a class per technique does not scale to the few hundred techniques in ATT&CK. The detection
+community publishes rules in a shared format, [Sigma](https://github.com/SigmaHQ/sigma), and `sigma.py`
+imports the ones we can run:
+
+```bash
+git clone --depth 1 https://github.com/SigmaHQ/sigma C:\dev\sigma
+uv run sentinel-sigma C:\dev\sigma\rules\windows          # what imports, and why the rest do not
+uv run sentinel-agent config --add-sigma-path C:\dev\sigma\rules\windows
+```
+
+The importer's most important behaviour is what it refuses. A rule that tests a field we do not capture, or
+uses an aggregation we do not implement, is skipped with the reason recorded. Evaluating it anyway would give
+you a rule that can never fire and a coverage number that lies. At the time of writing, 1,694 of the 2,427
+Windows rules import at level medium and above; most of the rest need PowerShell script-block logs or Windows
+channels the collector does not read.
+
+> **Q:** Thousands of free rules. Why not enable them all?
+>
+> **A:** Because they were written for everyone, not for you. Run against this project's benign scenarios,
+> Sigma's `medium` rules fire on five of eleven; its `high` rules on two. That is why import defaults to
+> `high`, why imported detections say they are leads, and why suppression applies to them like any other
+> rule. They also cost time: about 1,000 events per second with the `high` set loaded, against roughly
+> 170,000 without. Fine for a workstation, worth knowing.
+
+### Lesson 24: Evidence you did not write
+
+Chapter 4 ended on an uncomfortable fact: the corpus was written by the same person as the rules. The Sigma
+project publishes something that fixes this for the importer: for hundreds of rules, a real event recorded
+while the behaviour was performed.
+
+```bash
+uv run python scripts/run_sigma_regression.py C:\dev\sigma
+```
+
+```
+  samples with Sysmon events for an imported rule: 371
+  matched by their own rule: 371 (100.0%)
+```
+
+The first run scored 98.1%. The seven misses shared one cause, Sigma's rule that `\\` means a single
+backslash, and fixing it is the kind of bug a self-written corpus would never have found.
+
+`scripts/replay_dataset.py` asks the two questions that matter about the engine as a whole:
+
+```bash
+uv run python scripts/replay_dataset.py C:\datasets\attacks --label malicious   # does it catch real attacks?
+wevtutil qe Microsoft-Windows-Sysmon/Operational /f:xml > my-week.xml
+uv run python scripts/replay_dataset.py my-week.xml --label benign               # how noisy is it here?
+```
+
+On the same Sigma recordings the eleven built-in rules alone fire on 27 of 377 (7.2%). That is not a failure;
+those samples span hundreds of techniques and the built-in rules cover about a dozen. It is the honest
+baseline, and the number to move. The benign replay is the one only you can run: a few days of your own
+machine's Sysmon log, where every detection is a false positive or something you ought to look at.
+
+### Check your understanding
+
+1. The LSASS rule trusts `C:\Windows\System32\svchost.exe` but not `svchost.exe`. What attack does matching
+   on the full path prevent? (Lesson 22.)
+2. A Sigma rule tests `OriginalFileName`. Before this chapter the collector did not record that field. Why is
+   skipping the rule better than running it? (Lesson 23.)
+3. The regression run says 100%. The dataset replay says 7.2%. Both are true. What does each one measure?
+   (Lesson 24.)

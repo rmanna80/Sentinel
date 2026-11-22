@@ -149,3 +149,60 @@ def test_new_sysmon_events_drive_the_new_rules_end_to_end():
     events = parse_sysmon_log(lsass + wmi)
     assert [e.kind for e in events] == [EventKind.PROCESS_ACCESS, EventKind.WMI_SUBSCRIPTION]
     assert {d.rule_id for d in Engine().feed_stream(events)} == {"cred.lsass_access", "persist.wmi_subscription"}
+
+
+def _evtx_json(eid: int, data: dict) -> dict:
+    return {"Event": {"System": {"Provider": {"#attributes": {"Name": "Microsoft-Windows-Sysmon"}}, "EventID": eid,
+                                 "TimeCreated": {"#attributes": {"SystemTime": "2026-08-30T14:19:31.7888122Z"}},
+                                 "Computer": "LabVm"},
+                      "EventData": data}}
+
+
+def test_evtx_json_events_map_like_xml_ones():
+    import json
+
+    from sentinel_agent.telemetry.sysmon import map_evtx_json, parse_evtx_json
+
+    record = _evtx_json(1, {"ProcessGuid": "570E49AA-0000", "ProcessId": 8268, "Image": PWSH, "CommandLine": "p -enc A",
+                            "OriginalFileName": "PowerShell.EXE", "ParentProcessGuid": "570E49AA-1111",
+                            "ParentImage": WINWORD, "ParentCommandLine": "winword /n", "Nested": {"ignored": 1}})
+    event = map_evtx_json(record)
+    assert event.kind is EventKind.PROCESS_CREATE and event.pid == 8268 and event.host == "LabVm"
+    assert event.details["original_file_name"] == "PowerShell.EXE"
+    assert event.details["parent_command_line"] == "winword /n"
+
+    other = {"Event": {"System": {"Provider": {"#attributes": {"Name": "Microsoft-Windows-Security-Auditing"}},
+                                  "EventID": 4624}, "EventData": {}}}
+    as_array = json.dumps([record, other])
+    as_ndjson = json.dumps(record) + "\n" + json.dumps(other) + "\n" + json.dumps(_evtx_json(22, {
+        "ProcessGuid": "g", "Image": PWSH, "QueryName": "a.invalid"}))
+    assert len(parse_evtx_json(as_array)) == 1
+    assert [e.kind for e in parse_evtx_json(as_ndjson)] == [EventKind.PROCESS_CREATE, EventKind.DNS_QUERY]
+    assert parse_evtx_json(json.dumps(record) + "{broken") == parse_evtx_json(json.dumps(record))
+    assert parse_evtx_json("") == [] and map_evtx_json({"Event": "nope"}) is None
+
+
+def test_recordings_load_by_format(tmp_path):
+    import json
+
+    import pytest
+    from sentinel_agent.telemetry.dataset import find_recordings, load_recording
+    from sentinel_detect import StreamBuilder, dump_stream
+
+    b = StreamBuilder()
+    b.process_create("P", PWSH)
+    (tmp_path / "a.jsonl").write_text(dump_stream(b.events), encoding="utf-8")
+    (tmp_path / "b.json").write_text(json.dumps(_evtx_json(22, {"ProcessGuid": "g", "QueryName": "x.invalid"})), "utf-8")
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "c.xml").write_text((SAMPLES / "sysmon_suspicious.xml").read_text(encoding="utf-8"), "utf-8")
+    (tmp_path / "d.evtx").write_bytes(b"ElfFile\x00")
+    (tmp_path / "notes.txt").write_text("x", encoding="utf-8")
+
+    found = find_recordings([tmp_path])
+    assert [p.name for p in found] == ["a.jsonl", "b.json", "c.xml"]
+    assert [len(load_recording(p)) > 0 for p in found] == [True, True, True]
+    assert load_recording(tmp_path / "b.json")[0].kind is EventKind.DNS_QUERY
+    with pytest.raises(ValueError, match="convert it"):
+        load_recording(tmp_path / "d.evtx")
+    with pytest.raises(ValueError, match="unrecognised"):
+        load_recording(tmp_path / "notes.txt")

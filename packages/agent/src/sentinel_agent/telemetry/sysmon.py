@@ -39,6 +39,7 @@ registration - so they are anchored to a fixed placeholder GUID and the interest
 
 from __future__ import annotations
 
+import json
 import re
 from datetime import datetime
 from xml.etree.ElementTree import ParseError
@@ -100,7 +101,15 @@ def map_sysmon(eid: int, when: datetime, host: str, data: dict[str, str], seq: i
             parent_guid=strip_guid(data.get("ParentProcessGuid")) or None,
             parent_pid=as_int(data.get("ParentProcessId")),
             parent_image=_cap(data.get("ParentImage"), 1024),
-            details=_some({"hashes": data.get("Hashes"), "integrity_level": data.get("IntegrityLevel")}),
+            details=_some({
+                "hashes": data.get("Hashes"), "integrity_level": data.get("IntegrityLevel"),
+                # carried for imported Sigma rules, which often match on these
+                "original_file_name": _cap(data.get("OriginalFileName"), 256),
+                "parent_command_line": _cap(data.get("ParentCommandLine"), 8192),
+                "current_directory": _cap(data.get("CurrentDirectory"), 1024),
+                "description": _cap(data.get("Description"), 256), "product": _cap(data.get("Product"), 256),
+                "company": _cap(data.get("Company"), 256),
+            }),
             **common,
         )
     if eid == 5:  # ProcessTerminate
@@ -236,4 +245,61 @@ def parse_sysmon_log(xml_text: str) -> list[TelemetryEvent]:
         event = map_sysmon(eid, when, system.get("Computer") or "", data, len(events))
         if event is not None:
             events.append(event)
+    return events
+
+
+def _scalar(value: object) -> str | None:
+    if value is None or isinstance(value, dict | list):
+        return None
+    return str(value).lower() if isinstance(value, bool) else str(value)
+
+
+def map_evtx_json(record: dict[str, object], seq: int = 0) -> TelemetryEvent | None:
+    """Translate one event in the JSON shape EVTX converters emit (``{"Event": {"System": .., "EventData": ..}}``).
+
+    This is the format public attack datasets are usually published in (``evtx_dump --format json`` and
+    similar), so it is the door through which recorded real-world telemetry reaches the lab.
+    """
+    event = record.get("Event")
+    if not isinstance(event, dict):
+        return None
+    system, data = event.get("System"), event.get("EventData")
+    if not isinstance(system, dict) or not isinstance(data, dict):
+        return None
+    provider = system.get("Provider")
+    name = provider.get("#attributes", {}).get("Name", "") if isinstance(provider, dict) else ""
+    if "Sysmon" not in str(name):
+        return None
+    eid = system.get("EventID")
+    if isinstance(eid, dict):  # some converters wrap the id with its qualifiers
+        eid = eid.get("#text")
+    created = system.get("TimeCreated")
+    stamp = created.get("#attributes", {}).get("SystemTime") if isinstance(created, dict) else None
+    when = parse_iso(str(stamp)) if stamp else None
+    number = as_int(str(eid)) if eid is not None else None
+    if number is None or when is None:
+        return None
+    fields = {str(k): v for k, v in ((k, _scalar(v)) for k, v in data.items()) if v is not None}
+    return map_sysmon(number, when, str(system.get("Computer") or ""), fields, seq)
+
+
+def parse_evtx_json(text: str) -> list[TelemetryEvent]:
+    """Parse a file of EVTX-as-JSON events: one object, a JSON array, or objects one after another (NDJSON)."""
+    decoder, records, pos = json.JSONDecoder(), [], 0
+    while pos < len(text):
+        while pos < len(text) and text[pos] in " \t\r\n,":
+            pos += 1
+        if pos >= len(text):
+            break
+        try:
+            value, pos = decoder.raw_decode(text, pos)
+        except json.JSONDecodeError:
+            break  # trailing garbage: keep what parsed
+        records.extend(value if isinstance(value, list) else [value])
+    events: list[TelemetryEvent] = []
+    for record in records:
+        if isinstance(record, dict):
+            mapped = map_evtx_json(record, len(events))
+            if mapped is not None:
+                events.append(mapped)
     return events
