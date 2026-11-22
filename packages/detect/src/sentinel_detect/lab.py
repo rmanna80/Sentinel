@@ -119,7 +119,7 @@ def score(scenarios: list[Scenario], engine_factory: EngineFactory = Engine) -> 
                 first = min(e.ts for e in sc.events)
                 fired_at = min(d.last_ts for d in detections)
                 latency = max(0.0, (fired_at - first).total_seconds())
-            card.results.append(ScenarioResult(sc.name, sc.label, detected, fired, missing, set(), latency))
+            card.results.append(ScenarioResult(sc.name, sc.label, detected, fired, set(missing), set(), latency))
             card.tp += int(detected)
             card.fn += int(not detected)
             for tech in sc.technique_ids:

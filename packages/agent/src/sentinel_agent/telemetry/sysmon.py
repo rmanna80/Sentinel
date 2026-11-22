@@ -194,12 +194,12 @@ def _map_cross_process(eid: int, data: dict[str, str], common: dict[str, object]
         mask = parse_access_mask(data.get("GrantedAccess"))
         if mask is not None:
             details["granted_access"] = mask
-        return TelemetryEvent(kind=EventKind.PROCESS_ACCESS, details=details, **actor, **target, **common)  # type: ignore[arg-type]
+        return TelemetryEvent(kind=EventKind.PROCESS_ACCESS, details=details, **actor, **target, **common)
     return TelemetryEvent(  # 8: CreateRemoteThread
         kind=EventKind.REMOTE_THREAD,
         details=_some({"start_module": data.get("StartModule"), "start_function": data.get("StartFunction"),
                        "start_address": data.get("StartAddress")}),
-        **actor, **target, **common,  # type: ignore[arg-type]
+        **actor, **target, **common,
     )
 
 
@@ -213,7 +213,7 @@ def _map_wmi(eid: int, data: dict[str, str], common: dict[str, object]) -> Telem
             "consumer_type": data.get("Type"), "destination": _cap(data.get("Destination"), 4096),
             "consumer": _cap(data.get("Consumer"), 512), "filter": _cap(data.get("Filter"), 512),
         }),
-        **common,  # type: ignore[arg-type]
+        **common,
     )
 
 

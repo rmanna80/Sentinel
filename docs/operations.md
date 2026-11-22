@@ -46,6 +46,8 @@ Restore: stop the server, replace `sentinel.db` in the data folder with the back
 ## Recovery
 
 - Forgot the password: `uv run sentinel-server reset-password <username>` (local machine only; signs out every session).
+- Forgot the username: `uv run sentinel-server list-users`.
+- Change the username: `uv run sentinel-server rename-user <old> <new>` (keeps the password and all data; earlier audit entries keep the old name).
 - Check the audit chain: `uv run sentinel-server verify-audit`.
 - Agent rejected (401): enroll again from Devices > Enroll a device.
 - Start fresh: stop the server and delete the data folder.

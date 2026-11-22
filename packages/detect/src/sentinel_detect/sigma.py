@@ -254,10 +254,11 @@ def _value_test(modifiers: list[str], expected: Any) -> ValueTest:
         texts = list(dict.fromkeys(str(expected).replace("-", dash) for dash in _DASHES))
     tests = [_string_test(kind, text, cased) for text in texts]
     index = 1 if cased else 2
-    if len(tests) == 1:
-        only = tests[0]
-        return lambda seen: seen[index] is not None and only(seen[index])
-    return lambda seen: seen[index] is not None and any(test(seen[index]) for test in tests)
+
+    def string_test(seen: _Seen) -> bool:
+        text = seen[index]
+        return text is not None and any(test(text) for test in tests)
+    return string_test
 
 
 class _FieldCache(threading.local):

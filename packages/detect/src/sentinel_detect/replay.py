@@ -46,7 +46,7 @@ class StreamBuilder:
     def _emit(self, ts: datetime | None, **fields: object) -> TelemetryEvent:
         when = ts or self._ts
         self._ts = when + self.step
-        event = TelemetryEvent(host=self.host, ts=when, seq=next(self._seq), **fields)  # type: ignore[arg-type]
+        event = TelemetryEvent(host=self.host, ts=when, seq=next(self._seq), **fields)
         self.events.append(event)
         return event
 

@@ -132,7 +132,7 @@ def _disabled(raw: object) -> bool:
 
 def _as_int(raw: object) -> int | None:
     try:
-        return int(raw)  # type: ignore[arg-type]
+        return int(raw)  # type: ignore[call-overload]
     except (TypeError, ValueError):
         return None
 

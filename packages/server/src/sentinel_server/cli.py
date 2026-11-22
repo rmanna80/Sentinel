@@ -5,9 +5,10 @@ from __future__ import annotations
 import argparse
 import getpass
 import logging
+import re
 import sys
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from .config import Mode, Settings, get_settings
 
@@ -83,6 +84,54 @@ def cmd_reset_password(args: argparse.Namespace) -> int:
     return 0
 
 
+USERNAME_RULE = re.compile(r"^[A-Za-z0-9_.\-]{3,64}$")  # the same rule first-run setup applies
+
+
+def cmd_list_users(args: argparse.Namespace) -> int:
+    from .db import init_engine, session_scope
+    from .models import User
+
+    init_engine(_settings(args).db_url)
+    with session_scope() as db:
+        names = list(db.execute(select(User.username).order_by(User.id)).scalars())
+    print("\n".join(names) if names else "No users yet; open the dashboard to run first-time setup.")
+    return 0
+
+
+def cmd_rename_user(args: argparse.Namespace) -> int:
+    """Change a username from this machine. The password, sessions and stored data are untouched.
+
+    Earlier audit entries keep the old name: the audit log is a sealed history of who did what under the
+    name they had at the time, so it is appended to, never rewritten.
+    """
+    from . import audit
+    from .db import init_engine, session_scope
+    from .models import User
+
+    if not USERNAME_RULE.match(args.new_username):
+        print("A username is 3 to 64 characters: letters, digits, dot, dash or underscore.", file=sys.stderr)
+        return 2
+    init_engine(_settings(args).db_url)
+    with session_scope() as db:
+        user = db.execute(select(User).where(User.username == args.username)).scalar_one_or_none()
+        if user is None:
+            print("No such user (see `sentinel-server list-users`)", file=sys.stderr)
+            return 2
+        if args.new_username == args.username:
+            print("That is already the username.")
+            return 0
+        clash = db.execute(select(User).where(func.lower(User.username) == args.new_username.lower(),
+                                              User.id != user.id)).scalar_one_or_none()
+        if clash is not None:
+            print("That username is already taken", file=sys.stderr)
+            return 2
+        user.username = args.new_username
+        audit.record(db, "local-cli", "auth.username_changed", "user", user.id,
+                     {"from": args.username, "to": args.new_username})
+    print(f"Username changed to {args.new_username}. The password is unchanged.")
+    return 0
+
+
 def cmd_verify_audit(args: argparse.Namespace) -> int:
     from . import audit
     from .db import init_engine, session_scope
@@ -152,6 +201,10 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("migrate", help="create or upgrade the database")
     r = sub.add_parser("reset-password", help="reset a user's password from this machine")
     r.add_argument("username")
+    n = sub.add_parser("rename-user", help="change a username from this machine")
+    n.add_argument("username")
+    n.add_argument("new_username")
+    sub.add_parser("list-users", help="show the usernames that can sign in")
     sub.add_parser("verify-audit", help="check the audit log hash chain")
     e = sub.add_parser("create-enrollment-code", help="print a one-time agent enrollment code")
     e.add_argument("--port", type=int)
@@ -160,6 +213,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--out", required=True)
     args = p.parse_args(argv)
     return {"serve": cmd_serve, "migrate": cmd_migrate, "reset-password": cmd_reset_password,
+            "rename-user": cmd_rename_user, "list-users": cmd_list_users,
             "verify-audit": cmd_verify_audit, "create-enrollment-code": cmd_enrollment_code,
             "backup": cmd_backup}[args.cmd](args)
 

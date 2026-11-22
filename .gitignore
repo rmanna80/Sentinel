@@ -16,3 +16,8 @@ web/node_modules/
 web/dist/
 packages/server/src/sentinel_server/static/
 recordings/
+
+# coverage output
+.coverage
+coverage.xml
+requirements-audit.txt

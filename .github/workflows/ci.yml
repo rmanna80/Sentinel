@@ -16,8 +16,18 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: uv python install 3.12
       - run: uv sync --locked
-      - run: uv run ruff check packages
-      - run: uv run pytest --junitxml=report.xml
+      - run: uv run ruff check packages scripts
+      # Type-checked packages. agent and server still have open mypy errors; add them here once they are clean.
+      - run: uv run mypy packages/core/src packages/detect/src
+      - run: uv run pytest --junitxml=report.xml --cov=packages --cov-report=term-missing:skip-covered --cov-report=xml
+      - name: Coverage summary
+        if: always() && hashFiles('coverage.xml') != ''
+        shell: bash
+        run: |
+          echo '### Python coverage' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          uv run coverage report --skip-covered --sort=cover | tail -n 40 >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
       - name: Report failures as annotations
         if: failure()
         run: uv run python scripts/ci_annotate.py report.xml
@@ -37,3 +47,23 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+
+  audit:
+    # Known-vulnerability check on what Sentinel ships. Fails the build so a vulnerable pin is never merged quietly.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Python dependencies (pip-audit)
+        run: |
+          uv export --locked --no-hashes --no-emit-workspace --no-dev -o requirements-audit.txt
+          uvx pip-audit -r requirements-audit.txt --no-deps --disable-pip
+      - name: Dashboard runtime dependencies (npm audit)
+        working-directory: web
+        run: npm audit --omit=dev
+      - name: Dashboard build tooling, high severity and above
+        working-directory: web
+        run: npm audit --audit-level=high
