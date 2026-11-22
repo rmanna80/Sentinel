@@ -48,7 +48,14 @@ Restore: stop the server, replace `sentinel.db` in the data folder with the back
 - Forgot the password: `uv run sentinel-server reset-password <username>` (local machine only; signs out every session).
 - Forgot the username: `uv run sentinel-server list-users`.
 - Change the username: `uv run sentinel-server rename-user <old> <new>` (keeps the password and all data; earlier audit entries keep the old name).
-- Check the audit chain: `uv run sentinel-server verify-audit`.
+- Check the audit log: `uv run sentinel-server verify-audit` (hash chain and signatures). Note the signing key
+  fingerprint and latest sequence number it prints the first time you run it.
+- Hand the audit log to someone else: `uv run sentinel-server export-audit --out audit.json`, then anyone can run
+  `sentinel-server verify-audit-export audit.json --key-id <fingerprint>` with no database and no server. The
+  verifier is one file (`sentinel_server/audit_verify.py`) that needs only the `cryptography` package.
+- "Signatures were made with a signing key that is no longer in the credential store": the key was deleted or
+  the data moved to another account. A new key is created automatically; earlier signatures can then only be
+  checked from an export made while the old key was present.
 - Agent rejected (401): enroll again from Devices > Enroll a device.
 - Start fresh: stop the server and delete the data folder.
 

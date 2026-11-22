@@ -310,9 +310,14 @@ class AuditVerify(BaseModel):
     entries: int
     latest_seq: int = 0
     latest_hash: str = ""
-    note: str = ("Detects edits to recorded entries and entries removed from the middle. It cannot detect someone "
-                 "with write access to the database rebuilding the chain or removing the newest entries; note the "
-                 "latest sequence number and hash to compare later.")
+    signature_state: str = Field("ok", description="ok | unsigned_tail | no_signatures | invalid | other_key")
+    signature_detail: str = ""
+    signed_through: int = 0
+    signing_key_id: str = ""
+    note: str = ("Detects edits to recorded entries and entries removed from the middle. Signatures made with a key "
+                 "kept outside the database also detect a chain rebuilt by someone who can write the database "
+                 "file. Neither can show that the newest entries were removed together with their signatures; "
+                 "note the latest sequence number and the signing key fingerprint to compare later.")
 
 
 ScanDiff.model_rebuild()

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -42,7 +43,21 @@ def verify_audit(auth: AuthContext = Depends(current_auth), db: Session = Depend
     intact, bad = audit.verify_chain(db)
     n = db.execute(select(func.count(AuditEntry.id))).scalar_one()
     seq, digest = audit.head(db)
-    return AuditVerify(intact=intact, first_bad_id=bad, entries=n, latest_seq=seq, latest_hash=digest)
+    signed = audit.verify_signatures(db)
+    return AuditVerify(intact=intact, first_bad_id=bad, entries=n, latest_seq=seq, latest_hash=digest,
+                       signature_state=signed.state, signature_detail=signed.detail,
+                       signed_through=signed.signed_through, signing_key_id=signed.key_id)
+
+
+@router.get("/audit/export")
+def export_audit(auth: AuthContext = Depends(current_auth), db: Session = Depends(get_db)) -> Response:
+    """The whole audit log as one signed file that can be verified without this server."""
+    bundle = audit.export_bundle(db)
+    audit.record(db, auth.actor, "audit.exported", "audit", None, {"entries": len(bundle["entries"])})
+    db.commit()
+    name = f"sentinel-audit-{bundle['exported_at'][:10]}.json"
+    return Response(json.dumps(bundle, indent=1), media_type="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
 
 @router.get("/settings")

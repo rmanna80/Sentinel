@@ -598,6 +598,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/audit/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Audit
+         * @description The whole audit log as one signed file that can be verified without this server.
+         */
+        get: operations["export_audit_api_audit_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -2204,8 +2224,29 @@ export interface components {
              */
             latest_hash: string;
             /**
+             * Signature State
+             * @description ok | unsigned_tail | no_signatures | invalid | other_key
+             * @default ok
+             */
+            signature_state: string;
+            /**
+             * Signature Detail
+             * @default
+             */
+            signature_detail: string;
+            /**
+             * Signed Through
+             * @default 0
+             */
+            signed_through: number;
+            /**
+             * Signing Key Id
+             * @default
+             */
+            signing_key_id: string;
+            /**
              * Note
-             * @default Detects edits to recorded entries and entries removed from the middle. It cannot detect someone with write access to the database rebuilding the chain or removing the newest entries; note the latest sequence number and hash to compare later.
+             * @default Detects edits to recorded entries and entries removed from the middle. Signatures made with a key kept outside the database also detect a chain rebuilt by someone who can write the database file. Neither can show that the newest entries were removed together with their signatures; note the latest sequence number and the signing key fingerprint to compare later.
              */
             note: string;
         };
@@ -6417,6 +6458,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditVerify"];
+                };
+            };
+        };
+    };
+    export_audit_api_audit_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };

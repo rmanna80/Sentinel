@@ -197,9 +197,57 @@ def cmd_verify_audit(args: argparse.Namespace) -> int:
     with session_scope() as db:
         intact, bad = audit.verify_chain(db)
         seq, digest = audit.head(db)
+        signed = audit.verify_signatures(db)
     print("Audit chain intact." if intact else f"Audit chain broken at entry {bad}.")
+    print(f"Signatures: {signed.detail}")
     print(f"Latest entry: #{seq}  {digest}  (note this down to detect later truncation)")
-    return 0 if intact else 1
+    print(f"Signing key fingerprint: {signed.key_id}  (note this down too; it should never change)")
+    return 0 if intact and signed.ok else 1
+
+
+def cmd_export_audit(args: argparse.Namespace) -> int:
+    """Write the audit log, its signatures and the public key to one file for verification elsewhere."""
+    import json
+
+    from . import audit
+    from .db import init_engine, session_scope
+
+    init_engine(_settings(args).db_url)
+    with session_scope() as db:
+        bundle = audit.export_bundle(db)
+    with open(args.out, "w", encoding="utf-8") as fh:
+        json.dump(bundle, fh, indent=1)
+    print(f"Wrote {len(bundle['entries'])} entries and {len(bundle['signatures'])} signatures to {args.out}")
+    print(f"Signing key fingerprint: {bundle['key_id']}")
+    print("Check it anywhere with: sentinel-server verify-audit-export <file> --key-id <fingerprint>")
+    return 0
+
+
+def cmd_verify_audit_export(args: argparse.Namespace) -> int:
+    """Verify an exported audit log. Needs no database and no running server."""
+    import json
+
+    from .audit_verify import verify_bundle
+
+    try:
+        with open(args.file, encoding="utf-8") as fh:
+            bundle = json.load(fh)
+    except (OSError, ValueError) as exc:
+        print(f"Could not read {args.file}: {exc}", file=sys.stderr)
+        return 2
+    verdict = verify_bundle(bundle, args.key_id)
+    if verdict.ok:
+        print(f"Verified: {verdict.entries} entries, unchanged and in order, signed through #{verdict.signed_through}.")
+    else:
+        print("NOT verified:")
+        for problem in verdict.problems:
+            print(f"  - {problem}")
+    print(f"Latest entry: #{verdict.latest_seq}  {verdict.latest_hash}")
+    print(f"Signed with key: {verdict.key_id or '(unknown)'}")
+    if verdict.ok and not args.key_id:
+        print("No --key-id was given, so this shows the file is internally consistent, not who signed it. "
+              "Compare the key above with the fingerprint you noted from `sentinel-server verify-audit`.")
+    return 0 if verdict.ok else 1
 
 
 def cmd_enrollment_code(args: argparse.Namespace) -> int:
@@ -266,7 +314,12 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--only", help="run one group (facts, citations, scope, injection, explain) or name prefix")
     a.add_argument("--limit", type=int, help="ask only the first N questions")
     a.add_argument("--json", metavar="FILE", help="write every question, answer and verdict as JSON")
-    sub.add_parser("verify-audit", help="check the audit log hash chain")
+    sub.add_parser("verify-audit", help="check the audit log hash chain and its signatures")
+    x = sub.add_parser("export-audit", help="write the signed audit log to a file that verifies offline")
+    x.add_argument("--out", required=True)
+    v = sub.add_parser("verify-audit-export", help="verify an exported audit log (no database needed)")
+    v.add_argument("file")
+    v.add_argument("--key-id", help="the signing key fingerprint you expect")
     e = sub.add_parser("create-enrollment-code", help="print a one-time agent enrollment code")
     e.add_argument("--port", type=int)
     e.add_argument("--mode", choices=[m.value for m in Mode if m is not Mode.TEST])
@@ -276,6 +329,7 @@ def main(argv: list[str] | None = None) -> int:
     return {"serve": cmd_serve, "migrate": cmd_migrate, "reset-password": cmd_reset_password,
             "rename-user": cmd_rename_user, "list-users": cmd_list_users,
             "eval-assistant": cmd_eval_assistant,
+            "export-audit": cmd_export_audit, "verify-audit-export": cmd_verify_audit_export,
             "verify-audit": cmd_verify_audit, "create-enrollment-code": cmd_enrollment_code,
             "backup": cmd_backup}[args.cmd](args)
 

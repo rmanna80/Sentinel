@@ -13,8 +13,10 @@ from sentinel_agent.runner import ScanRunner
 from sentinel_agent.testing import FixtureContext, windows_host
 from sentinel_agent.transport import ServerClient
 from sentinel_core.models import DataMode, HostInfo, ScanStatus
+from sentinel_server import audit_signing
 from sentinel_server.config import Mode, Settings, get_settings
 from sentinel_server.security import rate_limiter
+from sentinel_server.services import secrets
 
 PASSWORD = "correct-horse-battery-9"
 
@@ -26,9 +28,12 @@ def settings(tmp_path, monkeypatch) -> Settings:
     monkeypatch.setenv("SENTINEL_WEB_DIST", str(tmp_path / "no-web"))
     get_settings.cache_clear()
     rate_limiter.reset()
+    audit_signing.reset_cache()  # each test has its own data folder, and so its own signing key
+    monkeypatch.setattr(secrets, "backend_name", lambda: "file")  # never touch a real credential store
     s = get_settings()
     yield s
     get_settings.cache_clear()
+    audit_signing.reset_cache()
 
 
 @pytest.fixture

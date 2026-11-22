@@ -285,6 +285,21 @@ class AuditEntry(Base):
     hash: Mapped[str] = mapped_column(String(64))
 
 
+class AuditSignature(Base):
+    """An Ed25519 signature over the audit chain's head at ``seq``, made with a key kept outside the database.
+
+    Entries are chained, so one signature covers every entry up to and including ``seq``.
+    """
+
+    __tablename__ = "audit_signatures"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    seq: Mapped[int] = mapped_column(Integer, unique=True)
+    entry_hash: Mapped[str] = mapped_column(String(64))
+    key_id: Mapped[str] = mapped_column(String(32))
+    signature: Mapped[str] = mapped_column(String(128))
+    signed_at: Mapped[datetime] = mapped_column(UTCDateTime, default=now)
+
+
 class AppSetting(Base):
     __tablename__ = "app_settings"
     key: Mapped[str] = mapped_column(String(128), primary_key=True)

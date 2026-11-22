@@ -21,7 +21,7 @@ A local-first security assistant for your own machines. Sentinel runs read-only 
 | Advisories | A threat-intelligence feed from Hacker News, matched to your inventory and open findings; informational only, it never changes a check ([docs/field-data.md](docs/field-data.md)) |
 | Field Data | Upload passive Wi-Fi surveys from your own adapter; flags evil-twin APs imitating your SSID and your own open/WEP networks ([docs/field-data.md](docs/field-data.md)) |
 | Reports | PDF, CSV and JSON with executive summary, technical findings, evidence, remediation and limitations |
-| Operations | Scheduled scans, notifications with quiet hours and optional email digests, tamper-evident audit log, backups |
+| Operations | Scheduled scans, notifications with quiet hours and optional email digests, signed, tamper-evident audit log that can be exported and verified offline, backups |
 
 ## Install (Windows)
 
