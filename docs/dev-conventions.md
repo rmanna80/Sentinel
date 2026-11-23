@@ -35,3 +35,11 @@ Read this before adding code. The foundation (shared contract, agent runner, ser
 - Run tests with `.venv/bin/python -m pytest <path> -q` from the repo root (avoid `uv run` while other work may be syncing). Server tests use the fixtures in `packages/server/tests/conftest.py` (`browser`, `make_agent`, `settings`, `production`); do not edit that file, add local fixtures in your own test module instead.
 - Lint: `.venv/bin/ruff check <paths>`. Line length 125.
 - No new Python dependencies. Available: fastapi, sqlalchemy 2, pydantic 2, httpx, defusedxml, reportlab, argon2-cffi, keyring, psutil, respx (tests).
+
+## Database migrations
+
+- A migration that has been pushed is never edited. Add a new revision instead (`0004_...`), even for a one-line change.
+  Revision `0001` was edited in place twice; databases created before those edits were already stamped `0001`, so they
+  never received the new tables and three pages failed with "no such table". Revision `0003` exists only to repair that.
+- `packages/server/tests/test_migrations.py` checks that the migrations produce exactly the tables, columns and indexes
+  the models describe. Run it after any model change.
